@@ -9,7 +9,7 @@
         .container { max-width: 100%; margin: 0 auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         h1 { color: #0d3880; font-size: 18px; border-bottom: 2px solid #0d3880; padding-bottom: 6px; text-align: center; }
         h2 { color: #0d3880; font-size: 14px; margin-top: 20px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
-        .group { background: #f7f8fa; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 5px; }
+        .group { background: #f7f8fa; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 5px; position: relative; }
         label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 4px; color: #444; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background: #fff; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -43,6 +43,38 @@
         
         .btn-usun-lokal-top { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 0; width: auto; }
         .btn-usun-lokal-top:hover { background: #b02a37; }
+
+        /* Pływająca listwa skrótów urządzeń nad polem nieprawidłowości */
+        .skroty-popup {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: #1e293b;
+            border: 2px solid #0d3880;
+            padding: 6px;
+            border-radius: 6px;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .skroty-popup button {
+            background: #0d3880;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 0;
+            flex: 1;
+            min-width: 55px;
+            text-align: center;
+        }
+        .skroty-popup button:hover { background: #1d4ed8; }
 
         .podpis-podsumowanie-item { border-bottom: 1px dashed #ccc; padding: 8px 0; margin-bottom: 8px; }
         .podpis-podsumowanie-item img { max-width: 200px; height: 60px; border: 1px solid #999; background: #fff; display: block; margin-top: 4px; }
@@ -154,20 +186,22 @@
         </div>
 
         <h2>Stwierdzone Nieprawidłowości (1-14)</h2>
-        <div class="group"><label>1. Wymiana przewodu łączącego (gaz) - Mieszkania nr:</label><input type="text" id="u1" placeholder="np. 4, 12" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="zapiszStan()"></div>
-        <div class="group"><label>2. Nieszczelne podłączenie rury spaliny - Mieszkania nr:</label><input type="text" id="u2" placeholder="np. 2, 5" oninput="zapiszStan()"></div>
-        <div class="group"><label>3. Demontaż siatek / żaluzji z kratek - Mieszkania nr:</label><input type="text" id="u3" placeholder="np. 1, 8" oninput="zapiszStan()"></div>
-        <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm - Lokale nr:</label><input type="text" id="u4" placeholder="np. 3, 9" oninput="zapiszStan()"></div>
-        <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach - Mieszkania:</label><input type="text" id="u5" placeholder="np. 7" oninput="zapiszStan()"></div>
-        <div class="group"><label>6. Niedozwolony wyciąg mechaniczny - Mieszkania:</label><input type="text" id="u6" placeholder="np. 10" oninput="zapiszStan()"></div>
-        <div class="group"><label>7. Brak drożności / zasłonięcie kratki - Lokale:</label><input type="text" id="u7" placeholder="np. 11" oninput="zapiszStan()"></div>
-        <div class="group"><label>8. Zabudowana rura łącząca piec/kocioł - Mieszkania:</label><input type="text" id="u8" placeholder="np. 14" oninput="zapiszStan()"></div>
-        <div class="group"><label>9. Nieprawidłowa instalacja z rur PCV - Lokale:</label><input type="text" id="u9" placeholder="np. 15" oninput="zapiszStan()"></div>
-        <div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej - Lokale:</label><input type="text" id="u10" placeholder="np. 16" oninput="zapiszStan()"></div>
-        <div class="group"><label>11. Całkowity brak wentylacji - Lokale:</label><input type="text" id="u11" placeholder="np. 18" oninput="zapiszStan()"></div>
-        <div class="group"><label>12. Niedozwolona zabudowa meblowa gazu - Mieszkania:</label><input type="text" id="u12" placeholder="np. 19" oninput="zapiszStan()"></div>
-        <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13" placeholder="np. 20" oninput="zapiszStan()"></div>
-        <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14" placeholder="np. 22" oninput="zapiszStan()"></div>
+        
+        <!-- Pola nieprawidłowości z wbudowanym popupem skrótów -->
+        <div class="group" id="g_u1"><label>1. Wymiana przewodu łączącego (gaz):</label><input type="text" id="u1" placeholder="np. 4 PGW / 12 KCOgaz" onclick="pokazSkroty(1)" oninput="zapiszStan()"><div id="popup_u1" class="skroty-popup"></div></div>
+        <div class="group" id="g_u2"><label>2. Nieszczelne podłączenie rury spaliny:</label><input type="text" id="u2" placeholder="np. 2 PGW / 5 K" onclick="pokazSkroty(2)" oninput="zapiszStan()"><div id="popup_u2" class="skroty-popup"></div></div>
+        <div class="group" id="g_u3"><label>3. Demontaż siatek / żaluzji z kratek:</label><input type="text" id="u3" placeholder="np. 1 / 8" onclick="pokazSkroty(3)" oninput="zapiszStan()"><div id="popup_u3" class="skroty-popup"></div></div>
+        <div class="group" id="g_u4"><label>4. Wymiana kratek na nowe 14x21 cm:</label><input type="text" id="u4" placeholder="np. 3 / 9" onclick="pokazSkroty(4)" oninput="zapiszStan()"><div id="popup_u4" class="skroty-popup"></div></div>
+        <div class="group" id="g_u5"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach:</label><input type="text" id="u5" placeholder="np. 7" onclick="pokazSkroty(5)" oninput="zapiszStan()"><div id="popup_u5" class="skroty-popup"></div></div>
+        <div class="group" id="g_u6"><label>6. Niedozwolony wyciąg mechaniczny:</label><input type="text" id="u6" placeholder="np. 10" onclick="pokazSkroty(6)" oninput="zapiszStan()"><div id="popup_u6" class="skroty-popup"></div></div>
+        <div class="group" id="g_u7"><label>7. Brak drożności / zasłonięcie kratki:</label><input type="text" id="u7" placeholder="np. 11" onclick="pokazSkroty(7)" oninput="zapiszStan()"><div id="popup_u7" class="skroty-popup"></div></div>
+        <div class="group" id="g_u8"><label>8. Zabudowana rura łącząca piec/kocioł:</label><input type="text" id="u8" placeholder="np. 14" onclick="pokazSkroty(8)" oninput="zapiszStan()"><div id="popup_u8" class="skroty-popup"></div></div>
+        <div class="group" id="g_u9"><label>9. Nieprawidłowa instalacja z rur PCV:</label><input type="text" id="u9" placeholder="np. 15" onclick="pokazSkroty(9)" oninput="zapiszStan()"><div id="popup_u9" class="skroty-popup"></div></div>
+        <div class="group" id="g_u10"><label>10. Wentylacja jako otwór w ścianie zewnętrznej:</label><input type="text" id="u10" placeholder="np. 16" onclick="pokazSkroty(10)" oninput="zapiszStan()"><div id="popup_u10" class="skroty-popup"></div></div>
+        <div class="group" id="g_u11"><label>11. Całkowity brak wentylacji:</label><input type="text" id="u11" placeholder="np. 18" onclick="pokazSkroty(11)" oninput="zapiszStan()"><div id="popup_u11" class="skroty-popup"></div></div>
+        <div class="group" id="g_u12"><label>12. Niedozwolona zabudowa meblowa gazu:</label><input type="text" id="u12" placeholder="np. 19" onclick="pokazSkroty(12)" oninput="zapiszStan()"><div id="popup_u12" class="skroty-popup"></div></div>
+        <div class="group" id="g_u13"><label>13. Palny osad smolny w przewodzie dymowym:</label><input type="text" id="u13" placeholder="np. 20 KCO" onclick="pokazSkroty(13)" oninput="zapiszStan()"><div id="popup_u13" class="skroty-popup"></div></div>
+        <div class="group" id="g_u14"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego:</label><input type="text" id="u14" placeholder="np. 22" onclick="pokazSkroty(14)" oninput="zapiszStan()"><div id="popup_u14" class="skroty-popup"></div></div>
 
         <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
         <button type="button" onclick="rozpocznijNowyProtokol()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
@@ -197,8 +231,18 @@
     let aktualneIdHistorii = null;
     const KLUCZ_ROBOCZY = 'protokol_ceeb_aktualnie_pisany';
 
+    // Mapa skrótów na pełne nazwy urządzeń
+    const slownikUrządzeń = {
+        "PGW": "podgrzewacz gazowy wody",
+        "KCOgaz": "kocioł CO gaz",
+        "PK": "piec kaflowy",
+        "KCO": "kocioł CO na opał stały",
+        "K": "kominek"
+    };
+
     window.onload = function() {
         odswiezListeHistorii();
+        inicjalizujPopupySkrotów();
         
         let zapisRoboczy = localStorage.getItem(KLUCZ_ROBOCZY);
         let wczytano = false;
@@ -229,7 +273,76 @@
 
         przeliczSumePrzewodow();
         inicjalizujGestPrzelaczania();
+
+        // Ukrywanie popupów po kliknięciu gdziekolwiek indziej
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.group')) {
+                zamknijWszystkiePopupy();
+            }
+        });
     };
+
+    function inicjalizujPopupySkrotów() {
+        let skroty = [
+            {skrót: "PGW", nazwa: "Podgrzewacz gazowy wody"},
+            {skrót: "KCOgaz", nazwa: "Kocioł CO gaz"},
+            {skrót: "PK", nazwa: "Piec kaflowy"},
+            {skrót: "KCO", nazwa: "Kocioł CO na opał stały"},
+            {skrót: "K", nazwa: "Kominek"}
+        ];
+
+        for (let i = 1; i <= 14; i++) {
+            let popup = document.getElementById('popup_u' + i);
+            if(popup) {
+                let html = '';
+                skroty.forEach(s => {
+                    html += `<button type="button" onclick="wstawSkrót(${i}, '${s.skrót}')">${s.skrót}</button>`;
+                });
+                popup.innerHTML = html;
+            }
+        }
+    }
+
+    function zamknijWszystkiePopupy() {
+        for (let i = 1; i <= 14; i++) {
+            let p = document.getElementById('popup_u' + i);
+            if(p) p.style.display = 'none';
+        }
+    }
+
+    function pokazSkroty(numer) {
+        zamknijWszystkiePopupy();
+        let p = document.getElementById('popup_u' + numer);
+        if(p) p.style.display = 'flex';
+    }
+
+    function wstawSkrót(numer, skrot) {
+        let input = document.getElementById('u' + numer);
+        if(!input) return;
+        let obecnyTekst = input.value.trim();
+        let wpis = prompt("Wpisz numer mieszkania dla urządzenia [" + skrot + "]:");
+        if(wpis !== null && wpis.trim() !== "") {
+            let nowyWpis = wpis.trim() + " " + skrot;
+            if(obecnyTekst !== "") {
+                input.value = obecnyTekst + " / " + nowyWpis;
+            } else {
+                input.value = nowyWpis;
+            }
+            zapiszStan();
+        }
+        zamknijWszystkiePopupy();
+    }
+
+    // Funkcja zamieniająca skróty na pełne nazwy podczas generowania tekstu
+    function rozwinięteSkrótyWTekście(tekst) {
+        if(!tekst) return '';
+        let wynik = tekst;
+        for (let skrot in slownikUrządzeń) {
+            let regex = new RegExp('\\b' + skrot + '\\b', 'g');
+            wynik = wynik.replace(regex, slownikUrządzeń[skrot]);
+        }
+        return wynik;
+    }
 
     function pobierzKluczeHistorii() {
         let lista = [];
@@ -383,9 +496,7 @@
                     </select>
                 </div>
                 <label style="font-size:11px;">Funkcja układu grzewczego:</label>
-                <select id="l_funkcja_${id}" onchange="zapiszStan()" style="font-size: 13px;">
-                    <!-- Opcje dynamicznie zmieniane w JS -->
-                </select>
+                <select id="l_funkcja_${id}" onchange="zapiszStan()" style="font-size: 13px;"></select>
             </div>
 
             <label style="font-size: 12px; margin-bottom: 4px;">Ilość podłączeń do kominów w lokalu:</label>
@@ -404,9 +515,7 @@
         document.getElementById('kontener_lokali').appendChild(divLokal);
 
         if (daneLokalu && daneLokalu.urz) document.getElementById('l_urz_' + id).value = daneLokalu.urz;
-        
         zmienTypUrzadzenia(id, !daneLokalu);
-
         if (daneLokalu && daneLokalu.wentylator) document.getElementById('l_wentylator_' + id).value = daneLokalu.wentylator;
         if (daneLokalu && daneLokalu.funkcja) document.getElementById('l_funkcja_' + id).value = daneLokalu.funkcja;
 
@@ -425,12 +534,10 @@
             let maOpcje = (urz === "Kocioł CO na opał stały" || urz === "Kominek" || urz === "Trzon kuchenny" || urz === "Kocioł gazowy" || urz === "Pompa ciepła" || urz === "Ogrzewanie elektryczne");
             opcjeKotla.style.display = maOpcje ? 'block' : 'none';
             
-            // Wentylator tylko dla kotła na opał stały
             if(kontenerWentylator) {
                 kontenerWentylator.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
             }
 
-            // Ustawienie odpowiednich opcji do wyboru funkcji w zależności od urządzenia
             if(funkcjaSelect) {
                 let staraWartosc = funkcjaSelect.value;
                 funkcjaSelect.innerHTML = '';
@@ -777,7 +884,8 @@
         calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
         let items = [];
         for (let i = 1; i <= 14; i++) {
-            let val = document.getElementById('u' + i).value.trim();
+            let surowyTekst = document.getElementById('u' + i).value.trim();
+            let val = rozwinięteSkrótyWTekście(surowyTekst);
             if (val) {
                 let opisy = [
                     "", "1. Wymiana przewodu łączącego z certyfikatem CE. Mieszkania nr: ",
