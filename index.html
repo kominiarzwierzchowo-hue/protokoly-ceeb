@@ -866,6 +866,12 @@
             }
         }
 
+        // Zapewnienie, że data się uzupełni, jeśli była pusta
+        let poleDaty = document.getElementById('data_czas');
+        if (!poleDaty.value.trim()) {
+            poleDaty.value = ustawAktualnaDateCzas();
+        }
+
         zmienDostepKontroli();
         zmienPrzewodyDymowe();
 
@@ -944,7 +950,7 @@
             document.getElementById('p_raz').value = '0';
             document.getElementById('wynik_sekcja').style.display = 'none';
 
-            // Automatyczne wstawienie bieżącej daty i godziny przy nowym protokole
+            // Zawsze ustawiaj świeżą datę i godzinę przy nowym protokole
             document.getElementById('data_czas').value = ustawAktualnaDateCzas();
 
             dodajLokal();
