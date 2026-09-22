@@ -210,9 +210,11 @@
         if (zapisRoboczy) {
             try {
                 let stan = JSON.parse(zapisRoboczy);
-                aktualneIdHistorii = stan.id_historii || ('protokolec_' + Date.now());
-                wczytajStanObiekt(stan);
-                wczytano = true;
+                if (stan && stan.ogólne) {
+                    aktualneIdHistorii = stan.id_historii || ('protokolec_' + Date.now());
+                    wczytajStanObiekt(stan);
+                    wczytano = true;
+                }
             } catch (e) {}
         }
 
@@ -221,6 +223,13 @@
             document.getElementById('data_czas').value = ustawAktualnaDateCzas();
             dodajLokal();
             zapiszStan();
+        } else {
+            // Zabezpieczenie: jeśli w odczytanym stanie data była pusta, wpisz aktualną
+            let poleDaty = document.getElementById('data_czas');
+            if (!poleDaty.value.trim()) {
+                poleDaty.value = ustawAktualnaDateCzas();
+                zapiszStan();
+            }
         }
 
         przeliczSumePrzewodow();
@@ -571,7 +580,6 @@
 
     function zapiszStan() {
         let stan = zbierzCalowityStan();
-        // Zapisywane stale w tle do pamięci roboczej oraz archiwum
         localStorage.setItem(KLUCZ_ROBOCZY, JSON.stringify(stan));
         if (aktualneIdHistorii) {
             localStorage.setItem(aktualneIdHistorii, JSON.stringify(stan));
@@ -639,6 +647,8 @@
     function rozpocznijNowyProtokol(pytaj = true) {
         if (!pytaj || confirm("Czy na pewno chcesz rozpocząć nowy protokół i wyczyścić formularz?")) {
             aktualneIdHistorii = 'protokolec_' + Date.now();
+            
+            localStorage.removeItem(KLUCZ_ROBOCZY);
             
             document.getElementById('kontener_lokali').innerHTML = '';
             licznikLokali = 0;
