@@ -31,8 +31,8 @@
         .btn-success { background: #28a745; margin-top: 8px; }
         .btn-warning { background: #6c757d; margin-top: 10px; }
         
-        /* Pasek ładownia pliku edycji */
-        .edit-load-box { background: #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; }
+        /* Panel edycji i historii */
+        .edit-load-box { background: #e2e8f0; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #cbd5e1; }
         
         /* Zakładki na górze */
         .tabs-nav { display: flex; gap: 5px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 6px; }
@@ -44,16 +44,25 @@
         canvas { border: 2px dashed #0d3880; background: #fff; width: 100%; height: 150px; border-radius: 4px; touch-action: none; cursor: crosshair; }
         .lokal-card { background: #fff; border: 2px solid #0d3880; padding: 12px; margin-bottom: 12px; border-radius: 6px; }
         .locked-canvas { background: #e2e8f0; border-color: #64748b; cursor: not-allowed; }
+        
+        .podpis-podsumowanie-item { border-bottom: 1px dashed #ccc; padding: 8px 0; margin-bottom: 8px; }
+        .podpis-podsumowanie-item img { max-width: 200px; height: 60px; border: 1px solid #999; background: #fff; display: block; margin-top: 4px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Generator CEEB + Pełna Edycja</h1>
+    <h1>Generator CEEB + Lista Edycji</h1>
 
-    <!-- Panel wczytywania zapisanego pliku do edycji -->
+    <!-- Panel wyboru zapisanego protokołu do edycji -->
     <div class="edit-load-box">
-        <label style="font-size: 12px; margin-bottom: 4px; color: #1e293b;">Chcesz edytować wcześniej zapisany protokół?</label>
-        <input type="file" id="input_wczytaj_json" accept=".json" onchange="wczytajPlikJSON(event)" style="background: #fff; padding: 6px; font-size: 12px;">
+        <label style="font-size: 13px; margin-bottom: 6px; color: #0d3880; font-weight: bold;">📁 Edytuj zapisany protokół z historii:</label>
+        <select id="lista_historii_select" onchange="wczytajWybranyZHistorii()" style="margin-bottom: 8px; background: #fff;">
+            <option value="">-- Wybierz protokół z listy do edycji --</option>
+        </select>
+        <div style="display: flex; gap: 6px;">
+            <input type="file" id="input_wczytaj_json" accept=".json" onchange="wczytajPlikJSON(event)" style="background: #fff; padding: 6px; font-size: 11px; flex: 1;">
+            <button type="button" onclick="usunAktualnyZHistorii()" class="btn-red" style="margin-top: 0; padding: 6px 12px; font-size: 12px; width: auto;">Usuń ten z historii</button>
+        </div>
     </div>
 
     <!-- Pasek zakładek głównych -->
@@ -74,13 +83,13 @@
             <input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00" oninput="zapiszStan()">
         </div>
         <div class="group">
-            <label>Ilość przewodów kominowych (Cały budynek - Dymowe, Spalinowe i Wentylacyjne sumują się z lokali):</label>
+            <label>Ilość przewodów kominowych (Cały budynek - Sumy z lokali):</label>
             <div class="grid-5">
-                <div><label>Dym (Suma)</label><input type="text" id="p_dym" value="0" readonly title="Sumowane automatycznie z lokali"></div>
-                <div><label>Spal (Suma)</label><input type="text" id="p_spa" value="0" readonly title="Sumowane automatycznie z lokali"></div>
-                <div><label>Went (Suma)</label><input type="text" id="p_wen" value="0" readonly title="Sumowane automatycznie z lokali"></div>
-                <div><label>Awar</label><input type="text" id="p_awa" value="0" class="manual" oninput="zapiszStan()" placeholder="Wpisz"></div>
-                <div><label>Razem</label><input type="text" id="p_raz" value="0" class="manual" oninput="zapiszStan()" placeholder="Wpisz"></div>
+                <div><label>Dym</label><input type="text" id="p_dym" value="0" readonly></div>
+                <div><label>Spal</label><input type="text" id="p_spa" value="0" readonly></div>
+                <div><label>Went</label><input type="text" id="p_wen" value="0" readonly></div>
+                <div><label>Awar</label><input type="text" id="p_awa" value="0" class="manual" oninput="zapiszStan()"></div>
+                <div><label>Razem</label><input type="text" id="p_raz" value="0" class="manual" oninput="zapiszStan()"></div>
             </div>
         </div>
         <div class="group grid-2">
@@ -144,7 +153,7 @@
         <h2>Własne uwagi i spostrzeżenia z kontroli</h2>
         <div class="group">
             <label>Inne / dodatkowe uwagi (niestandardowe):</label>
-            <textarea id="uwagi_własne" rows="3" placeholder="Wpisz uwagi, których nie ma na liście standardowej..." oninput="zapiszStan()"></textarea>
+            <textarea id="uwagi_własne" rows="3" placeholder="Wpisz uwagi..." oninput="zapiszStan()"></textarea>
         </div>
 
         <h2>Stwierdzone Nieprawidłowości (1-14)</h2>
@@ -167,10 +176,11 @@
         <button type="button" onclick="wyczyscCaloscPamięci()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
 
         <div id="wynik_sekcja" style="display:none;">
-            <h3>Pełny dokument kontroli i edycja:</h3>
+            <h3>Podgląd całego dokumentu (z podpisami):</h3>
             <div class="output-box">
                 <div id="out_calosc" class="output-text"></div>
-                <button class="btn-copy" onclick="kopiujTekst('out_calosc')">Kopiuj cały tekst</button>
+                <div id="out_podpisy_zbiorczo" style="margin-top: 15px; border-top: 2px solid #0d3880; padding-top: 10px;"></div>
+                <button class="btn-copy" onclick="kopiujCaloscTekst()">Kopiuj cały tekst dokumentu</button>
                 <button class="btn-file" onclick="pobierzCaloscTXT()">Pobierz jako plik tekstowy TXT</button>
                 <button class="btn-json" onclick="pobierzPlikJSON()">💾 Pobierz pełny plik ZAPISU DO EDYCJI (.json)</button>
             </div>
@@ -180,7 +190,7 @@
     <!-- ZAKŁADKA 1: LOKALE, URZĄDZENIA I PODPISY -->
     <div id="tab_1" class="tab-content">
         <h2>Kontrola lokali, urządzenia i podpisy</h2>
-        <p style="font-size: 12px; color: #666;">Wszystko zapisuje się automatycznie. Podpisy po zatwierdzeniu są zabezpieczone, ale możesz je odblokować do edycji.</p>
+        <p style="font-size: 12px; color: #666;">Wszystko zapisuje się w historii automatycznie.</p>
         
         <div id="kontener_lokali"></div>
         <button type="button" onclick="dodajLokal(); zapiszStan();" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
@@ -191,18 +201,99 @@
     let licznikLokali = 0;
     let zatwierdzoneStan = {};
     let wczytujeStan = false;
+    let aktualneIdHistorii = null;
 
     window.onload = function() {
         wczytujeStan = true;
-        let wczytano = wczytajStan();
+        odswiezListeHistorii();
+        let ostatniId = localStorage.getItem('protokol_ceeb_ostatni_id');
+        let wczytano = false;
+        
+        if (ostatniId) {
+            wczytano = wczytajZHistoriiPoId(ostatniId);
+        }
+        
+        if (!wczytano) {
+            let klucze = pobierzKluczeHistorii();
+            if (klucze.length > 0) {
+                wczytano = wczytajZHistoriiPoId(klucze[0]);
+            }
+        }
+
         if (!wczytano) {
             ustawAktualnaDateCzas();
+            let nowyId = 'protokolec_' + Date.now();
+            aktualneIdHistorii = nowyId;
             dodajLokal();
+            zapiszStan();
         }
         wczytujeStan = false;
         przeliczSumePrzewodow();
         inicjalizujGestPrzelaczania();
     };
+
+    function pobierzKluczeHistorii() {
+        let lista = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i);
+            if (key && key.startsWith('protokolec_')) {
+                lista.push(key);
+            }
+        }
+        return lista.sort().reverse(); // Najnowsze na górze
+    }
+
+    function odswiezListeHistorii() {
+        let select = document.getElementById('lista_historii_select');
+        let klucze = pobierzKluczeHistorii();
+        select.innerHTML = '<option value="">-- Wybierz protokół z listy do edycji --</option>';
+
+        klucze.forEach(key => {
+            try {
+                let dane = JSON.parse(localStorage.getItem(key));
+                let adres = dane.ogólne.adres_budynku || 'Brak adresu';
+                let data = dane.ogólne.data_czas || key;
+                let opt = document.createElement('option');
+                opt.value = key;
+                opt.innerText = `${adres} (${data})`;
+                if (key === aktualneIdHistorii) {
+                    opt.selected = true;
+                }
+                select.appendChild(opt);
+            } catch (e) {}
+        });
+    }
+
+    function wczytajWybranyZHistorii() {
+        let select = document.getElementById('lista_historii_select');
+        let id = select.value;
+        if (!id) return;
+        wczytajZHistoriiPoId(id);
+    }
+
+    function wczytajZHistoriiPoId(id) {
+        let zapis = localStorage.getItem(id);
+        if (!zapis) return false;
+        try {
+            let stan = JSON.parse(zapis);
+            aktualneIdHistorii = id;
+            localStorage.setItem('protokol_ceeb_ostatni_id', id);
+            wczytajStanObiekt(stan);
+            odswiezListeHistorii();
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function usunAktualnyZHistorii() {
+        if (!aktualneIdHistorii) return;
+        if (confirm("Czy na pewno chcesz usunąć ten protokół z historii?")) {
+            localStorage.removeItem(aktualneIdHistorii);
+            localStorage.removeItem('protokol_ceeb_ostatni_id');
+            location.reload();
+        }
+    }
 
     function ustawAktualnaDateCzas() {
         let teraz = new Date();
@@ -234,10 +325,7 @@
     }
 
     function przeliczSumePrzewodow() {
-        let sumaWen = 0;
-        let sumaDym = 0;
-        let sumaSpa = 0;
-
+        let sumaWen = 0, sumaDym = 0, sumaSpa = 0;
         let karty = document.querySelectorAll('.lokal-card');
         karty.forEach(k => {
             let id = k.id.split('_')[2];
@@ -316,15 +404,9 @@
         `;
         document.getElementById('kontener_lokali').appendChild(divLokal);
 
-        if (daneLokalu && daneLokalu.urz) {
-            document.getElementById('l_urz_' + id).value = daneLokalu.urz;
-        }
-        if (daneLokalu && daneLokalu.wentylator) {
-            document.getElementById('l_wentylator_' + id).value = daneLokalu.wentylator;
-        }
-        if (daneLokalu && daneLokalu.funkcja) {
-            document.getElementById('l_funkcja_' + id).value = daneLokalu.funkcja;
-        }
+        if (daneLokalu && daneLokalu.urz) document.getElementById('l_urz_' + id).value = daneLokalu.urz;
+        if (daneLokalu && daneLokalu.wentylator) document.getElementById('l_wentylator_' + id).value = daneLokalu.wentylator;
+        if (daneLokalu && daneLokalu.funkcja) document.getElementById('l_funkcja_' + id).value = daneLokalu.funkcja;
 
         inicjalizujCanvas(id, daneLokalu ? daneLokalu.canvasData : null, daneLokalu ? daneLokalu.zatwierdzony : false);
         zmienTypUrzadzenia(id);
@@ -335,11 +417,7 @@
     function zmienTypUrzadzenia(id) {
         let urz = document.getElementById('l_urz_' + id).value;
         let opcjeKotla = document.getElementById('opcje_kotla_' + id);
-        if (urz === "Kocioł CO na opał stały") {
-            opcjeKotla.style.display = 'block';
-        } else {
-            opcjeKotla.style.display = 'none';
-        }
+        opcjeKotla.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
     }
 
     function usunLokal(id) {
@@ -356,9 +434,7 @@
             let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
             let osoba = document.getElementById('l_osoba_' + id).value || 'Brak osoby';
             let tytul = document.getElementById('tytul_lokal_' + id);
-            if(tytul) {
-                tytul.innerText = `Lokal nr ${nr} (${osoba})`;
-            }
+            if(tytul) tytul.innerText = `Lokal nr ${nr} (${osoba})`;
         });
     }
 
@@ -415,17 +491,6 @@
         zapiszStan();
     }
 
-    function zatwierdzonePodpisZapiszZdjecie(id) {
-        let nr = document.getElementById('l_nr_' + id).value || id;
-        let adres = document.getElementById('adres_budynku').value.trim() || 'Budynek';
-        let canvas = document.getElementById('canvas_' + id);
-        let link = document.createElement('a');
-        let bezpiecznyAdres = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_');
-        link.download = `Podpis_${bezpiecznyAdres}_Lokal_${nr}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    }
-
     function zatwierdzPodpis(id) {
         let btn = document.getElementById('btn_zatwierdz_' + id);
         let canvas = document.getElementById('canvas_' + id);
@@ -435,8 +500,6 @@
             canvas.classList.add('locked-canvas');
             btn.innerText = "Odblokuj podpis (Edytuj)";
             btn.style.background = "#d97706";
-            zatwierdzonePodpisZapiszZdjecie(id);
-            alert("Podpis został zatwierdzony i zablokowany! Obrazek podpisu dla tego lokalu został pobrany.");
         } else {
             zatwierdzoneStan[id] = false;
             canvas.classList.remove('locked-canvas');
@@ -446,7 +509,6 @@
         zapiszStan();
     }
 
-    // ZBIERANIE STANU DO OBIEKTU JSON
     function zbierzCalowityStan() {
         let stan = {
             ogólne: {
@@ -500,8 +562,13 @@
 
     function zapiszStan() {
         if (wczytujeStan) return;
+        if (!aktualneIdHistorii) {
+            aktualneIdHistorii = 'protokolec_' + Date.now();
+        }
         let stan = zbierzCalowityStan();
-        localStorage.setItem('protokol_ceeb_stan', JSON.stringify(stan));
+        localStorage.setItem(aktualneIdHistorii, JSON.stringify(stan));
+        localStorage.setItem('protokol_ceeb_ostatni_id', aktualneIdHistorii);
+        odswiezListeHistorii();
     }
 
     function wczytajStanObiekt(stan) {
@@ -520,9 +587,7 @@
         zatwierdzoneStan = {};
 
         if (stan.lokale && stan.lokale.length > 0) {
-            stan.lokale.forEach(l => {
-                dodajLokal(l);
-            });
+            stan.lokale.forEach(l => { dodajLokal(l); });
         } else {
             dodajLokal();
         }
@@ -530,19 +595,6 @@
         przeliczSumePrzewodow();
     }
 
-    function wczytajStan() {
-        let zapis = localStorage.getItem('protokol_ceeb_stan');
-        if (!zapis) return false;
-        try {
-            let stan = JSON.parse(zapis);
-            wczytajStanObiekt(stan);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-
-    // WCZYTYWANJE ZAPISANEGO PLIKU .JSON DO EDYCJI
     function wczytajPlikJSON(event) {
         let file = event.target.files[0];
         if (!file) return;
@@ -550,11 +602,12 @@
         reader.onload = function(e) {
             try {
                 let stan = JSON.parse(e.target.result);
+                aktualneIdHistorii = 'protokolec_' + Date.now();
                 wczytajStanObiekt(stan);
                 zapiszStan();
-                alert("Protokół wraz z podpisami został wczytany poprawnie! Możesz kontynuować edycję.");
+                alert("Protokół został pomyślnie zaimportowany i dodany do historii edycji!");
             } catch (err) {
-                alert("Błąd odczytu pliku. Upewnij się, że to poprawny plik zapisu protokołu.");
+                alert("Błąd odczytu pliku JSON.");
             }
         };
         reader.readAsText(file);
@@ -574,13 +627,22 @@
     }
 
     function wyczyscCaloscPamięci() {
-        if (confirm("Czy na pewno chcesz wyczyścić wszystkie dane i rozpocząć nowy protokół?")) {
-            localStorage.removeItem('protokol_ceeb_stan');
-            location.reload();
+        if (confirm("Czy na pewno chcesz utworzyć zupełnie nowy protokół? (Stary pozostaje zapisany w historii).")) {
+            aktualneIdHistorii = 'protokolec_' + Date.now();
+            document.getElementById('kontener_lokali').innerHTML = '';
+            licznikLokali = 0;
+            zatwierdzoneStan = {};
+            document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+                if(!el.readOnly && el.id !== 'lista_historii_select') el.value = '';
+            });
+            ustawAktualnaDateCzas();
+            dodajLokal();
+            zapiszStan();
         }
     }
 
     function generujWszystko() {
+        zapiszStan();
         let adres = document.getElementById('adres_budynku').value.trim() || 'Budynek_bez_adresu';
         let dc = document.getElementById('data_czas').value;
         let pd = document.getElementById('p_dym').value;
@@ -666,13 +728,33 @@
         }
 
         document.getElementById('out_calosc').innerText = calyTekst;
+
+        let kontenerPodpisow = document.getElementById('out_podpisy_zbiorczo');
+        kontenerPodpisow.innerHTML = `<h4 style="color: #0d3880; margin-bottom: 5px;">ZBIORCZE PODPISY LOKATORÓW:</h4>`;
+        
+        karty.forEach((karta) => {
+            let id = karta.id.split('_')[2];
+            let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
+            let osoba = document.getElementById('l_osoba_' + id).value || 'Brak lokatora';
+            let canvas = document.getElementById('canvas_' + id);
+            
+            let divP = document.createElement('div');
+            divP.className = 'podpis-podsumowanie-item';
+            divP.innerHTML = `<strong>Lokal nr ${nr} (${osoba}):</strong>`;
+            
+            let img = document.createElement('img');
+            img.src = canvas.toDataURL('image/png');
+            divP.appendChild(img);
+            kontenerPodpisow.appendChild(divP);
+        });
+
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
-    function kopiujTekst(id) {
-        let t = document.getElementById(id).innerText;
-        navigator.clipboard.writeText(t).then(() => alert("Skopiowano do schowka!"));
+    function kopiujCaloscTekst() {
+        let tekst = document.getElementById('out_calosc').innerText;
+        navigator.clipboard.writeText(tekst).then(() => alert("Skopiowano tekst dokumentu do schowka!"));
     }
 
     function pobierzCaloscTXT() {
