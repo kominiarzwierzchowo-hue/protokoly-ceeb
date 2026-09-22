@@ -21,6 +21,8 @@
         .output-box { margin-top: 10px; background: #eef3fc; border: 1px solid #b2c8f0; padding: 12px; border-radius: 5px; }
         .output-text { white-space: pre-wrap; font-size: 12px; line-height: 1.4; word-break: break-word; }
         .btn-copy { background: #28a745; margin-top: 8px; padding: 10px; font-size: 14px; }
+        .btn-file { background: #ffc107; color: #000; margin-top: 8px; padding: 10px; font-size: 14px; font-weight: bold; }
+        .btn-file:hover { background: #e0a800; }
     </style>
 </head>
 <body>
@@ -123,12 +125,14 @@
         <div class="output-box">
             <div id="out_uwagi" class="output-text"></div>
             <button class="btn-copy" onclick="kopiujTekst('out_uwagi')">Kopiuj "Inne uwagi"</button>
+            <button class="btn-file" onclick="pobierzPlikTXT('out_uwagi', 'Inne_Uwagi_CEEB.txt')">Pobierz jako plik TXT na PC</button>
         </div>
 
         <h3>2. Stwierdzone nieprawidłowości:</h3>
         <div class="output-box">
             <div id="out_nieprawidlowosci" class="output-text"></div>
             <button class="btn-copy" onclick="kopiujTekst('out_nieprawidlowosci')">Kopiuj "Nieprawidłowości"</button>
+            <button class="btn-file" onclick="pobierzPlikTXT('out_nieprawidlowosci', 'Nieprawidlowosci_CEEB.txt')">Pobierz jako plik TXT na PC</button>
         </div>
     </div>
 </div>
@@ -212,6 +216,15 @@
     function kopiujTekst(id) {
         let t = document.getElementById(id).innerText;
         navigator.clipboard.writeText(t).then(() => alert("Skopiowano do schowka!"));
+    }
+
+    function pobierzPlikTXT(id, nazwaPliku) {
+        let tekst = document.getElementById(id).innerText;
+        let blob = new Blob([tekst], { type: "text/plain;charset=utf-8" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = nazwaPliku;
+        link.click();
     }
 </script>
 </body>
