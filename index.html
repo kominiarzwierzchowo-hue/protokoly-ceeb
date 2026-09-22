@@ -377,14 +377,14 @@
             <div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px; display:none;">
                 <label style="font-size:11px;">Wentylator w kotle:</label>
                 <select id="l_wentylator_${id}" onchange="zapiszStan()" style="margin-bottom: 6px; font-size: 13px;">
-                    <option value="z wentylatorem">Z wentylatorem</option>
                     <option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
+                    <option value="z wentylatorem">Z wentylatorem</option>
                 </select>
                 <label style="font-size:11px;">Funkcja układu grzewczego:</label>
                 <select id="l_funkcja_${id}" onchange="zapiszStan()" style="font-size: 13px;">
+                    <option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
                     <option value="CO">Tylko CO (Ogrzewanie)</option>
                     <option value="CWU">Tylko CWU (Ciepła woda użytkowa)</option>
-                    <option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
                 </select>
             </div>
 
@@ -408,17 +408,25 @@
         if (daneLokalu && daneLokalu.funkcja) document.getElementById('l_funkcja_' + id).value = daneLokalu.funkcja;
 
         inicjalizujCanvas(id, daneLokalu ? daneLokalu.canvasData : null, daneLokalu ? daneLokalu.zatwierdzony : false);
-        zmienTypUrzadzenia(id);
+        zmienTypUrzadzenia(id, !daneLokalu);
         aktualizujEtykietyLokali();
         przeliczSumePrzewodow();
     }
 
-    function zmienTypUrzadzenia(id) {
+    function zmienTypUrzadzenia(id, ustawDomyslne = false) {
         let urz = document.getElementById('l_urz_' + id).value;
         let opcjeKotla = document.getElementById('opcje_kotla_' + id);
         if(opcjeKotla) {
-            opcjeKotla.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
+            let jestKocioł = (urz === "Kocioł CO na opał stały");
+            opcjeKotla.style.display = jestKocioł ? 'block' : 'none';
+            if (ustawDomyslne && jestKocioł) {
+                let wentInput = document.getElementById('l_wentylator_' + id);
+                let funkcjaInput = document.getElementById('l_funkcja_' + id);
+                if(wentInput) wentInput.value = "bez wentylatora";
+                if(funkcjaInput) funkcjaInput.value = "CO + CWU";
+            }
         }
+        zapiszStan();
     }
 
     function potwierdźUsunięcieLokali(id) {
@@ -765,7 +773,6 @@
 
         document.getElementById('out_calosc').innerText = calyTekst;
 
-        // Przygotowanie HTML z podpisami
         let htmlPodpisow = `<h4 style="color: #0d3880; margin-bottom: 5px;">ZBIORCZE PODPISY LOKATORÓW:</h4>`;
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
@@ -779,7 +786,6 @@
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
-        // AUTOMATYCZNE POBIERANIE WSZYSTKICH 3 DOKUMENTÓW POD JEDNYM PRZYCISKIEM
         pobierzPlikTxtAutomatycznie(calyTekst, adres);
         pobierzPelnyDokumentHTMLAutomatycznie(calyTekst, htmlPodpisow, adres);
         pobierzPlikJSONAutomatycznie();
