@@ -44,7 +44,7 @@
         .btn-usun-lokal-top { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 0; width: auto; }
         .btn-usun-lokal-top:hover { background: #b02a37; }
 
-        /* Pływająca listwa skrótów urządzeń nad polem nieprawidłowości */
+        /* Pływająca listwa skrótów nad polem */
         .skroty-popup {
             display: none;
             position: absolute;
@@ -64,14 +64,14 @@
             background: #0d3880;
             color: white;
             border: none;
-            padding: 6px 10px;
-            font-size: 12px;
+            padding: 6px 8px;
+            font-size: 11px;
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
             margin-top: 0;
             flex: 1;
-            min-width: 55px;
+            min-width: 45px;
             text-align: center;
         }
         .skroty-popup button:hover { background: #1d4ed8; }
@@ -187,21 +187,37 @@
 
         <h2>Stwierdzone Nieprawidłowości (1-14)</h2>
         
-        <!-- Pola nieprawidłowości z wbudowanym popupem skrótów -->
-        <div class="group" id="g_u1"><label>1. Wymiana przewodu łączącego (gaz):</label><input type="text" id="u1" placeholder="np. 4 PGW / 12 KCOgaz" onclick="pokazSkroty(1)" oninput="zapiszStan()"><div id="popup_u1" class="skroty-popup"></div></div>
-        <div class="group" id="g_u2"><label>2. Nieszczelne podłączenie rury spaliny:</label><input type="text" id="u2" placeholder="np. 2 PGW / 5 K" onclick="pokazSkroty(2)" oninput="zapiszStan()"><div id="popup_u2" class="skroty-popup"></div></div>
-        <div class="group" id="g_u3"><label>3. Demontaż siatek / żaluzji z kratek:</label><input type="text" id="u3" placeholder="np. 1 / 8" onclick="pokazSkroty(3)" oninput="zapiszStan()"><div id="popup_u3" class="skroty-popup"></div></div>
-        <div class="group" id="g_u4"><label>4. Wymiana kratek na nowe 14x21 cm:</label><input type="text" id="u4" placeholder="np. 3 / 9" onclick="pokazSkroty(4)" oninput="zapiszStan()"><div id="popup_u4" class="skroty-popup"></div></div>
-        <div class="group" id="g_u5"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach:</label><input type="text" id="u5" placeholder="np. 7" onclick="pokazSkroty(5)" oninput="zapiszStan()"><div id="popup_u5" class="skroty-popup"></div></div>
-        <div class="group" id="g_u6"><label>6. Niedozwolony wyciąg mechaniczny:</label><input type="text" id="u6" placeholder="np. 10" onclick="pokazSkroty(6)" oninput="zapiszStan()"><div id="popup_u6" class="skroty-popup"></div></div>
-        <div class="group" id="g_u7"><label>7. Brak drożności / zasłonięcie kratki:</label><input type="text" id="u7" placeholder="np. 11" onclick="pokazSkroty(7)" oninput="zapiszStan()"><div id="popup_u7" class="skroty-popup"></div></div>
-        <div class="group" id="g_u8"><label>8. Zabudowana rura łącząca piec/kocioł:</label><input type="text" id="u8" placeholder="np. 14" onclick="pokazSkroty(8)" oninput="zapiszStan()"><div id="popup_u8" class="skroty-popup"></div></div>
-        <div class="group" id="g_u9"><label>9. Nieprawidłowa instalacja z rur PCV:</label><input type="text" id="u9" placeholder="np. 15" onclick="pokazSkroty(9)" oninput="zapiszStan()"><div id="popup_u9" class="skroty-popup"></div></div>
-        <div class="group" id="g_u10"><label>10. Wentylacja jako otwór w ścianie zewnętrznej:</label><input type="text" id="u10" placeholder="np. 16" onclick="pokazSkroty(10)" oninput="zapiszStan()"><div id="popup_u10" class="skroty-popup"></div></div>
-        <div class="group" id="g_u11"><label>11. Całkowity brak wentylacji:</label><input type="text" id="u11" placeholder="np. 18" onclick="pokazSkroty(11)" oninput="zapiszStan()"><div id="popup_u11" class="skroty-popup"></div></div>
-        <div class="group" id="g_u12"><label>12. Niedozwolona zabudowa meblowa gazu:</label><input type="text" id="u12" placeholder="np. 19" onclick="pokazSkroty(12)" oninput="zapiszStan()"><div id="popup_u12" class="skroty-popup"></div></div>
-        <div class="group" id="g_u13"><label>13. Palny osad smolny w przewodzie dymowym:</label><input type="text" id="u13" placeholder="np. 20 KCO" onclick="pokazSkroty(13)" oninput="zapiszStan()"><div id="popup_u13" class="skroty-popup"></div></div>
-        <div class="group" id="g_u14"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego:</label><input type="text" id="u14" placeholder="np. 22" onclick="pokazSkroty(14)" oninput="zapiszStan()"><div id="popup_u14" class="skroty-popup"></div></div>
+        <!-- Rubryki 1, 2, 8, 12, 13 (Urządzenia) -->
+        <div class="group"><label>1. Wymiana przewodu łączącego (gaz):</label><input type="text" id="u1" placeholder="np. 4 PGW / 12 KCOgaz" onclick="pokazPopup(1, 'urzadzenia')" oninput="zapiszStan()"><div id="popup_u1" class="skroty-popup"></div></div>
+        <div class="group"><label>2. Nieszczelne podłączenie rury spaliny:</label><input type="text" id="u2" placeholder="np. 2 PGW" onclick="pokazPopup(2, 'urzadzenia')" oninput="zapiszStan()"><div id="popup_u2" class="skroty-popup"></div></div>
+        
+        <!-- Rubryki 3, 4, 6, 7 (Wentylacje) -->
+        <div class="group"><label>3. Demontaż siatek / żaluzji z kratek:</label><input type="text" id="u3" placeholder="np. 1 WŁ / 8 WK" onclick="pokazPopup(3, 'wentylacja')" oninput="zapiszStan()"><div id="popup_u3" class="skroty-popup"></div></div>
+        <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm:</label><input type="text" id="u4" placeholder="np. 3 WK" onclick="pokazPopup(4, 'wentylacja')" oninput="zapiszStan()"><div id="popup_u4" class="skroty-popup"></div></div>
+        
+        <!-- Rubryki 5, 9, 10, 11 (Pomieszczenia) -->
+        <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach:</label><input type="text" id="u5" placeholder="np. 7 K" onclick="pokazPopup(5, 'pomieszczenia')" oninput="zapiszStan()"><div id="popup_u5" class="skroty-popup"></div></div>
+        
+        <!-- Rubryka 6 i 7 (Wentylacje) -->
+        <div class="group"><label>6. Niedozwolony wyciąg mechaniczny:</label><input type="text" id="u6" placeholder="np. 10 WŁ" onclick="pokazPopup(6, 'wentylacja')" oninput="zapiszStan()"><div id="popup_u6" class="skroty-popup"></div></div>
+        <div class="group"><label>7. Brak drożności / zasłonięcie kratki:</label><input type="text" id="u7" placeholder="np. 11 WKOT" onclick="pokazPopup(7, 'wentylacja')" oninput="zapiszStan()"><div id="popup_u7" class="skroty-popup"></div></div>
+        
+        <!-- Rubryka 8 (Urządzenia) -->
+        <div class="group"><label>8. Zabudowana rura łącząca piec/kocioł:</label><input type="text" id="u8" placeholder="np. 14 KCO" onclick="pokazPopup(8, 'urzadzenia')" oninput="zapiszStan()"><div id="popup_u8" class="skroty-popup"></div></div>
+        
+        <!-- Rubryki 9, 10, 11 (Pomieszczenia) -->
+        <div class="group"><label>9. Nieprawidłowa instalacja z rur PCV:</label><input type="text" id="u9" placeholder="np. 15 Ł" onclick="pokazPopup(9, 'pomieszczenia')" oninput="zapiszStan()"><div id="popup_u9" class="skroty-popup"></div></div>
+        <div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej:</label><input type="text" id="u10" placeholder="np. 16 T" onclick="pokazPopup(10, 'pomieszczenia')" oninput="zapiszStan()"><div id="popup_u10" class="skroty-popup"></div></div>
+        <div class="group"><label>11. Całkowity brak wentylacji:</label><input type="text" id="u11" placeholder="np. 18 KOT" onclick="pokazPopup(11, 'pomieszczenia')" oninput="zapiszStan()"><div id="popup_u11" class="skroty-popup"></div></div>
+        
+        <!-- Rubryka 12 (Urządzenia) -->
+        <div class="group"><label>12. Niedozwolona zabudowa meblowa gazu:</label><input type="text" id="u12" placeholder="np. 19 PGW" onclick="pokazPopup(12, 'urzadzenia')" oninput="zapiszStan()"><div id="popup_u12" class="skroty-popup"></div></div>
+        
+        <!-- Rubryka 13 (Urządzenia) -->
+        <div class="group"><label>13. Palny osad smolny w przewodzie dymowym:</label><input type="text" id="u13" placeholder="np. 20 KCO" onclick="pokazPopup(13, 'urzadzenia')" oninput="zapiszStan()"><div id="popup_u13" class="skroty-popup"></div></div>
+        
+        <!-- Rubryka 14 (Tylko numery) -->
+        <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego:</label><input type="text" id="u14" placeholder="np. 4, 12, 15" oninput="zapiszStan()"></div>
 
         <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
         <button type="button" onclick="rozpocznijNowyProtokol()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
@@ -231,7 +247,7 @@
     let aktualneIdHistorii = null;
     const KLUCZ_ROBOCZY = 'protokol_ceeb_aktualnie_pisany';
 
-    // Mapa skrótów na pełne nazwy urządzeń
+    // Słowniki zamiany skrótów na pełne nazwy przy generowaniu
     const slownikUrządzeń = {
         "PGW": "podgrzewacz gazowy wody",
         "KCOgaz": "kocioł CO gaz",
@@ -240,9 +256,23 @@
         "K": "kominek"
     };
 
+    const slownikWentylacji = {
+        "WŁ": "wentylacja łazienki",
+        "WK": "wentylacja kuchni",
+        "WKOT": "wentylacja kotłowni",
+        "WT": "wentylacja toalety"
+    };
+
+    const slownikPomieszczeń = {
+        "K": "Kuchnia",
+        "Ł": "łazienka",
+        "T": "toaleta",
+        "KOT": "kotłownia"
+    };
+
     window.onload = function() {
         odswiezListeHistorii();
-        inicjalizujPopupySkrotów();
+        inicjalizujPopupy();
         
         let zapisRoboczy = localStorage.getItem(KLUCZ_ROBOCZY);
         let wczytano = false;
@@ -274,7 +304,6 @@
         przeliczSumePrzewodow();
         inicjalizujGestPrzelaczania();
 
-        // Ukrywanie popupów po kliknięciu gdziekolwiek indziej
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.group')) {
                 zamknijWszystkiePopupy();
@@ -282,20 +311,46 @@
         });
     };
 
-    function inicjalizujPopupySkrotów() {
-        let skroty = [
-            {skrót: "PGW", nazwa: "Podgrzewacz gazowy wody"},
-            {skrót: "KCOgaz", nazwa: "Kocioł CO gaz"},
-            {skrót: "PK", nazwa: "Piec kaflowy"},
-            {skrót: "KCO", nazwa: "Kocioł CO na opał stały"},
-            {skrót: "K", nazwa: "Kominek"}
-        ];
+    function inicjalizujPopupy() {
+        let listy = {
+            'urzadzenia': [
+                {skrót: "PGW", nazwa: "Podgrzewacz gazowy wody"},
+                {skrót: "KCOgaz", nazwa: "Kocioł CO gaz"},
+                {skrót: "PK", nazwa: "Piec kaflowy"},
+                {skrót: "KCO", nazwa: "Kocioł CO na opał stały"},
+                {skrót: "K", nazwa: "Kominek"}
+            ],
+            'wentylacja': [
+                {skrót: "WŁ", nazwa: "Wentylacja łazienki"},
+                {skrót: "WK", nazwa: "Wentylacja kuchni"},
+                {skrót: "WKOT", nazwa: "Wentylacja kotłowni"},
+                {skrót: "WT", nazwa: "Wentylacja toalety"}
+            ],
+            'pomieszczenia': [
+                {skrót: "K", nazwa: "Kuchnia"},
+                {skrót: "Ł", nazwa: "Łazienka"},
+                {skrót: "T", nazwa: "Toaleta"},
+                {skrót: "KOT", nazwa: "Kotłownia"}
+            ]
+        };
 
-        for (let i = 1; i <= 14; i++) {
+        // Przypisanie typów do poszczególnych rubryk
+        let typyRubryk = {
+            1: 'urzadzenia', 2: 'urzadzenia',
+            3: 'wentylacja', 4: 'wentylacja',
+            5: 'pomieszczenia',
+            6: 'wentylacja', 7: 'wentylacja',
+            8: 'urzadzenia',
+            9: 'pomieszczenia', 10: 'pomieszczenia', 11: 'pomieszczenia',
+            12: 'urzadzenia', 13: 'urzadzenia'
+        };
+
+        for (let i = 1; i <= 13; i++) {
             let popup = document.getElementById('popup_u' + i);
-            if(popup) {
+            if(popup && typyRubryk[i]) {
+                let typ = typyRubryk[i];
                 let html = '';
-                skroty.forEach(s => {
+                listy[typ].forEach(s => {
                     html += `<button type="button" onclick="wstawSkrót(${i}, '${s.skrót}')">${s.skrót}</button>`;
                 });
                 popup.innerHTML = html;
@@ -310,7 +365,7 @@
         }
     }
 
-    function pokazSkroty(numer) {
+    function pokazPopup(numer, typ) {
         zamknijWszystkiePopupy();
         let p = document.getElementById('popup_u' + numer);
         if(p) p.style.display = 'flex';
@@ -320,7 +375,7 @@
         let input = document.getElementById('u' + numer);
         if(!input) return;
         let obecnyTekst = input.value.trim();
-        let wpis = prompt("Wpisz numer mieszkania dla urządzenia [" + skrot + "]:");
+        let wpis = prompt("Wpisz numer mieszkania dla [" + skrot + "]:");
         if(wpis !== null && wpis.trim() !== "") {
             let nowyWpis = wpis.trim() + " " + skrot;
             if(obecnyTekst !== "") {
@@ -333,13 +388,17 @@
         zamknijWszystkiePopupy();
     }
 
-    // Funkcja zamieniająca skróty na pełne nazwy podczas generowania tekstu
+    // Funkcja rozwijająca skróty na pełne nazwy przy generowaniu dokumentu
     function rozwinięteSkrótyWTekście(tekst) {
         if(!tekst) return '';
         let wynik = tekst;
-        for (let skrot in slownikUrządzeń) {
+        
+        // Łączymy wszystkie słowniki w jeden do zamiany
+        let pelnySlownik = {...slownikUrządzeń, ...slownikWentylacji, ...slownikPomieszczeń};
+        
+        for (let skrot in pelnySlownik) {
             let regex = new RegExp('\\b' + skrot + '\\b', 'g');
-            wynik = wynik.replace(regex, slownikUrządzeń[skrot]);
+            wynik = wynik.replace(regex, pelnySlownik[skrot]);
         }
         return wynik;
     }
