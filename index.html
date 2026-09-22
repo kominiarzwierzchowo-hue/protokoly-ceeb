@@ -109,7 +109,10 @@
         </div>
         <div class="group">
             <label>Data i godzina kontroli:</label>
-            <input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00" oninput="zapiszStan()">
+            <div style="display: flex; gap: 6px;">
+                <input type="datetime-local" id="data_czas" onchange="zapiszStan()" style="flex: 1;">
+                <button type="button" onclick="ustawAktualnaDateWInputie()" style="margin-top: 0; width: auto; padding: 10px 12px; font-size: 12px; background: #17a2b8;">Teraz</button>
+            </div>
         </div>
         <div class="group">
             <label>Ilość przewodów kominowych (Cały budynek - Sumy z lokali):</label>
@@ -308,13 +311,13 @@
 
         if (!wczytano) {
             aktualneIdHistorii = 'protokolec_' + Date.now();
-            document.getElementById('data_czas').value = ustawAktualnaDateCzas();
+            ustawAktualnaDateWInputie();
             dodajLokal();
             zapiszStan();
         } else {
             let poleDaty = document.getElementById('data_czas');
-            if (!poleDaty.value.trim()) {
-                poleDaty.value = ustawAktualnaDateCzas();
+            if (!poleDaty.value) {
+                ustawAktualnaDateWInputie();
                 zapiszStan();
             }
         }
@@ -330,6 +333,32 @@
             }
         });
     };
+
+    function ustawAktualnaDateWInputie() {
+        let teraz = new Date();
+        let rok = teraz.getFullYear();
+        let miesiac = String(teraz.getMonth() + 1).padStart(2, '0');
+        let dzien = String(teraz.getDate()).padStart(2, '0');
+        let godziny = String(teraz.getHours()).padStart(2, '0');
+        let minuty = String(teraz.getMinutes()).padStart(2, '0');
+        
+        let formatISO = `${rok}-${miesiac}-${dzien}T${godziny}:${minuty}`;
+        document.getElementById('data_czas').value = formatISO;
+        zapiszStan();
+    }
+
+    function sformatujDateDoTekstu(isoString) {
+        if (!isoString) return '';
+        let parts = isoString.split('T');
+        if (parts.length !== 2) return isoString;
+        let dataParts = parts[0].split('-');
+        if (dataParts.length !== 3) return isoString;
+        let rok = dataParts[0];
+        let miesiac = dataParts[1];
+        let dzien = dataParts[2];
+        let godzina = parts[1];
+        return `${dzien}.${miesiac}.${rok} r., godz. ${godzina}`;
+    }
 
     function promptLokaleBrak() {
         let inputEl = document.getElementById('lokale_brak');
@@ -385,9 +414,9 @@
             ],
             'pomieszczenia': [
                 {skrót: "K", nazwa: "Kuchnia"},
-                {skrót: "Ł", nazwa: "Łazienka"},
-                {skrót: "T", nazwa: "Toaleta"},
-                {skrót: "KOT", nazwa: "Kotłownia"}
+                {skrót: "Ł", nazwa: "łazienka"},
+                {skrót: "T", nazwa: "toaleta"},
+                {skrót: "KOT", nazwa: "kotłownia"}
             ]
         };
 
@@ -475,10 +504,10 @@
             try {
                 let dane = JSON.parse(localStorage.getItem(key));
                 let adres = dane.ogólne.adres_budynku || 'Brak adresu';
-                let data = dane.ogólne.data_czas || key;
+                let dataSformatowana = sformatujDateDoTekstu(dane.ogólne.data_czas) || key;
                 let opt = document.createElement('option');
                 opt.value = key;
-                opt.innerText = `${adres} (${data})`;
+                opt.innerText = `${adres} (${dataSformatowana})`;
                 if (key === aktualneIdHistorii) {
                     opt.selected = true;
                 }
@@ -516,16 +545,6 @@
             localStorage.removeItem(KLUCZ_ROBOCZY);
             location.reload();
         }
-    }
-
-    function ustawAktualnaDateCzas() {
-        let teraz = new Date();
-        let dzien = String(teraz.getDate()).padStart(2, '0');
-        let miesiac = String(teraz.getMonth() + 1).padStart(2, '0');
-        let rok = teraz.getFullYear();
-        let godziny = String(teraz.getHours()).padStart(2, '0');
-        let minuty = String(teraz.getMinutes()).padStart(2, '0');
-        return `${dzien}.${miesiac}.${rok} r., godz. ${godzini}:${minuty}`;
     }
 
     function zmienZakladke(index) {
@@ -866,10 +885,9 @@
             }
         }
 
-        // Zapewnienie, że data się uzupełni, jeśli była pusta
         let poleDaty = document.getElementById('data_czas');
-        if (!poleDaty.value.trim()) {
-            poleDaty.value = ustawAktualnaDateCzas();
+        if (!poleDaty.value) {
+            ustawAktualnaDateWInputie();
         }
 
         zmienDostepKontroli();
@@ -950,8 +968,7 @@
             document.getElementById('p_raz').value = '0';
             document.getElementById('wynik_sekcja').style.display = 'none';
 
-            // Zawsze ustawiaj świeżą datę i godzinę przy nowym protokole
-            document.getElementById('data_czas').value = ustawAktualnaDateCzas();
+            ustawAktualnaDateWInputie();
 
             dodajLokal();
             zapiszStan();
@@ -963,7 +980,9 @@
     function generujWszystko() {
         zapiszStan();
         let adres = document.getElementById('adres_budynku').value.trim() || 'Budynek_bez_adresu';
-        let dc = document.getElementById('data_czas').value;
+        let surowaData = document.getElementById('data_czas').value;
+        let dc = sformatujDateDoTekstu(surowaData) || surowaData;
+        
         let pd = document.getElementById('p_dym').value;
         let ps = document.getElementById('p_spa').value;
         let pw = document.getElementById('p_wen').value;
