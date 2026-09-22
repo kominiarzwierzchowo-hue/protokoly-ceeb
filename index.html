@@ -435,7 +435,7 @@
                 let staraWartosc = funkcjaSelect.value;
                 funkcjaSelect.innerHTML = '';
                 
-                if(urz === "Kominek") {
+                if(urz === "Kominek" || urz === "Trzon kuchenny") {
                     funkcjaSelect.innerHTML = `
                         <option value="Miejscowy ogrzewacz pomieszczeń">Miejscowy ogrzewacz pomieszczeń</option>
                         <option value="CO">CO</option>
@@ -450,11 +450,7 @@
                 }
 
                 if (ustawDomyslne && maOpcje) {
-                    if(urz === "Kominek") {
-                        funkcjaSelect.value = "CO + CWU";
-                    } else {
-                        funkcjaSelect.value = "CO + CWU";
-                    }
+                    funkcjaSelect.value = "CO + CWU";
                     let wentInput = document.getElementById('l_wentylator_' + id);
                     if(wentInput && urz === "Kocioł CO na opał stały") wentInput.value = "bez wentylatora";
                 } else if(staraWartosc) {
