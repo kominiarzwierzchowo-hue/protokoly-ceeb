@@ -41,9 +41,12 @@
         .tab-content.active { display: block; }
 
         canvas { border: 2px dashed #0d3880; background: #fff; width: 100%; height: 150px; border-radius: 4px; touch-action: none; cursor: crosshair; }
-        .lokal-card { background: #fff; border: 2px solid #0d3880; padding: 12px; margin-bottom: 12px; border-radius: 6px; }
+        .lokal-card { background: #fff; border: 2px solid #0d3880; padding: 12px; margin-bottom: 12px; border-radius: 6px; position: relative; }
         .locked-canvas { background: #e2e8f0; border-color: #64748b; cursor: not-allowed; }
         
+        .btn-usun-lokal-top { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 0; width: auto; }
+        .btn-usun-lokal-top:hover { background: #b02a37; }
+
         .podpis-podsumowanie-item { border-bottom: 1px dashed #ccc; padding: 8px 0; margin-bottom: 8px; }
         .podpis-podsumowanie-item img { max-width: 200px; height: 60px; border: 1px solid #999; background: #fff; display: block; margin-top: 4px; }
     </style>
@@ -354,7 +357,8 @@
         divLokal.className = 'lokal-card';
         divLokal.id = 'lokal_box_' + id;
         divLokal.innerHTML = `
-            <h3 id="tytul_lokal_${id}" style="color: #0d3880; margin-top: 0;">Lokal nr [Brak numeru]</h3>
+            <button type="button" class="btn-usun-lokal-top" onclick="potwierdźUsunięcieLokali(${id})">❌ Usuń</button>
+            <h3 id="tytul_lokal_${id}" style="color: #0d3880; margin-top: 0; padding-right: 60px;">Lokal nr [Brak numeru]</h3>
             
             <label style="font-size: 12px; margin-bottom: 4px;">Lokal / Mieszkanie nr:</label>
             <input type="text" id="l_nr_${id}" placeholder="np. 12" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? (daneLokalu.nr || '') : ''}">
@@ -364,6 +368,7 @@
 
             <label style="font-size: 12px; margin-bottom: 4px;">Urządzenie grzewcze w lokalu:</label>
             <select id="l_urz_${id}" onchange="zmienTypUrzadzenia(${id}); zapiszStan();" style="margin-bottom: 8px;">
+                <option value="">-- Wybierz urządzenie --</option>
                 <option value="Kocioł CO na opał stały">Kocioł CO na opał stały</option>
                 <option value="Kominek">Kominek</option>
                 <option value="Trzon kuchenny">Trzon kuchenny</option>
@@ -402,8 +407,6 @@
             
             <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
             <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
-            
-            ${id > 1 ? '<button type="button" onclick="usunLokal(' + id + ')" class="btn-red" style="padding: 8px; font-size: 12px; margin-top: 10px;">Usuń ten lokal</button>' : ''}
         `;
         document.getElementById('kontener_lokali').appendChild(divLokal);
 
@@ -422,6 +425,12 @@
         let opcjeKotla = document.getElementById('opcje_kotla_' + id);
         if(opcjeKotla) {
             opcjeKotla.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
+        }
+    }
+
+    function potwierdźUsunięcieLokali(id) {
+        if (confirm("Czy na pewno chcesz usunąć ten lokal?")) {
+            usunLokal(id);
         }
     }
 
@@ -713,7 +722,7 @@
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
             let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
-            let urz = document.getElementById('l_urz_' + id).value;
+            let urz = document.getElementById('l_urz_' + id).value || 'Brak wybranego urządzenia';
             let w = document.getElementById('l_wen_' + id).value || '0';
             let d = document.getElementById('l_dym_' + id).value || '0';
             let s = document.getElementById('l_spa_' + id).value || '0';
