@@ -27,6 +27,7 @@
         .btn-file:hover { background: #e0a800; }
         .btn-red { background: #dc3545; margin-top: 8px; }
         .btn-success { background: #28a745; margin-top: 8px; }
+        .btn-warning { background: #6c757d; margin-top: 10px; }
         
         /* Zakładki na górze */
         .tabs-nav { display: flex; gap: 5px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 6px; }
@@ -42,12 +43,12 @@
 </head>
 <body>
 <div class="container">
-    <h1>Generator CEEB + Lokale i Podpisy</h1>
+    <h1>Generator CEEB + Autozapis i Sumy</h1>
 
     <!-- Pasek zakładek głównych -->
     <div class="tabs-nav">
         <button type="button" class="tab-btn active" onclick="zmienZakladke(0)">📝 1. Dane Budynku i Uwagi</button>
-        <button type="button" class="tab-btn" onclick="zmienZakladke(1)">✍️ 2. Lokale, Urządzenia i Podpisy</button>
+        <button type="button" class="tab-btn" onclick="zmienZakladke(1)">✍️ 2. Lokale i Podpisy</button>
     </div>
 
     <!-- ZAKŁADKA 0: DANE OGÓLNE BUDYNKU I NIEPRAWIDŁOWOŚCI -->
@@ -55,26 +56,26 @@
         <h2>Informacje ogólne o budynku</h2>
         <div class="group">
             <label>Adres budynku:</label>
-            <input type="text" id="adres_budynku" placeholder="np. Wierzchowo, ul. 3 Marca 29F">
+            <input type="text" id="adres_budynku" placeholder="np. Wierzchowo, ul. 3 Marca 29F" oninput="zapiszStan()">
         </div>
         <div class="group">
             <label>Data i godzina kontroli:</label>
-            <input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00">
+            <input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00" oninput="zapiszStan()">
         </div>
         <div class="group">
-            <label>Ilość przewodów kominowych (cały budynek):</label>
+            <label>Ilość przewodów kominowych (cały budynek - z sum lokali):</label>
             <div class="grid-5">
-                <div><label>Dym</label><input type="text" id="p_dym" value="0"></div>
-                <div><label>Spal</label><input type="text" id="p_spa" value="0"></div>
-                <div><label>Went</label><input type="text" id="p_wen" value="0"></div>
-                <div><label>Awar</label><input type="text" id="p_awa" value="0"></div>
-                <div><label>Razem</label><input type="text" id="p_raz" value="0"></div>
+                <div><label>Dym (Auto)</label><input type="text" id="p_dym" value="0" oninput="zapiszStan()"></div>
+                <div><label>Spal (Auto)</label><input type="text" id="p_spa" value="0" oninput="zapiszStan()"></div>
+                <div><label>Went (Auto)</label><input type="text" id="p_wen" value="0" oninput="zapiszStan()"></div>
+                <div><label>Awar</label><input type="text" id="p_awa" value="0" oninput="zapiszStan()"></div>
+                <div><label>Razem</label><input type="text" id="p_raz" value="0" oninput="zapiszStan()"></div>
             </div>
         </div>
         <div class="group grid-2">
             <div>
                 <label>Dostęp do kontroli:</label>
-                <select id="dostep">
+                <select id="dostep" onchange="zapiszStan()">
                     <option value="jest">jest</option>
                     <option value="brak stopni">brak stopni</option>
                     <option value="brak ław">brak ław</option>
@@ -83,12 +84,12 @@
             </div>
             <div>
                 <label>Nieudostępnione lokale:</label>
-                <input type="text" id="lokale_brak" placeholder="np. 4, 8 (lub brak)">
+                <input type="text" id="lokale_brak" placeholder="np. 4, 8 (lub brak)" oninput="zapiszStan()">
             </div>
         </div>
         <div class="group">
             <label>Stan kominów ponad dachem:</label>
-            <select id="s_dach_sel" onchange="document.getElementById('s_dach_opis').value=this.value;">
+            <select id="s_dach_sel" onchange="document.getElementById('s_dach_opis').value=this.value; zapiszStan();">
                 <option value="dobry">dobry</option>
                 <option value="zły">zły</option>
                 <option value="uszkodzone tynki">uszkodzone tynki</option>
@@ -96,11 +97,11 @@
                 <option value="naprawa">naprawa</option>
                 <option value="wadliwe">wadliwe</option>
             </select>
-            <input type="text" id="s_dach_opis" value="dobry" style="margin-top: 5px;">
+            <input type="text" id="s_dach_opis" value="dobry" style="margin-top: 5px;" oninput="zapiszStan()">
         </div>
         <div class="group">
             <label>Stan kominów na strychu:</label>
-            <select id="s_strych_sel" onchange="document.getElementById('s_strych_opis').value=this.value;">
+            <select id="s_strych_sel" onchange="document.getElementById('s_strych_opis').value=this.value; zapiszStan();">
                 <option value="dobry">dobry</option>
                 <option value="zły">zły</option>
                 <option value="uszkodzone tynki">uszkodzone tynki</option>
@@ -108,12 +109,12 @@
                 <option value="naprawa">naprawa</option>
                 <option value="wadliwe">wadliwe</option>
             </select>
-            <input type="text" id="s_strych_opis" value="dobry" style="margin-top: 5px;">
+            <input type="text" id="s_strych_opis" value="dobry" style="margin-top: 5px;" oninput="zapiszStan()">
         </div>
         <div class="group grid-2">
             <div>
                 <label>Stan drzwiczek:</label>
-                <select id="drzwiczki_stan">
+                <select id="drzwiczki_stan" onchange="zapiszStan()">
                     <option value="dobry">dobry</option>
                     <option value="zły">zły</option>
                     <option value="brak">brak</option>
@@ -121,37 +122,38 @@
             </div>
             <div>
                 <label>Gdzie:</label>
-                <input type="text" id="drzwiczki_gdzie" placeholder="np. w piwnicy">
+                <input type="text" id="drzwiczki_gdzie" placeholder="np. w piwnicy" oninput="zapiszStan()">
             </div>
         </div>
         <div class="group">
             <label>Nasady kominowe:</label>
-            <input type="text" id="nasady" placeholder="np. uszkodzone, 1 sztuka">
+            <input type="text" id="nasady" placeholder="np. uszkodzone, 1 sztuka" oninput="zapiszStan()">
         </div>
 
         <h2>Własne uwagi i spostrzeżenia z kontroli</h2>
         <div class="group">
             <label>Inne / dodatkowe uwagi (niestandardowe):</label>
-            <textarea id="uwagi_własne" rows="3" placeholder="Wpisz uwagi, których nie ma na liście standardowej..."></textarea>
+            <textarea id="uwagi_własne" rows="3" placeholder="Wpisz uwagi, których nie ma na liście standardowej..." oninput="zapiszStan()"></textarea>
         </div>
 
         <h2>Stwierdzone Nieprawidłowości (1-14)</h2>
-        <div class="group"><label>1. Wymiana przewodu łączącego (gaz) - Mieszkania nr:</label><input type="text" id="u1"></div>
-        <div class="group"><label>2. Nieszczelne podłączenie rury spaliny - Mieszkania nr:</label><input type="text" id="u2"></div>
-        <div class="group"><label>3. Demontaż siatek / żaluzji z kratek - Mieszkania nr:</label><input type="text" id="u3"></div>
-        <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm - Lokale nr:</label><input type="text" id="u4"></div>
-        <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach - Mieszkania:</label><input type="text" id="u5"></div>
-        <div class="group"><label>6. Niedozwolony wyciąg mechaniczny - Mieszkania:</label><input type="text" id="u6"></div>
-        <div class="group"><label>7. Brak drożności / zasłonięcie kratki - Lokale:</label><input type="text" id="u7"></div>
-        <div class="group"><label>8. Zabudowana rura łącząca piec/kocioł - Mieszkania:</label><input type="text" id="u8"></div>
-        <div class="group"><label>9. Nieprawidłowa instalacja z rur PCV - Lokale:</label><input type="text" id="u9"></div>
-        <div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej - Lokale:</label><input type="text" id="u10"></div>
-        <div class="group"><label>11. Całkowity brak wentylacji - Lokale:</label><input type="text" id="u11"></div>
-        <div class="group"><label>12. Niedozwolona zabudowa meblowa gazu - Mieszkania:</label><input type="text" id="u12"></div>
-        <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13"></div>
-        <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14"></div>
+        <div class="group"><label>1. Wymiana przewodu łączącego (gaz) - Mieszkania nr:</label><input type="text" id="u1" oninput="zapiszStan()"></div>
+        <div class="group"><label>2. Nieszczelne podłączenie rury spaliny - Mieszkania nr:</label><input type="text" id="u2" oninput="zapiszStan()"></div>
+        <div class="group"><label>3. Demontaż siatek / żaluzji z kratek - Mieszkania nr:</label><input type="text" id="u3" oninput="zapiszStan()"></div>
+        <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm - Lokale nr:</label><input type="text" id="u4" oninput="zapiszStan()"></div>
+        <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach - Mieszkania:</label><input type="text" id="u5" oninput="zapiszStan()"></div>
+        <div class="group"><label>6. Niedozwolony wyciąg mechaniczny - Mieszkania:</label><input type="text" id="u6" oninput="zapiszStan()"></div>
+        <div class="group"><label>7. Brak drożności / zasłonięcie kratki - Lokale:</label><input type="text" id="u7" oninput="zapiszStan()"></div>
+        <div class="group"><label>8. Zabudowana rura łącząca piec/kocioł - Mieszkania:</label><input type="text" id="u8" oninput="zapiszStan()"></div>
+        <div class="group"><label>9. Nieprawidłowa instalacja z rur PCV - Lokale:</label><input type="text" id="u9" oninput="zapiszStan()"></div>
+        <div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej - Lokale:</label><input type="text" id="u10" oninput="zapiszStan()"></div>
+        <div class="group"><label>11. Całkowity brak wentylacji - Lokale:</label><input type="text" id="u11" oninput="zapiszStan()"></div>
+        <div class="group"><label>12. Niedozwolona zabudowa meblowa gazu - Mieszkania:</label><input type="text" id="u12" oninput="zapiszStan()"></div>
+        <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13" oninput="zapiszStan()"></div>
+        <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14" oninput="zapiszStan()"></div>
 
         <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
+        <button type="button" onclick="wyczyscCaloscPamięci()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
 
         <div id="wynik_sekcja" style="display:none;">
             <h3>Pełny dokument kontroli (jeden spójny plik):</h3>
@@ -166,19 +168,27 @@
     <!-- ZAKŁADKA 1: LOKALE, URZĄDZENIA I PODPISY -->
     <div id="tab_1" class="tab-content">
         <h2>Kontrola lokali, urządzenia i podpisy</h2>
-        <p style="font-size: 12px; color: #666;">Dodawaj kolejne lokale, wybieraj urządzenia, wpisuj liczbę przewodów, zbieraj podpisy i zatwierdzaj je.</p>
+        <p style="font-size: 12px; color: #666;">Wprowadzane przewody sumują się automatycznie w danych budynku.</p>
         
         <div id="kontener_lokali"></div>
-        <button type="button" onclick="dodajLokal()" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
+        <button type="button" onclick="dodajLokal(); zapiszStan();" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
     </div>
 </div>
 
 <script>
     let licznikLokali = 0;
+    let zatwierdzoneStan = {};
+    let wczytujeStan = false;
 
     window.onload = function() {
-        ustawAktualnaDateCzas();
-        dodajLokal();
+        wczytujeStan = true;
+        let wczytano = wczytajStan();
+        if (!wczytano) {
+            ustawAktualnaDateCzas();
+            dodajLokal();
+        }
+        wczytujeStan = false;
+        przeliczSumePrzewodow();
         inicjalizujGestPrzelaczania();
     };
 
@@ -189,47 +199,51 @@
         let rok = teraz.getFullYear();
         let godziny = String(teraz.getHours()).padStart(2, '0');
         let minuty = String(teraz.getMinutes()).padStart(2, '0');
-        
-        let sformatowanaData = `${dzien}.${miesiac}.${rok} r., godz. ${godzini}:${minuty}`;
-        document.getElementById('data_czas').value = sformatowanaData;
+        document.getElementById('data_czas').value = `${dzien}.${miesiac}.${rok} r., godz. ${godzini}:${minuty}`;
     }
 
     function zmienZakladke(index) {
         let tabs = document.querySelectorAll('.tab-content');
         let btns = document.querySelectorAll('.tab-btn');
-        
-        tabs.forEach((t, i) => {
-            if(i === index) t.classList.add('active');
-            else t.classList.remove('active');
-        });
-        btns.forEach((b, i) => {
-            if(i === index) b.classList.add('active');
-            else b.classList.remove('active');
-        });
+        tabs.forEach((t, i) => { t.classList.toggle('active', i === index); });
+        btns.forEach((b, i) => { b.classList.toggle('active', i === index); });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function inicjalizujGestPrzelaczania() {
-        let touchstartX = 0;
-        let touchendX = 0;
+        let touchstartX = 0, touchendX = 0;
         const container = document.querySelector('.container');
-
-        container.addEventListener('touchstart', e => {
-            touchstartX = e.changedTouches[0].screenX;
-        }, false);
-
+        container.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, false);
         container.addEventListener('touchend', e => {
             touchendX = e.changedTouches[0].screenX;
-            handleGesture();
-        }, false);
-
-        function handleGesture() {
             if (touchendX < touchstartX - 70) zmienZakladke(1);
             if (touchendX > touchstartX + 70) zmienZakladke(0);
-        }
+        }, false);
     }
 
-    function dodajLokal() {
+    function przeliczSumePrzewodow() {
+        let sumaWen = 0;
+        let sumaDym = 0;
+        let sumaSpa = 0;
+
+        let karty = document.querySelectorAll('.lokal-card');
+        karty.forEach(k => {
+            let id = k.id.split('_')[2];
+            let wInput = document.getElementById('l_wen_' + id);
+            let dInput = document.getElementById('l_dym_' + id);
+            let sInput = document.getElementById('l_spa_' + id);
+
+            if (wInput) sumaWen += parseInt(wInput.value) || 0;
+            if (dInput) sumaDym += parseInt(dInput.value) || 0;
+            if (sInput) sumaSpa += parseInt(sInput.value) || 0;
+        });
+
+        document.getElementById('p_wen').value = sumaWen;
+        document.getElementById('p_dym').value = sumaDym;
+        document.getElementById('p_spa').value = sumaSpa;
+    }
+
+    function dodajLokal(daneLokalu = null) {
         licznikLokali++;
         let id = licznikLokali;
 
@@ -240,13 +254,13 @@
             <h3 id="tytul_lokal_${id}" style="color: #0d3880; margin-top: 0;">Lokal nr [Brak numeru]</h3>
             
             <label style="font-size: 12px; margin-bottom: 4px;">Lokal / Mieszkanie nr:</label>
-            <input type="text" id="l_nr_${id}" placeholder="np. 12" oninput="aktualizujEtykietyLokali()" style="margin-bottom: 8px;">
+            <input type="text" id="l_nr_${id}" placeholder="np. 12" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? daneLokalu.nr : ''}">
             
             <label style="font-size: 12px; margin-bottom: 4px;">Imię i nazwisko lokatora:</label>
-            <input type="text" id="l_osoba_${id}" placeholder="np. Jan Kowalski" oninput="aktualizujEtykietyLokali()" style="margin-bottom: 8px;">
+            <input type="text" id="l_osoba_${id}" placeholder="np. Jan Kowalski" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? daneLokalu.osoba : ''}">
 
             <label style="font-size: 12px; margin-bottom: 4px;">Urządzenie grzewcze w lokalu:</label>
-            <select id="l_urz_${id}" onchange="zmienTypUrzadzenia(${id})" style="margin-bottom: 8px;">
+            <select id="l_urz_${id}" onchange="zmienTypUrzadzenia(${id}); zapiszStan();" style="margin-bottom: 8px;">
                 <option value="Kocioł CO na opał stały">Kocioł CO na opał stały</option>
                 <option value="Kominek">Kominek</option>
                 <option value="Trzon kuchenny">Trzon kuchenny</option>
@@ -259,15 +273,14 @@
                 <option value="Brak urządzenia / Tylko wentylacja">Brak urządzenia / Tylko wentylacja</option>
             </select>
 
-            <!-- Opcje dodatkowe dla Kotła CO na opał stały -->
-            <div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+            <div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px; display:none;">
                 <label style="font-size:11px;">Wentylator w kotle:</label>
-                <select id="l_wentylator_${id}" style="margin-bottom: 6px; font-size: 13px;">
+                <select id="l_wentylator_${id}" onchange="zapiszStan()" style="margin-bottom: 6px; font-size: 13px;">
                     <option value="z wentylatorem">Z wentylatorem</option>
                     <option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
                 </select>
                 <label style="font-size:11px;">Funkcja układu grzewczego:</label>
-                <select id="l_funkcja_${id}" style="font-size: 13px;">
+                <select id="l_funkcja_${id}" onchange="zapiszStan()" style="font-size: 13px;">
                     <option value="CO">Tylko CO (Ogrzewanie)</option>
                     <option value="CWU">Tylko CWU (Ciepła woda użytkowa)</option>
                     <option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
@@ -276,9 +289,9 @@
 
             <label style="font-size: 12px; margin-bottom: 4px;">Ilość podłączeń do kominów w lokalu:</label>
             <div class="grid-3" style="margin-bottom: 8px;">
-                <div><label style="font-size:10px;">Wentylacyjne</label><input type="number" id="l_wen_${id}" value="1"></div>
-                <div><label style="font-size:10px;">Dymowe</label><input type="number" id="l_dym_${id}" value="0"></div>
-                <div><label style="font-size:10px;">Spalinowe</label><input type="number" id="l_spa_${id}" value="0"></div>
+                <div><label style="font-size:10px;">Wentylacyjne</label><input type="number" id="l_wen_${id}" value="${daneLokalu ? daneLokalu.wen : 1}" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
+                <div><label style="font-size:10px;">Dymowe</label><input type="number" id="l_dym_${id}" value="${daneLokalu ? daneLokalu.dym : 0}" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
+                <div><label style="font-size:10px;">Spalinowe</label><input type="number" id="l_spa_${id}" value="${daneLokalu ? daneLokalu.spa : 0}" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
             </div>
 
             <label style="font-size: 12px; margin-bottom: 4px;">Podpis lokatora (narysuj palcem):</label>
@@ -291,8 +304,20 @@
         `;
         document.getElementById('kontener_lokali').appendChild(divLokal);
 
-        inicjalizujCanvas(id);
+        if (daneLokalu && daneLokalu.urz) {
+            document.getElementById('l_urz_' + id).value = daneLokalu.urz;
+        }
+        if (daneLokalu && daneLokalu.wentylator) {
+            document.getElementById('l_wentylator_' + id).value = daneLokalu.wentylator;
+        }
+        if (daneLokalu && daneLokalu.funkcja) {
+            document.getElementById('l_funkcja_' + id).value = daneLokalu.funkcja;
+        }
+
+        inicjalizujCanvas(id, daneLokalu ? daneLokalu.canvasData : null, daneLokalu ? daneLokalu.zatwierdzony : false);
         zmienTypUrzadzenia(id);
+        aktualizujEtykietyLokali();
+        przeliczSumePrzewodow();
     }
 
     function zmienTypUrzadzenia(id) {
@@ -308,6 +333,8 @@
     function usunLokal(id) {
         let el = document.getElementById('lokal_box_' + id);
         if(el) el.remove();
+        przeliczSumePrzewodow();
+        zapiszStan();
     }
 
     function aktualizujEtykietyLokali() {
@@ -323,13 +350,29 @@
         });
     }
 
-    let zatwierdzoneStan = {};
-
-    function inicjalizujCanvas(id) {
+    function inicjalizujCanvas(id, savedData = null, isLocked = false) {
         let canvas = document.getElementById('canvas_' + id);
         let ctx = canvas.getContext('2d');
         let isDrawing = false;
         zatwierdzoneStan[id] = false;
+
+        if (savedData) {
+            let img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = savedData;
+        }
+
+        if (isLocked) {
+            zatwierdzoneStan[id] = true;
+            canvas.classList.add('locked-canvas');
+            let btn = document.getElementById('btn_zatwierdz_' + id);
+            if (btn) {
+                btn.innerText = "Odblokuj podpis (Edytuj)";
+                btn.style.background = "#d97706";
+            }
+        }
 
         function getPos(e) {
             let rect = canvas.getBoundingClientRect();
@@ -340,12 +383,12 @@
 
         canvas.addEventListener('mousedown', (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); });
         canvas.addEventListener('mousemove', (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); });
-        canvas.addEventListener('mouseup', () => { isDrawing = false; });
-        canvas.addEventListener('mouseleave', () => { isDrawing = false; });
+        canvas.addEventListener('mouseup', () => { if(isDrawing) { isDrawing = false; zapiszStan(); } });
+        canvas.addEventListener('mouseleave', () => { if(isDrawing) { isDrawing = false; zapiszStan(); } });
 
         canvas.addEventListener('touchstart', (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); e.preventDefault(); });
         canvas.addEventListener('touchmove', (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); e.preventDefault(); });
-        canvas.addEventListener('touchend', () => { isDrawing = false; });
+        canvas.addEventListener('touchend', () => { if(isDrawing) { isDrawing = false; zapiszStan(); } });
     }
 
     function wyczyscPodpis(id) {
@@ -356,6 +399,7 @@
         let canvas = document.getElementById('canvas_' + id);
         let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        zapiszStan();
     }
 
     function zatwierdzonePodpisZapiszZdjecie(id) {
@@ -385,6 +429,98 @@
             canvas.classList.remove('locked-canvas');
             btn.innerText = "Zatwierdź podpis (Zablokuj zmianę)";
             btn.style.background = "#28a745";
+        }
+        zapiszStan();
+    }
+
+    function zapiszStan() {
+        if (wczytujeStan) return;
+
+        let stan = {
+            ogólne: {
+                adres_budynku: document.getElementById('adres_budynku').value,
+                data_czas: document.getElementById('data_czas').value,
+                p_dym: document.getElementById('p_dym').value,
+                p_spa: document.getElementById('p_spa').value,
+                p_wen: document.getElementById('p_wen').value,
+                p_awa: document.getElementById('p_awa').value,
+                p_raz: document.getElementById('p_raz').value,
+                dostep: document.getElementById('dostep').value,
+                lokale_brak: document.getElementById('lokale_brak').value,
+                s_dach_sel: document.getElementById('s_dach_sel').value,
+                s_dach_opis: document.getElementById('s_dach_opis').value,
+                s_strych_sel: document.getElementById('s_strych_sel').value,
+                s_strych_opis: document.getElementById('s_strych_opis').value,
+                drzwiczki_stan: document.getElementById('drzwiczki_stan').value,
+                drzwiczki_gdzie: document.getElementById('drzwiczki_gdzie').value,
+                nasady: document.getElementById('nasady').value,
+                uwagi_własne: document.getElementById('uwagi_własne').value,
+            },
+            nieprawidłowości: {},
+            lokale: []
+        };
+
+        for (let i = 1; i <= 14; i++) {
+            let el = document.getElementById('u' + i);
+            if (el) stan.nieprawidłowości['u' + i] = el.value;
+        }
+
+        let karty = document.querySelectorAll('.lokal-card');
+        karty.forEach(k => {
+            let id = k.id.split('_')[2];
+            let canvas = document.getElementById('canvas_' + id);
+            stan.lokale.push({
+                nr: document.getElementById('l_nr_' + id).value,
+                osoba: document.getElementById('l_osoba_' + id).value,
+                urz: document.getElementById('l_urz_' + id).value,
+                wentylator: document.getElementById('l_wentylator_' + id).value,
+                funkcja: document.getElementById('l_funkcja_' + id).value,
+                wen: document.getElementById('l_wen_' + id).value,
+                dym: document.getElementById('l_dym_' + id).value,
+                spa: document.getElementById('l_spa_' + id).value,
+                canvasData: canvas ? canvas.toDataURL('image/png') : null,
+                zatwierdzony: zatwierdzoneStan[id] || false
+            });
+        });
+
+        localStorage.setItem('protokol_ceeb_stan', JSON.stringify(stan));
+    }
+
+    function wczytajStan() {
+        let zapis = localStorage.getItem('protokol_ceeb_stan');
+        if (!zapis) return false;
+
+        try {
+            let stan = JSON.parse(zapis);
+            for (let key in stan.ogólne) {
+                let el = document.getElementById(key);
+                if (el) el.value = stan.ogólne[key];
+            }
+            for (let key in stan.nieprawidłowości) {
+                let el = document.getElementById(key);
+                if (el) el.value = stan.nieprawidłowości[key];
+            }
+
+            document.getElementById('kontener_lokali').innerHTML = '';
+            licznikLokali = 0;
+
+            if (stan.lokale && stan.lokale.length > 0) {
+                stan.lokale.forEach(l => {
+                    dodajLokal(l);
+                });
+            } else {
+                dodajLokal();
+            }
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function wyczyscCaloscPamięci() {
+        if (confirm("Czy na pewno chcesz wyczyścić wszystkie dane i rozpocząć nowy protokół?")) {
+            localStorage.removeItem('protokol_ceeb_stan');
+            location.reload();
         }
     }
 
@@ -443,34 +579,28 @@
 
         calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
         let items = [];
-        let v1 = document.getElementById('u1').value.trim();
-        if(v1) items.push("1. Wymiana przewodu łączącego z certyfikatem CE. Mieszkania nr: " + v1 + ".");
-        let v2 = document.getElementById('u2').value.trim();
-        if(v2) items.push("2. Nieszczelne podłączenie rury odprowadzającej spaliny. Mieszkania nr: " + v2 + ".");
-        let v3 = document.getElementById('u3').value.trim();
-        if(v3) items.push("3. Demontaż siatek / żaluzji z kratek wentylacyjnych. Mieszkania nr: " + v3 + ".");
-        let v4 = document.getElementById('u4').value.trim();
-        if(v4) items.push("4. Wymiana kratek wentylacyjnych na nowe 14x21 cm. Lokale nr: " + v4 + ".");
-        let v5 = document.getElementById('u5').value.trim();
-        if(v5) items.push("5. Za mała powierzchnia dopływu powietrza w drzwiach (min. 220 cm²). Mieszkania nr: " + v5 + ".");
-        let v6 = document.getElementById('u6').value.trim();
-        if(v6) items.push("6. Niedozwolone podłączenie mechanicznego wyciągu do wentylacji. Mieszkania nr: " + v6 + ".");
-        let v7 = document.getElementById('u7').value.trim();
-        if(v7) items.push("7. Brak drożności / zasłonięcie kratki wentylacyjnej. Lokale nr: " + v7 + ".");
-        let v8 = document.getElementById('u8').value.trim();
-        if(v8) items.push("8. Zabudowana rura łącząca piec/kocioł z kominem. Mieszkania nr: " + v8 + ".");
-        let v9 = document.getElementById('u9').value.trim();
-        if(v9) items.push("9. Nieprawidłowa instalacja z rur PCV (wymiana ponad dach). Lokale: " + v9 + ".");
-        let v10 = document.getElementById('u10').value.trim();
-        if(v10) items.push("10. Wentylacja jako otwór w ścianie zewnętrznej (wymiana na pion). Lokale: " + v10 + ".");
-        let v11 = document.getElementById('u11').value.trim();
-        if(v11) items.push("11. Całkowity brak wentylacji w pomieszczeniu. Nakaz dotyczy lokali: " + v11 + ".");
-        let v12 = document.getElementById('u12').value.trim();
-        if(v12) items.push("12. Niedozwolona stała zabudowa meblowa urządzenia gazowego. Mieszkania nr: " + v12 + ".");
-        let v13 = document.getElementById('u13').value.trim();
-        if(v13) items.push("13. Obecność palnego osadu smolnego w przewodzie dymowym. Mieszkania nr: " + v13 + ".");
-        let v14 = document.getElementById('u14').value.trim();
-        if(v14) items.push("14. Brak lub niewystarczająca ilość powietrza nawiewnego. Mieszkania nr: " + v14 + ".");
+        for (let i = 1; i <= 14; i++) {
+            let val = document.getElementById('u' + i).value.trim();
+            if (val) {
+                let opisy = [
+                    "", "1. Wymiana przewodu łączącego z certyfikatem CE. Mieszkania nr: ",
+                    "2. Nieszczelne podłączenie rury odprowadzającej spaliny. Mieszkania nr: ",
+                    "3. Demontaż siatek / żaluzji z kratek wentylacyjnych. Mieszkania nr: ",
+                    "4. Wymiana kratek wentylacyjnych na nowe 14x21 cm. Lokale nr: ",
+                    "5. Za mała powierzchnia dopływu powietrza w drzwiach (min. 220 cm²). Mieszkania nr: ",
+                    "6. Niedozwolone podłączenie mechanicznego wyciągu do wentylacji. Mieszkania nr: ",
+                    "7. Brak drożności / zasłonięcie kratki wentylacyjnej. Lokale nr: ",
+                    "8. Zabudowana rura łącząca piec/kocioł z kominem. Mieszkania nr: ",
+                    "9. Nieprawidłowa instalacja z rur PCV (wymiana ponad dach). Lokale: ",
+                    "10. Wentylacja jako otwór w ścianie zewnętrznej (wymiana na pion). Lokale: ",
+                    "11. Całkowity brak wentylacji w pomieszczeniu. Nakaz dotyczy lokali: ",
+                    "12. Niedozwolona stała zabudowa meblowa gazu. Mieszkania nr: ",
+                    "13. Obecność palnego osadu smolnego w przewodzie dymowym. Mieszkania nr: ",
+                    "14. Brak lub niewystarczająca ilość powietrza nawiewnego. Mieszkania nr: "
+                ];
+                items.push(opisy[i] + val + ".");
+            }
+        }
 
         if(items.length > 0) {
             calyTekst += items.join("\n") + "\n\n";
