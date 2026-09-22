@@ -179,6 +179,7 @@
                 <div id="out_podpisy_zbiorczo" style="margin-top: 15px; border-top: 2px solid #0d3880; padding-top: 10px;"></div>
                 <button class="btn-copy" onclick="kopiujCaloscTekst()">Kopiuj cały tekst dokumentu</button>
                 <button class="btn-file" onclick="pobierzCaloscTXT()">Pobierz jako plik tekstowy TXT</button>
+                <button class="btn-file" style="background: #0d3880; color: #fff;" onclick="pobierzPelnyDokumentHTML()">📥 Pobierz kompletny dokument z podpisami (HTML do folderu CEEB)</button>
                 <button class="btn-json" onclick="pobierzPlikJSON()">💾 Pobierz pełny plik ZAPISU DO EDYCJI (.json)</button>
             </div>
         </div>
@@ -643,6 +644,7 @@
     function wyczyscCaloscPamięci() {
         if (confirm("Czy na pewno chcesz utworzyć zupełnie nowy protokół? (Stary pozostaje zapisany w historii).")) {
             aktualneIdHistorii = 'protokolec_' + Date.now();
+            localStorage.setItem('protokol_ceeb_ostatni_id', aktualneIdHistorii);
             document.getElementById('kontener_lokali').innerHTML = '';
             licznikLokali = 0;
             zatwierdzoneStan = {};
@@ -652,6 +654,7 @@
             ustawAktualnaDateCzas();
             dodajLokal();
             zapiszStan();
+            odswiezListeHistorii();
         }
     }
 
@@ -764,6 +767,39 @@
 
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function pobierzPelnyDokumentHTML() {
+        generujWszystko();
+        let adres = document.getElementById('adres_budynku').value.trim() || 'Protokol_CEEB';
+        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_KOMPLETNY_Z_PODPISAMI.html';
+        
+        let htmlZawartosc = `<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Protokół CEEB - ${adres}</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.5; }
+h2 { color: #0d3880; border-bottom: 2px solid #0d3880; padding-bottom: 5px; }
+pre { white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 14px; background: #f8fafc; padding: 15px; border: 1px solid #cbd5e1; border-radius: 5px; }
+.podpis-item { margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px; }
+.podpis-item img { max-width: 250px; height: 80px; border: 1px solid #999; background: #fff; display: block; margin-top: 5px; }
+</style>
+</head>
+<body>
+<h2>Protokół Kontroli Kominiarskiej CEEB</h2>
+<pre>${document.getElementById('out_calosc').innerText}</pre>
+<h2>Zbiór Podpisów Lokatorów</h2>
+<div>${document.getElementById('out_podpisy_zbiorczo').innerHTML}</div>
+</body>
+</html>`;
+
+        let blob = new Blob([htmlZawartosc], { type: "text/html;charset=utf-8" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = bezpiecznaNazwa;
+        link.click();
     }
 
     function kopiujCaloscTekst() {
