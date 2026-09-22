@@ -200,12 +200,31 @@
     let zatwierdzoneStan = {};
     let wczytujeStan = false;
     let aktualneIdHistorii = null;
+    const KLUCZ_ROBOCZY = 'protokol_ceeb_aktualnie_pisany';
 
     window.onload = function() {
         wczytujeStan = true;
         odswiezListeHistorii();
-        // Zawsze uruchomienie lub odświeżenie strony startuje całkowicie nowy protokół z aktualną datą
-        rozpocznijNowyProtokol(false);
+        
+        let zapisRoboczy = localStorage.getItem(KLUCZ_ROBOCZY);
+        let wczytano = false;
+
+        if (zapisRoboczy) {
+            try {
+                let stan = JSON.parse(zapisRoboczy);
+                aktualneIdHistorii = stan.id_historii || ('protokolec_' + Date.now());
+                wczytajStanObiekt(stan);
+                wczytano = true;
+            } catch (e) {}
+        }
+
+        if (!wczytano) {
+            aktualneIdHistorii = 'protokolec_' + Date.now();
+            document.getElementById('data_czas').value = ustawAktualnaDateCzas();
+            dodajLokal();
+        }
+
+        wczytujeStan = false;
         przeliczSumePrzewodow();
         inicjalizujGestPrzelaczania();
     };
@@ -256,6 +275,7 @@
             let stan = JSON.parse(zapis);
             aktualneIdHistorii = id;
             wczytajStanObiekt(stan);
+            zapiszStan();
             odswiezListeHistorii();
             return true;
         } catch (e) {
@@ -267,6 +287,7 @@
         if (!aktualneIdHistorii) return;
         if (confirm("Czy na pewno chcesz usunąć ten protokół z historii?")) {
             localStorage.removeItem(aktualneIdHistorii);
+            localStorage.removeItem(KLUCZ_ROBOCZY);
             location.reload();
         }
     }
@@ -500,6 +521,7 @@
 
     function zbierzCalowityStan() {
         let stan = {
+            id_historii: aktualneIdHistorii,
             ogólne: {
                 adres_budynku: document.getElementById('adres_budynku').value,
                 data_czas: document.getElementById('data_czas').value,
@@ -551,11 +573,12 @@
 
     function zapiszStan() {
         if (wczytujeStan) return;
-        if (!aktualneIdHistorii) {
-            aktualneIdHistorii = 'protokolec_' + Date.now();
-        }
         let stan = zbierzCalowityStan();
-        localStorage.setItem(aktualneIdHistorii, JSON.stringify(stan));
+        // Zapisuj na żywo do stanu roboczego oraz jako historię
+        localStorage.setItem(KLUCZ_ROBOCZY, JSON.stringify(stan));
+        if (aktualneIdHistorii) {
+            localStorage.setItem(aktualneIdHistorii, JSON.stringify(stan));
+        }
         odswiezListeHistorii();
     }
 
@@ -640,7 +663,6 @@
             document.getElementById('p_raz').value = '0';
             document.getElementById('wynik_sekcja').style.display = 'none';
 
-            // Ustawienie aktualnej daty i godziny przy nowym protokole
             document.getElementById('data_czas').value = ustawAktualnaDateCzas();
 
             dodajLokal();
