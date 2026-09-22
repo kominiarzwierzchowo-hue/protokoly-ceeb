@@ -170,7 +170,7 @@
         <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14" oninput="zapiszStan()"></div>
 
         <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
-        <button type="button" onclick="wyczyscCaloscPamięci()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
+        <button type="button" onclick="rozpocznijNowyProtokol()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
 
         <div id="wynik_sekcja" style="display:none;">
             <h3>Podgląd całego dokumentu (z podpisami):</h3>
@@ -207,7 +207,7 @@
         let ostatniId = localStorage.getItem('protokol_ceeb_ostatni_id');
         let wczytano = false;
         
-        if (ostatniId) {
+        if (ostatniId && localStorage.getItem(ostatniId)) {
             wczytano = wczytajZHistoriiPoId(ostatniId);
         }
         
@@ -219,13 +219,10 @@
         }
 
         if (!wczytano) {
-            ustawAktualnaDateCzas();
-            let nowyId = 'protokolec_' + Date.now();
-            aktualneIdHistorii = nowyId;
-            dodajLokal();
-            zapiszStan();
+            rozpocznijNowyProtokol(false);
+        } else {
+            wczytujeStan = false;
         }
-        wczytujeStan = false;
         przeliczSumePrzewodow();
         inicjalizujGestPrzelaczania();
     };
@@ -641,20 +638,35 @@
         link.click();
     }
 
-    function wyczyscCaloscPamięci() {
-        if (confirm("Czy na pewno chcesz utworzyć zupełnie nowy protokół? (Stary pozostaje zapisany w historii).")) {
+    function rozpocznijNowyProtokol(pytaj = true) {
+        if (!pytaj || confirm("Czy na pewno chcesz rozpocząć nowy protokół i wyczyścić formularz?")) {
+            wczytujeStan = true;
             aktualneIdHistorii = 'protokolec_' + Date.now();
             localStorage.setItem('protokol_ceeb_ostatni_id', aktualneIdHistorii);
+            
             document.getElementById('kontener_lokali').innerHTML = '';
             licznikLokali = 0;
             zatwierdzoneStan = {};
-            document.querySelectorAll('input[type="text"], textarea').forEach(el => {
-                if(!el.readOnly && el.id !== 'lista_historii_select') el.value = '';
+            
+            document.querySelectorAll('input[type="text"], textarea, input[type="number"]').forEach(el => {
+                if(!el.readOnly && el.id !== 'lista_historii_select') {
+                    el.value = '';
+                }
             });
+            
+            document.getElementById('p_dym').value = '0';
+            document.getElementById('p_spa').value = '0';
+            document.getElementById('p_wen').value = '0';
+            document.getElementById('p_awa').value = '0';
+            document.getElementById('p_raz').value = '0';
+            document.getElementById('wynik_sekcja').style.display = 'none';
+
             ustawAktualnaDateCzas();
             dodajLokal();
+            wczytujeStan = false;
             zapiszStan();
             odswiezListeHistorii();
+            zmienZakladke(0);
         }
     }
 
