@@ -154,20 +154,20 @@
         </div>
 
         <h2>Stwierdzone Nieprawidłowości (1-14)</h2>
-        <div class="group"><label>1. Wymiana przewodu łączącego (gaz) - Mieszkania nr:</label><input type="text" id="u1" oninput="zapiszStan()"></div>
-        <div class="group"><label>2. Nieszczelne podłączenie rury spaliny - Mieszkania nr:</label><input type="text" id="u2" oninput="zapiszStan()"></div>
-        <div class="group"><label>3. Demontaż siatek / żaluzji z kratek - Mieszkania nr:</label><input type="text" id="u3" oninput="zapiszStan()"></div>
-        <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm - Lokale nr:</label><input type="text" id="u4" oninput="zapiszStan()"></div>
-        <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach - Mieszkania:</label><input type="text" id="u5" oninput="zapiszStan()"></div>
-        <div class="group"><label>6. Niedozwolony wyciąg mechaniczny - Mieszkania:</label><input type="text" id="u6" oninput="zapiszStan()"></div>
-        <div class="group"><label>7. Brak drożności / zasłonięcie kratki - Lokale:</label><input type="text" id="u7" oninput="zapiszStan()"></div>
-        <div class="group"><label>8. Zabudowana rura łącząca piec/kocioł - Mieszkania:</label><input type="text" id="u8" oninput="zapiszStan()"></div>
-        <div class="group"><label>9. Nieprawidłowa instalacja z rur PCV - Lokale:</label><input type="text" id="u9" oninput="zapiszStan()"></div>
-        <div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej - Lokale:</label><input type="text" id="u10" oninput="zapiszStan()"></div>
-        <div class="group"><label>11. Całkowity brak wentylacji - Lokale:</label><input type="text" id="u11" oninput="zapiszStan()"></div>
-        <div class="group"><label>12. Niedozwolona zabudowa meblowa gazu - Mieszkania:</label><input type="text" id="u12" oninput="zapiszStan()"></div>
-        <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13" oninput="zapiszStan()"></div>
-        <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14" oninput="zapiszStan()"></div>
+        <div class="group"><label>1. Wymiana przewodu łączącego (gaz) - Mieszkania nr:</label><input type="text" id="u1" placeholder="np. 4, 12" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="zapiszStan()"></div>
+        <div class="group"><label>2. Nieszczelne podłączenie rury spaliny - Mieszkania nr:</label><input type="text" id="u2" placeholder="np. 2, 5" oninput="zapiszStan()"></div>
+        <div class="group"><label>3. Demontaż siatek / żaluzji z kratek - Mieszkania nr:</label><input type="text" id="u3" placeholder="np. 1, 8" oninput="zapiszStan()"></div>
+        <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm - Lokale nr:</label><input type="text" id="u4" placeholder="np. 3, 9" oninput="zapiszStan()"></div>
+        <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach - Mieszkania:</label><input type="text" id="u5" placeholder="np. 7" oninput="zapiszStan()"></div>
+        <div class="group"><label>6. Niedozwolony wyciąg mechaniczny - Mieszkania:</label><input type="text" id="u6" placeholder="np. 10" oninput="zapiszStan()"></div>
+        <div class="group"><label>7. Brak drożności / zasłonięcie kratki - Lokale:</label><input type="text" id="u7" placeholder="np. 11" oninput="zapiszStan()"></div>
+        <div class="group"><label>8. Zabudowana rura łącząca piec/kocioł - Mieszkania:</label><input type="text" id="u8" placeholder="np. 14" oninput="zapiszStan()"></div>
+        <div class="group"><label>9. Nieprawidłowa instalacja z rur PCV - Lokale:</label><input type="text" id="u9" placeholder="np. 15" oninput="zapiszStan()"></div>
+        <div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej - Lokale:</label><input type="text" id="u10" placeholder="np. 16" oninput="zapiszStan()"></div>
+        <div class="group"><label>11. Całkowity brak wentylacji - Lokale:</label><input type="text" id="u11" placeholder="np. 18" oninput="zapiszStan()"></div>
+        <div class="group"><label>12. Niedozwolona zabudowa meblowa gazu - Mieszkania:</label><input type="text" id="u12" placeholder="np. 19" oninput="zapiszStan()"></div>
+        <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13" placeholder="np. 20" oninput="zapiszStan()"></div>
+        <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14" placeholder="np. 22" oninput="zapiszStan()"></div>
 
         <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
         <button type="button" onclick="rozpocznijNowyProtokol()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
@@ -297,7 +297,7 @@
         let rok = teraz.getFullYear();
         let godziny = String(teraz.getHours()).padStart(2, '0');
         let minuty = String(teraz.getMinutes()).padStart(2, '0');
-        document.getElementById('data_czas').value = `${dzien}.${miesiac}.${rok} r., godz. ${godzini}:${minuty}`;
+        return `${dzien}.${miesiac}.${rok} r., godz. ${godzini}:${minuty}`;
     }
 
     function zmienZakladke(index) {
@@ -661,7 +661,8 @@
             document.getElementById('p_raz').value = '0';
             document.getElementById('wynik_sekcja').style.display = 'none';
 
-            ustawAktualnaDateCzas();
+            document.getElementById('data_czas').value = ustawAktualnaDateCzas();
+
             dodajLokal();
             wczytujeStan = false;
             zapiszStan();
