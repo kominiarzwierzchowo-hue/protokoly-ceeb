@@ -181,9 +181,6 @@
                 <div id="out_calosc" class="output-text"></div>
                 <div id="out_podpisy_zbiorczo" style="margin-top: 15px; border-top: 2px solid #0d3880; padding-top: 10px;"></div>
                 <button class="btn-copy" onclick="kopiujCaloscTekst()">Kopiuj cały tekst dokumentu</button>
-                <button class="btn-file" onclick="pobierzCaloscTXT()">Pobierz jako plik tekstowy TXT</button>
-                <button class="btn-file" style="background: #0d3880; color: #fff;" onclick="pobierzPelnyDokumentHTML()">📥 Pobierz kompletny dokument z podpisami (HTML do folderu CEEB)</button>
-                <button class="btn-json" onclick="pobierzPlikJSON()">💾 Pobierz pełny plik ZAPISU DO EDYCJI (.json)</button>
             </div>
         </div>
     </div>
@@ -639,7 +636,7 @@
         reader.readAsText(file);
     }
 
-    function pobierzPlikJSON() {
+    function pobierzPlikJSONAutomatycznie() {
         let stan = zbierzCalowityStan();
         let tekst = JSON.stringify(stan, null, 2);
         let adres = document.getElementById('adres_budynku').value.trim() || 'Protokol_CEEB';
@@ -793,11 +790,23 @@
 
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+        // AUTOMATYCZNE POBIERANIE WSZYSTKICH TRZECH PLIKÓW
+        pobierzPlikTxtAutomatycznie(calyTekst, adres);
+        pobierzPelnyDokumentHTMLAutomatycznie(calyTekst, kontenerPodpisow.innerHTML, adres);
+        pobierzPlikJSONAutomatycznie();
     }
 
-    function pobierzPelnyDokumentHTML() {
-        generujWszystko();
-        let adres = document.getElementById('adres_budynku').value.trim() || 'Protokol_CEEB';
+    function pobierzPlikTxtAutomatycznie(tekst, adres) {
+        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '.txt';
+        let blob = new Blob([tekst], { type: "text/plain;charset=utf-8" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = bezpiecznaNazwa;
+        link.click();
+    }
+
+    function pobierzPelnyDokumentHTMLAutomatycznie(tekstDokumentu, htmlPodpisow, adres) {
         let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_KOMPLETNY_Z_PODPISAMI.html';
         
         let htmlZawartosc = `<!DOCTYPE html>
@@ -815,9 +824,9 @@ pre { white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 14px; ba
 </head>
 <body>
 <h2>Protokół Kontroli Kominiarskiej CEEB</h2>
-<pre>${document.getElementById('out_calosc').innerText}</pre>
+<pre>${tekstDokumentu}</pre>
 <h2>Zbiór Podpisów Lokatorów</h2>
-<div>${document.getElementById('out_podpisy_zbiorczo').innerHTML}</div>
+<div>${htmlPodpisow}</div>
 </body>
 </html>`;
 
@@ -831,18 +840,6 @@ pre { white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 14px; ba
     function kopiujCaloscTekst() {
         let tekst = document.getElementById('out_calosc').innerText;
         navigator.clipboard.writeText(tekst).then(() => alert("Skopiowano tekst dokumentu do schowka!"));
-    }
-
-    function pobierzCaloscTXT() {
-        let tekst = document.getElementById('out_calosc').innerText;
-        let adres = document.getElementById('adres_budynku').value.trim() || 'Protokoł_CEEB';
-        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '.txt';
-        
-        let blob = new Blob([tekst], { type: "text/plain;charset=utf-8" });
-        let link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = bezpiecznaNazwa;
-        link.click();
     }
 </script>
 </body>
