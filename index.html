@@ -24,9 +24,6 @@
         .output-box { margin-top: 10px; background: #eef3fc; border: 1px solid #b2c8f0; padding: 12px; border-radius: 5px; }
         .output-text { white-space: pre-wrap; font-size: 12px; line-height: 1.4; word-break: break-word; }
         .btn-copy { background: #28a745; margin-top: 8px; padding: 10px; font-size: 14px; }
-        .btn-file { background: #ffc107; color: #000; margin-top: 8px; padding: 10px; font-size: 14px; font-weight: bold; }
-        .btn-file:hover { background: #e0a800; }
-        .btn-json { background: #17a2b8; color: #fff; margin-top: 8px; padding: 12px; font-size: 14px; font-weight: bold; }
         .btn-red { background: #dc3545; margin-top: 8px; }
         .btn-success { background: #28a745; margin-top: 8px; }
         .btn-warning { background: #6c757d; margin-top: 10px; }
@@ -172,7 +169,7 @@
         <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13" placeholder="np. 20" oninput="zapiszStan()"></div>
         <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14" placeholder="np. 22" oninput="zapiszStan()"></div>
 
-        <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
+        <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT (Pobierz pliki automatycznie)</button>
         <button type="button" onclick="rozpocznijNowyProtokol()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
 
         <div id="wynik_sekcja" style="display:none;">
