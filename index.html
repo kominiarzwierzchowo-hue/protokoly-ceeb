@@ -16,7 +16,8 @@
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .grid-3 input { text-align: center; }
         .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-        .grid-5 input { padding: 6px; text-align: center; font-size: 12px; }
+        .grid-5 input { padding: 6px; text-align: center; font-size: 12px; background: #eef2f6; font-weight: bold; color: #0d3880; }
+        .grid-5 input.manual { background: #fff; font-weight: normal; color: #333; }
         .grid-5 label { font-size: 10px; text-align: center; }
         button { background: #0d3880; color: white; border: none; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 15px; }
         button:active { background: #082454; }
@@ -63,13 +64,13 @@
             <input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00" oninput="zapiszStan()">
         </div>
         <div class="group">
-            <label>Ilość przewodów kominowych (cały budynek - z sum lokali):</label>
+            <label>Ilość przewodów kominowych (Cały budynek - Dymowe, Spalinowe i Wentylacyjne sumują się z lokali):</label>
             <div class="grid-5">
-                <div><label>Dym (Auto)</label><input type="text" id="p_dym" value="0" oninput="zapiszStan()"></div>
-                <div><label>Spal (Auto)</label><input type="text" id="p_spa" value="0" oninput="zapiszStan()"></div>
-                <div><label>Went (Auto)</label><input type="text" id="p_wen" value="0" oninput="zapiszStan()"></div>
-                <div><label>Awar</label><input type="text" id="p_awa" value="0" oninput="zapiszStan()"></div>
-                <div><label>Razem</label><input type="text" id="p_raz" value="0" oninput="zapiszStan()"></div>
+                <div><label>Dym (Suma)</label><input type="text" id="p_dym" value="0" readonly title="Sumowane automatycznie z lokali"></div>
+                <div><label>Spal (Suma)</label><input type="text" id="p_spa" value="0" readonly title="Sumowane automatycznie z lokali"></div>
+                <div><label>Went (Suma)</label><input type="text" id="p_wen" value="0" readonly title="Sumowane automatycznie z lokali"></div>
+                <div><label>Awar</label><input type="text" id="p_awa" value="0" class="manual" oninput="zapiszStan()" placeholder="Wpisz"></div>
+                <div><label>Razem</label><input type="text" id="p_raz" value="0" class="manual" oninput="zapiszStan()" placeholder="Wpisz"></div>
             </div>
         </div>
         <div class="group grid-2">
@@ -168,7 +169,7 @@
     <!-- ZAKŁADKA 1: LOKALE, URZĄDZENIA I PODPISY -->
     <div id="tab_1" class="tab-content">
         <h2>Kontrola lokali, urządzenia i podpisy</h2>
-        <p style="font-size: 12px; color: #666;">Wprowadzane przewody sumują się automatycznie w danych budynku.</p>
+        <p style="font-size: 12px; color: #666;">Wprowadzone ilości przewodów sumują się automatycznie w podsumowaniu budynku.</p>
         
         <div id="kontener_lokali"></div>
         <button type="button" onclick="dodajLokal(); zapiszStan();" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
