@@ -198,12 +198,10 @@
 <script>
     let licznikLokali = 0;
     let zatwierdzoneStan = {};
-    let wczytujeStan = false;
     let aktualneIdHistorii = null;
     const KLUCZ_ROBOCZY = 'protokol_ceeb_aktualnie_pisany';
 
     window.onload = function() {
-        wczytujeStan = true;
         odswiezListeHistorii();
         
         let zapisRoboczy = localStorage.getItem(KLUCZ_ROBOCZY);
@@ -222,9 +220,9 @@
             aktualneIdHistorii = 'protokolec_' + Date.now();
             document.getElementById('data_czas').value = ustawAktualnaDateCzas();
             dodajLokal();
+            zapiszStan();
         }
 
-        wczytujeStan = false;
         przeliczSumePrzewodow();
         inicjalizujGestPrzelaczania();
     };
@@ -233,7 +231,7 @@
         let lista = [];
         for (let i = 0; i < localStorage.length; i++) {
             let key = localStorage.key(i);
-            if (key && key.startsWith('protokolec_')) {
+            if (key && key.startsWith('protokolec_') && key !== KLUCZ_ROBOCZY) {
                 lista.push(key);
             }
         }
@@ -572,9 +570,8 @@
     }
 
     function zapiszStan() {
-        if (wczytujeStan) return;
         let stan = zbierzCalowityStan();
-        // Zapisuj na żywo do stanu roboczego oraz jako historię
+        // Zapisywane stale w tle do pamięci roboczej oraz archiwum
         localStorage.setItem(KLUCZ_ROBOCZY, JSON.stringify(stan));
         if (aktualneIdHistorii) {
             localStorage.setItem(aktualneIdHistorii, JSON.stringify(stan));
@@ -583,7 +580,6 @@
     }
 
     function wczytajStanObiekt(stan) {
-        wczytujeStan = true;
         if(stan.ogólne) {
             for (let key in stan.ogólne) {
                 let el = document.getElementById(key);
@@ -606,7 +602,6 @@
         } else {
             dodajLokal();
         }
-        wczytujeStan = false;
         przeliczSumePrzewodow();
     }
 
@@ -643,7 +638,6 @@
 
     function rozpocznijNowyProtokol(pytaj = true) {
         if (!pytaj || confirm("Czy na pewno chcesz rozpocząć nowy protokół i wyczyścić formularz?")) {
-            wczytujeStan = true;
             aktualneIdHistorii = 'protokolec_' + Date.now();
             
             document.getElementById('kontener_lokali').innerHTML = '';
@@ -666,7 +660,6 @@
             document.getElementById('data_czas').value = ustawAktualnaDateCzas();
 
             dodajLokal();
-            wczytujeStan = false;
             zapiszStan();
             odswiezListeHistorii();
             zmienZakladke(0);
