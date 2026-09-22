@@ -24,6 +24,7 @@
         .output-text { white-space: pre-wrap; font-size: 12px; line-height: 1.4; word-break: break-word; }
         .btn-copy { background: #28a745; margin-top: 8px; padding: 10px; font-size: 14px; }
         .btn-file { background: #ffc107; color: #000; margin-top: 8px; padding: 10px; font-size: 14px; font-weight: bold; }
+        .btn-file:hover { background: #e0a800; }
         .btn-red { background: #dc3545; margin-top: 8px; }
         .btn-success { background: #28a745; margin-top: 8px; }
         
@@ -41,17 +42,17 @@
 </head>
 <body>
 <div class="container">
-    <h1>Generator CEEB + Podpisy</h1>
+    <h1>Generator CEEB + Lokale i Podpisy</h1>
 
     <!-- Pasek zakładek głównych -->
     <div class="tabs-nav">
-        <button type="button" class="tab-btn active" onclick="zmienZakladke(0)">📝 1. Dane i Lokale</button>
-        <button type="button" class="tab-btn" onclick="zmienZakladke(1)">✍️ 2. Podpisy Lokatorów</button>
+        <button type="button" class="tab-btn active" onclick="zmienZakladke(0)">📝 1. Dane Budynku i Uwagi</button>
+        <button type="button" class="tab-btn" onclick="zmienZakladke(1)">✍️ 2. Lokale, Urządzenia i Podpisy</button>
     </div>
 
-    <!-- ZAKŁADKA 0: DANE I LOKALE -->
+    <!-- ZAKŁADKA 0: DANE OGÓLNE BUDYNKU I NIEPRAWIDŁOWOŚCI -->
     <div id="tab_0" class="tab-content active">
-        <h2>Informacje o budynku i kontroli</h2>
+        <h2>Informacje ogólne o budynku</h2>
         <div class="group">
             <label>Adres budynku:</label>
             <input type="text" id="adres_budynku" placeholder="np. Wierzchowo, ul. 3 Marca 29F">
@@ -61,7 +62,7 @@
             <input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00">
         </div>
         <div class="group">
-            <label>Ilość przewodów kominowych (budynek):</label>
+            <label>Ilość przewodów kominowych (cały budynek):</label>
             <div class="grid-5">
                 <div><label>Dym</label><input type="text" id="p_dym" value="0"></div>
                 <div><label>Spal</label><input type="text" id="p_spa" value="0"></div>
@@ -128,10 +129,6 @@
             <input type="text" id="nasady" placeholder="np. uszkodzone, 1 sztuka">
         </div>
 
-        <h2>Konfiguracja lokali i urządzeń</h2>
-        <div id="kontener_lokali_dane"></div>
-        <button type="button" onclick="dodajLokal()" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
-
         <h2>Własne uwagi i spostrzeżenia z kontroli</h2>
         <div class="group">
             <label>Inne / dodatkowe uwagi (niestandardowe):</label>
@@ -166,25 +163,38 @@
         </div>
     </div>
 
-    <!-- ZAKŁADKA 1: PODPISY -->
+    <!-- ZAKŁADKA 1: LOKALE, URZĄDZENIA I PODPISY -->
     <div id="tab_1" class="tab-content">
-        <h2>Podpisy Lokatorów</h2>
-        <p style="font-size: 12px; color: #666;">Przełączaj się między lokalami, zbieraj podpisy i zatwierdzaj je, aby zapobiec zmianom.</p>
-        <div id="kontener_lokali_podpisy"></div>
+        <h2>Kontrola lokali, urządzenia i podpisy</h2>
+        <p style="font-size: 12px; color: #666;">Dodawaj kolejne lokale, wybieraj urządzenia, wpisuj liczbę przewodów, zbieraj podpisy i zatwierdzaj je.</p>
+        
+        <div id="kontener_lokali"></div>
+        <button type="button" onclick="dodajLokal()" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
     </div>
 </div>
 
 <script>
     let licznikLokali = 0;
-    let aktywneTab = 0;
 
     window.onload = function() {
+        ustawAktualnaDateCzas();
         dodajLokal();
         inicjalizujGestPrzelaczania();
     };
 
+    function ustawAktualnaDateCzas() {
+        let teraz = new Date();
+        let dzien = String(teraz.getDate()).padStart(2, '0');
+        let miesiac = String(teraz.getMonth() + 1).padStart(2, '0');
+        let rok = teraz.getFullYear();
+        let godziny = String(teraz.getHours()).padStart(2, '0');
+        let minuty = String(teraz.getMinutes()).padStart(2, '0');
+        
+        let sformatowanaData = `${dzien}.${miesiac}.${rok} r., godz. ${godzini}:${minuty}`;
+        document.getElementById('data_czas').value = sformatowanaData;
+    }
+
     function zmienZakladke(index) {
-        aktywneTab = index;
         let tabs = document.querySelectorAll('.tab-content');
         let btns = document.querySelectorAll('.tab-btn');
         
@@ -199,7 +209,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Obsługa gestu swipe w bok palcem
     function inicjalizujGestPrzelaczania() {
         let touchstartX = 0;
         let touchendX = 0;
@@ -215,14 +224,8 @@
         }, false);
 
         function handleGesture() {
-            if (touchendX < touchstartX - 70) {
-                // Swipe w lewo -> przełącz na podpisy
-                zmienZakladke(1);
-            }
-            if (touchendX > touchstartX + 70) {
-                // Swipe w prawo -> przełącz na dane
-                zmienZakladke(0);
-            }
+            if (touchendX < touchstartX - 70) zmienZakladke(1);
+            if (touchendX > touchstartX + 70) zmienZakladke(0);
         }
     }
 
@@ -230,15 +233,19 @@
         licznikLokali++;
         let id = licznikLokali;
 
-        // 1. Karta w zakładce DANE
-        let divDane = document.createElement('div');
-        divDane.className = 'lokal-card';
-        divDane.id = 'lokal_dane_' + id;
-        divDane.innerHTML = `
-            <label style="color: #0d3880; font-size: 14px; margin-bottom: 8px;">Lokal / Mieszkanie nr:</label>
+        let divLokal = document.createElement('div');
+        divLokal.className = 'lokal-card';
+        divLokal.id = 'lokal_box_' + id;
+        divLokal.innerHTML = `
+            <h3 id="tytul_lokal_${id}" style="color: #0d3880; margin-top: 0;">Lokal nr [Brak numeru]</h3>
+            
+            <label style="font-size: 12px; margin-bottom: 4px;">Lokal / Mieszkanie nr:</label>
             <input type="text" id="l_nr_${id}" placeholder="np. 12" oninput="aktualizujEtykietyLokali()" style="margin-bottom: 8px;">
             
-            <label>Urządzenie grzewcze w lokalu:</label>
+            <label style="font-size: 12px; margin-bottom: 4px;">Imię i nazwisko lokatora:</label>
+            <input type="text" id="l_osoba_${id}" placeholder="np. Jan Kowalski" oninput="aktualizujEtykietyLokali()" style="margin-bottom: 8px;">
+
+            <label style="font-size: 12px; margin-bottom: 4px;">Urządzenie grzewcze w lokalu:</label>
             <select id="l_urz_${id}" onchange="zmienTypUrzadzenia(${id})" style="margin-bottom: 8px;">
                 <option value="Kocioł CO na opał stały">Kocioł CO na opał stały</option>
                 <option value="Kominek">Kominek</option>
@@ -254,46 +261,35 @@
 
             <!-- Opcje dodatkowe dla Kotła CO na opał stały -->
             <div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
-                <label>Wentylator w kotle:</label>
-                <select id="l_wentylator_${id}" style="margin-bottom: 6px;">
+                <label style="font-size:11px;">Wentylator w kotle:</label>
+                <select id="l_wentylator_${id}" style="margin-bottom: 6px; font-size: 13px;">
                     <option value="z wentylatorem">Z wentylatorem</option>
                     <option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
                 </select>
-                <label>Funkcja układu grzewczego:</label>
-                <select id="l_funkcja_${id}">
+                <label style="font-size:11px;">Funkcja układu grzewczego:</label>
+                <select id="l_funkcja_${id}" style="font-size: 13px;">
                     <option value="CO">Tylko CO (Ogrzewanie)</option>
                     <option value="CWU">Tylko CWU (Ciepła woda użytkowa)</option>
                     <option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
                 </select>
             </div>
 
-            <label>Ilość podłączeń do kominów:</label>
+            <label style="font-size: 12px; margin-bottom: 4px;">Ilość podłączeń do kominów w lokalu:</label>
             <div class="grid-3" style="margin-bottom: 8px;">
                 <div><label style="font-size:10px;">Wentylacyjne</label><input type="number" id="l_wen_${id}" value="1"></div>
                 <div><label style="font-size:10px;">Dymowe</label><input type="number" id="l_dym_${id}" value="0"></div>
                 <div><label style="font-size:10px;">Spalinowe</label><input type="number" id="l_spa_${id}" value="0"></div>
             </div>
 
-            <label>Imię i nazwisko lokatora:</label>
-            <input type="text" id="l_osoba_${id}" placeholder="np. Jan Kowalski" oninput="aktualizujEtykietyLokali()">
-            
-            ${id > 1 ? '<button type="button" onclick="usunLokal(' + id + ')" class="btn-red" style="padding: 6px; font-size: 12px; margin-top: 8px;">Usuń ten lokal</button>' : ''}
-        `;
-        document.getElementById('kontener_lokali_dane').appendChild(div);
-
-        // 2. Karta w zakładce PODPISY
-        let divPodpis = document.createElement('div');
-        divPodpis.className = 'lokal-card';
-        divPodpis.id = 'lokal_podpis_' + id;
-        divPodpis.innerHTML = `
-            <h3 id="tytul_podpis_${id}" style="color: #0d3880; margin-top: 0;">Lokal nr [Brak numeru]</h3>
-            <label>Podpis lokatora (narysuj palcem):</label>
+            <label style="font-size: 12px; margin-bottom: 4px;">Podpis lokatora (narysuj palcem):</label>
             <canvas id="canvas_${id}"></canvas>
             
-            <button type="button" id="btn_czysc_${id}" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
+            <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
             <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
+            
+            ${id > 1 ? '<button type="button" onclick="usunLokal(' + id + ')" class="btn-red" style="padding: 8px; font-size: 12px; margin-top: 10px;">Usuń ten lokal</button>' : ''}
         `;
-        document.getElementById('kontener_lokali_podpisy').appendChild(divPodpis);
+        document.getElementById('kontener_lokali').appendChild(divLokal);
 
         inicjalizujCanvas(id);
         zmienTypUrzadzenia(id);
@@ -310,28 +306,23 @@
     }
 
     function usunLokal(id) {
-        let d = document.getElementById('lokal_dane_' + id);
-        let p = document.getElementById('lokal_podpis_' + id);
-        if(d) d.remove();
-        if(p) p.remove();
+        let el = document.getElementById('lokal_box_' + id);
+        if(el) el.remove();
     }
 
     function aktualizujEtykietyLokali() {
         let karty = document.querySelectorAll('.lokal-card');
         karty.forEach(k => {
-            if(k.id.startsWith('lokal_dane_')) {
-                let id = k.id.split('_')[2];
-                let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
-                let osoba = document.getElementById('l_osoba_' + id).value || 'Brak osoby';
-                let tytul = document.getElementById('tytul_podpis_' + id);
-                if(tytul) {
-                    tytul.innerText = `Lokal nr ${nr} (${osoba})`;
-                }
+            let id = k.id.split('_')[2];
+            let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
+            let osoba = document.getElementById('l_osoba_' + id).value || 'Brak osoby';
+            let tytul = document.getElementById('tytul_lokal_' + id);
+            if(tytul) {
+                tytul.innerText = `Lokal nr ${nr} (${osoba})`;
             }
         });
     }
 
-    // Obsługa rysowania oraz blokady podpisu
     let zatwierdzoneStan = {};
 
     function inicjalizujCanvas(id) {
@@ -359,7 +350,7 @@
 
     function wyczyscPodpis(id) {
         if(zatwierdzoneStan[id]) {
-            alert("Podpis jest zatwierdzony i zablokowany. Kliknij najpierw 'Edytuj / Odblokuj'.");
+            alert("Podpis jest zatwierdzony i zablokowany. Kliknij najpierw 'Odblokuj podpis'.");
             return;
         }
         let canvas = document.getElementById('canvas_' + id);
@@ -383,16 +374,13 @@
         let canvas = document.getElementById('canvas_' + id);
         
         if(!zatwierdzoneStan[id]) {
-            // Zablokuj
             zatwierdzoneStan[id] = true;
             canvas.classList.add('locked-canvas');
             btn.innerText = "Odblokuj podpis (Edytuj)";
             btn.style.background = "#d97706";
-            // Automatyczne pobranie grafiki podpisu z adresem i lokalem
             zatwierdzonePodpisZapiszZdjecie(id);
-            alert("Podpis został zatwierdzony i zablokowany przed przypadkową zmianą! Obrazek podpisu został pobrany.");
+            alert("Podpis został zatwierdzony i zablokowany! Obrazek podpisu dla tego lokalu został pobrany.");
         } else {
-            // Odblokuj
             zatwierdzoneStan[id] = false;
             canvas.classList.remove('locked-canvas');
             btn.innerText = "Zatwierdź podpis (Zablokuj zmianę)";
@@ -417,7 +405,6 @@
         let nas = document.getElementById('nasady').value;
         let uwagiWłasne = document.getElementById('uwagi_własne').value.trim();
 
-        // Nagłówek
         let calyTekst = `=== PROTOKÓŁ / KONTROLA KOMINIARSKA ===\n` +
                         `Adres budynku: ${adres}\n` +
                         `Data i godzina kontroli: ${dc}\n\n` +
@@ -429,37 +416,32 @@
                         `Stan drzwiczek kominowych: ${dzs}${dzg ? ' (' + dzg + ')' : ''}.\n` +
                         (nas ? `Nasady kominowe: ${nas}.\n` : '');
 
-        // Własne uwagi
         if (uwagiWłasne) {
             calyTekst += `\n--- DODATKOWE UWAGI ---\n${uwagiWłasne}\n`;
         }
 
-        // Lokale i urządzenia
         calyTekst += `\n--- ZESTAWIENIE KONTROLI LOKALI ---\n`;
         let karty = document.querySelectorAll('.lokal-card');
         karty.forEach((karta) => {
-            if(karta.id.startsWith('lokal_dane_')) {
-                let id = karta.id.split('_')[2];
-                let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
-                let urz = document.getElementById('l_urz_' + id).value;
-                let w = document.getElementById('l_wen_' + id).value;
-                let d = document.getElementById('l_dym_' + id).value;
-                let s = document.getElementById('l_spa_' + id).value;
-                let osoba = document.getElementById('l_osoba_' + id).value || 'Brak danych lokatora';
+            let id = karta.id.split('_')[2];
+            let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
+            let urz = document.getElementById('l_urz_' + id).value;
+            let w = document.getElementById('l_wen_' + id).value;
+            let d = document.getElementById('l_dym_' + id).value;
+            let s = document.getElementById('l_spa_' + id).value;
+            let osoba = document.getElementById('l_osoba_' + id).value || 'Brak danych lokatora';
 
-                let szczegolyUrz = urz;
-                if(urz === "Kocioł CO na opał stały") {
-                    let went = document.getElementById('l_wentylator_' + id).value;
-                    let funkcja = document.getElementById('l_funkcja_' + id).value;
-                    szczegolyUrz += ` (${went}, funkcja: ${funkcja})`;
-                }
-
-                calyTekst += `• Lokal nr ${nr} | Lokator: ${osoba}\n  - Urządzenie grzewcze: ${szczegolyUrz}\n  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n\n`;
+            let szczegolyUrz = urz;
+            if(urz === "Kocioł CO na opał stały") {
+                let went = document.getElementById('l_wentylator_' + id).value;
+                let funkcja = document.getElementById('l_funkcja_' + id).value;
+                szczegolyUrz += ` (${went}, funkcja: ${funkcja})`;
             }
+
+            calyTekst += `• Lokal nr ${nr} | Lokator: ${osoba}\n  - Urządzenie grzewcze: ${szczegolyUrz}\n  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n\n`;
         });
 
-        // Nieprawidłowości (1-14)
-        calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOSCI I NAKAZY ---\n`;
+        calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
         let items = [];
         let v1 = document.getElementById('u1').value.trim();
         if(v1) items.push("1. Wymiana przewodu łączącego z certyfikatem CE. Mieszkania nr: " + v1 + ".");
