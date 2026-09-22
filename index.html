@@ -24,150 +24,222 @@
         .output-text { white-space: pre-wrap; font-size: 12px; line-height: 1.4; word-break: break-word; }
         .btn-copy { background: #28a745; margin-top: 8px; padding: 10px; font-size: 14px; }
         .btn-file { background: #ffc107; color: #000; margin-top: 8px; padding: 10px; font-size: 14px; font-weight: bold; }
-        .btn-file:hover { background: #e0a800; }
         .btn-red { background: #dc3545; margin-top: 8px; }
+        .btn-success { background: #28a745; margin-top: 8px; }
+        
+        /* Zakładki na górze */
+        .tabs-nav { display: flex; gap: 5px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 6px; }
+        .tab-btn { flex: 1; padding: 12px; background: #cbd5e1; border: none; font-weight: bold; font-size: 13px; border-radius: 4px; cursor: pointer; color: #334155; margin-top: 0; text-align: center; }
+        .tab-btn.active { background: #0d3880; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         canvas { border: 2px dashed #0d3880; background: #fff; width: 100%; height: 150px; border-radius: 4px; touch-action: none; cursor: crosshair; }
         .lokal-card { background: #fff; border: 2px solid #0d3880; padding: 12px; margin-bottom: 12px; border-radius: 6px; }
+        .locked-canvas { background: #e2e8f0; border-color: #64748b; cursor: not-allowed; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Generator CEEB + Podpisy Lokali</h1>
+    <h1>Generator CEEB + Podpisy</h1>
 
-    <h2>Sekcja A: Informacje o budynku i kontroli</h2>
-    <div class="group">
-        <label>Adres budynku:</label>
-        <input type="text" id="adres_budynku" placeholder="np. Wierzchowo, ul. 3 Marca 29F">
+    <!-- Pasek zakładek głównych -->
+    <div class="tabs-nav">
+        <button type="button" class="tab-btn active" onclick="zmienZakladke(0)">📝 1. Dane i Lokale</button>
+        <button type="button" class="tab-btn" onclick="zmienZakladke(1)">✍️ 2. Podpisy Lokatorów</button>
     </div>
-    <div class="group">
-        <label>Data i godzina kontroli:</label>
-        <input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00">
-    </div>
-    <div class="group">
-        <label>Ilość przewodów kominowych (budynek):</label>
-        <div class="grid-5">
-            <div><label>Dym</label><input type="text" id="p_dym" value="0"></div>
-            <div><label>Spal</label><input type="text" id="p_spa" value="0"></div>
-            <div><label>Went</label><input type="text" id="p_wen" value="0"></div>
-            <div><label>Awar</label><input type="text" id="p_awa" value="0"></div>
-            <div><label>Razem</label><input type="text" id="p_raz" value="0"></div>
+
+    <!-- ZAKŁADKA 0: DANE I LOKALE -->
+    <div id="tab_0" class="tab-content active">
+        <h2>Informacje o budynku i kontroli</h2>
+        <div class="group">
+            <label>Adres budynku:</label>
+            <input type="text" id="adres_budynku" placeholder="np. Wierzchowo, ul. 3 Marca 29F">
         </div>
-    </div>
-    <div class="group grid-2">
-        <div>
-            <label>Dostęp do kontroli:</label>
-            <select id="dostep">
-                <option value="jest">jest</option>
-                <option value="brak stopni">brak stopni</option>
-                <option value="brak ław">brak ław</option>
-                <option value="brak drabiny">brak drabiny</option>
-            </select>
+        <div class="group">
+            <label>Data i godzina kontroli:</label>
+            <input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00">
         </div>
-        <div>
-            <label>Nieudostępnione lokale:</label>
-            <input type="text" id="lokale_brak" placeholder="np. 4, 8 (lub brak)">
+        <div class="group">
+            <label>Ilość przewodów kominowych (budynek):</label>
+            <div class="grid-5">
+                <div><label>Dym</label><input type="text" id="p_dym" value="0"></div>
+                <div><label>Spal</label><input type="text" id="p_spa" value="0"></div>
+                <div><label>Went</label><input type="text" id="p_wen" value="0"></div>
+                <div><label>Awar</label><input type="text" id="p_awa" value="0"></div>
+                <div><label>Razem</label><input type="text" id="p_raz" value="0"></div>
+            </div>
         </div>
-    </div>
-    <div class="group">
-        <label>Stan kominów ponad dachem:</label>
-        <select id="s_dach_sel" onchange="document.getElementById('s_dach_opis').value=this.value;">
-            <option value="dobry">dobry</option>
-            <option value="zły">zły</option>
-            <option value="uszkodzone tynki">uszkodzone tynki</option>
-            <option value="przebudowa">przebudowa</option>
-            <option value="naprawa">naprawa</option>
-            <option value="wadliwe">wadliwe</option>
-        </select>
-        <input type="text" id="s_dach_opis" value="dobry" style="margin-top: 5px;">
-    </div>
-    <div class="group">
-        <label>Stan kominów na strychu:</label>
-        <select id="s_strych_sel" onchange="document.getElementById('s_strych_opis').value=this.value;">
-            <option value="dobry">dobry</option>
-            <option value="zły">zły</option>
-            <option value="uszkodzone tynki">uszkodzone tynki</option>
-            <option value="przebudowa">przebudowa</option>
-            <option value="naprawa">naprawa</option>
-            <option value="wadliwe">wadliwe</option>
-        </select>
-        <input type="text" id="s_strych_opis" value="dobry" style="margin-top: 5px;">
-    </div>
-    <div class="group grid-2">
-        <div>
-            <label>Stan drzwiczek:</label>
-            <select id="drzwiczki_stan">
+        <div class="group grid-2">
+            <div>
+                <label>Dostęp do kontroli:</label>
+                <select id="dostep">
+                    <option value="jest">jest</option>
+                    <option value="brak stopni">brak stopni</option>
+                    <option value="brak ław">brak ław</option>
+                    <option value="brak drabiny">brak drabiny</option>
+                </select>
+            </div>
+            <div>
+                <label>Nieudostępnione lokale:</label>
+                <input type="text" id="lokale_brak" placeholder="np. 4, 8 (lub brak)">
+            </div>
+        </div>
+        <div class="group">
+            <label>Stan kominów ponad dachem:</label>
+            <select id="s_dach_sel" onchange="document.getElementById('s_dach_opis').value=this.value;">
                 <option value="dobry">dobry</option>
                 <option value="zły">zły</option>
-                <option value="brak">brak</option>
+                <option value="uszkodzone tynki">uszkodzone tynki</option>
+                <option value="przebudowa">przebudowa</option>
+                <option value="naprawa">naprawa</option>
+                <option value="wadliwe">wadliwe</option>
             </select>
+            <input type="text" id="s_dach_opis" value="dobry" style="margin-top: 5px;">
         </div>
-        <div>
-            <label>Gdzie:</label>
-            <input type="text" id="drzwiczki_gdzie" placeholder="np. w piwnicy">
+        <div class="group">
+            <label>Stan kominów na strychu:</label>
+            <select id="s_strych_sel" onchange="document.getElementById('s_strych_opis').value=this.value;">
+                <option value="dobry">dobry</option>
+                <option value="zły">zły</option>
+                <option value="uszkodzone tynki">uszkodzone tynki</option>
+                <option value="przebudowa">przebudowa</option>
+                <option value="naprawa">naprawa</option>
+                <option value="wadliwe">wadliwe</option>
+            </select>
+            <input type="text" id="s_strych_opis" value="dobry" style="margin-top: 5px;">
+        </div>
+        <div class="group grid-2">
+            <div>
+                <label>Stan drzwiczek:</label>
+                <select id="drzwiczki_stan">
+                    <option value="dobry">dobry</option>
+                    <option value="zły">zły</option>
+                    <option value="brak">brak</option>
+                </select>
+            </div>
+            <div>
+                <label>Gdzie:</label>
+                <input type="text" id="drzwiczki_gdzie" placeholder="np. w piwnicy">
+            </div>
+        </div>
+        <div class="group">
+            <label>Nasady kominowe:</label>
+            <input type="text" id="nasady" placeholder="np. uszkodzone, 1 sztuka">
+        </div>
+
+        <h2>Konfiguracja lokali i urządzeń</h2>
+        <div id="kontener_lokali_dane"></div>
+        <button type="button" onclick="dodajLokal()" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
+
+        <h2>Własne uwagi i spostrzeżenia z kontroli</h2>
+        <div class="group">
+            <label>Inne / dodatkowe uwagi (niestandardowe):</label>
+            <textarea id="uwagi_własne" rows="3" placeholder="Wpisz uwagi, których nie ma na liście standardowej..."></textarea>
+        </div>
+
+        <h2>Stwierdzone Nieprawidłowości (1-14)</h2>
+        <div class="group"><label>1. Wymiana przewodu łączącego (gaz) - Mieszkania nr:</label><input type="text" id="u1"></div>
+        <div class="group"><label>2. Nieszczelne podłączenie rury spaliny - Mieszkania nr:</label><input type="text" id="u2"></div>
+        <div class="group"><label>3. Demontaż siatek / żaluzji z kratek - Mieszkania nr:</label><input type="text" id="u3"></div>
+        <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm - Lokale nr:</label><input type="text" id="u4"></div>
+        <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach - Mieszkania:</label><input type="text" id="u5"></div>
+        <div class="group"><label>6. Niedozwolony wyciąg mechaniczny - Mieszkania:</label><input type="text" id="u6"></div>
+        <div class="group"><label>7. Brak drożności / zasłonięcie kratki - Lokale:</label><input type="text" id="u7"></div>
+        <div class="group"><label>8. Zabudowana rura łącząca piec/kocioł - Mieszkania:</label><input type="text" id="u8"></div>
+        <div class="group"><label>9. Nieprawidłowa instalacja z rur PCV - Lokale:</label><input type="text" id="u9"></div>
+        <div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej - Lokale:</label><input type="text" id="u10"></div>
+        <div class="group"><label>11. Całkowity brak wentylacji - Lokale:</label><input type="text" id="u11"></div>
+        <div class="group"><label>12. Niedozwolona zabudowa meblowa gazu - Mieszkania:</label><input type="text" id="u12"></div>
+        <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13"></div>
+        <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14"></div>
+
+        <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
+
+        <div id="wynik_sekcja" style="display:none;">
+            <h3>Pełny dokument kontroli (jeden spójny plik):</h3>
+            <div class="output-box">
+                <div id="out_calosc" class="output-text"></div>
+                <button class="btn-copy" onclick="kopiujTekst('out_calosc')">Kopiuj cały dokument</button>
+                <button class="btn-file" onclick="pobierzCaloscTXT()">Pobierz cały dokument jako plik TXT na PC</button>
+            </div>
         </div>
     </div>
-    <div class="group">
-        <label>Nasady kominowe:</label>
-        <input type="text" id="nasady" placeholder="np. uszkodzone, 1 sztuka">
-    </div>
 
-    <h2>Sekcja B: Kontrola poszczególnych lokali i podpisy</h2>
-    <div id="kontener_lokali"></div>
-    <button type="button" onclick="dodajLokal()" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
-
-    <h2>Sekcja C: Własne uwagi i spostrzeżenia z kontroli</h2>
-    <div class="group">
-        <label>Inne / dodatkowe uwagi (niestandardowe):</label>
-        <textarea id="uwagi_własne" rows="3" placeholder="Wpisz uwagi, których nie ma na liście standardowej..."></textarea>
-    </div>
-
-    <h2>Sekcja D: Stwierdzone Nieprawidłowości (1-14)</h2>
-    <div class="group"><label>1. Wymiana przewodu łączącego (gaz) - Mieszkania nr:</label><input type="text" id="u1"></div>
-    <div class="group"><label>2. Nieszczelne podłączenie rury spaliny - Mieszkania nr:</label><input type="text" id="u2"></div>
-    <div class="group"><label>3. Demontaż siatek / żaluzji z kratek - Mieszkania nr:</label><input type="text" id="u3"></div>
-    <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm - Lokale nr:</label><input type="text" id="u4"></div>
-    <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach - Mieszkania:</label><input type="text" id="u5"></div>
-    <div class="group"><label>6. Niedozwolony wyciąg mechaniczny - Mieszkania:</label><input type="text" id="u6"></div>
-    <div class="group"><label>7. Brak drożności / zasłonięcie kratki - Lokale:</label><input type="text" id="u7"></div>
-    <div class="group"><label>8. Zabudowana rura łącząca piec/kocioł - Mieszkania:</label><input type="text" id="u8"></div>
-    <div class="group"><label>9. Nieprawidłowa instalacja z rur PCV - Lokale:</label><input type="text" id="u9"></div>
-    <div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej - Lokale:</label><input type="text" id="u10"></div>
-    <div class="group"><label>11. Całkowity brak wentylacji - Lokale:</label><input type="text" id="u11"></div>
-    <div class="group"><label>12. Niedozwolona zabudowa meblowa gazu - Mieszkania:</label><input type="text" id="u12"></div>
-    <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13"></div>
-    <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14"></div>
-
-    <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
-
-    <div id="wynik_sekcja" style="display:none;">
-        <h3>Pełny dokument kontroli (jeden spójny plik):</h3>
-        <div class="output-box">
-            <div id="out_calosc" class="output-text"></div>
-            <button class="btn-copy" onclick="kopiujTekst('out_calosc')">Kopiuj cały dokument</button>
-            <button class="btn-file" onclick="pobierzCaloscTXT()">Pobierz cały dokument jako plik TXT na PC</button>
-        </div>
+    <!-- ZAKŁADKA 1: PODPISY -->
+    <div id="tab_1" class="tab-content">
+        <h2>Podpisy Lokatorów</h2>
+        <p style="font-size: 12px; color: #666;">Przełączaj się między lokalami, zbieraj podpisy i zatwierdzaj je, aby zapobiec zmianom.</p>
+        <div id="kontener_lokali_podpisy"></div>
     </div>
 </div>
 
 <script>
     let licznikLokali = 0;
+    let aktywneTab = 0;
 
     window.onload = function() {
         dodajLokal();
+        inicjalizujGestPrzelaczania();
     };
+
+    function zmienZakladke(index) {
+        aktywneTab = index;
+        let tabs = document.querySelectorAll('.tab-content');
+        let btns = document.querySelectorAll('.tab-btn');
+        
+        tabs.forEach((t, i) => {
+            if(i === index) t.classList.add('active');
+            else t.classList.remove('active');
+        });
+        btns.forEach((b, i) => {
+            if(i === index) b.classList.add('active');
+            else b.classList.remove('active');
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Obsługa gestu swipe w bok palcem
+    function inicjalizujGestPrzelaczania() {
+        let touchstartX = 0;
+        let touchendX = 0;
+        const container = document.querySelector('.container');
+
+        container.addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        }, false);
+
+        container.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleGesture();
+        }, false);
+
+        function handleGesture() {
+            if (touchendX < touchstartX - 70) {
+                // Swipe w lewo -> przełącz na podpisy
+                zmienZakladke(1);
+            }
+            if (touchendX > touchstartX + 70) {
+                // Swipe w prawo -> przełącz na dane
+                zmienZakladke(0);
+            }
+        }
+    }
 
     function dodajLokal() {
         licznikLokali++;
         let id = licznikLokali;
-        let div = document.createElement('div');
-        div.className = 'lokal-card';
-        div.id = 'lokal_box_' + id;
-        div.innerHTML = `
+
+        // 1. Karta w zakładce DANE
+        let divDane = document.createElement('div');
+        divDane.className = 'lokal-card';
+        divDane.id = 'lokal_dane_' + id;
+        divDane.innerHTML = `
             <label style="color: #0d3880; font-size: 14px; margin-bottom: 8px;">Lokal / Mieszkanie nr:</label>
-            <input type="text" id="l_nr_${id}" placeholder="np. 12" style="margin-bottom: 8px;">
+            <input type="text" id="l_nr_${id}" placeholder="np. 12" oninput="aktualizujEtykietyLokali()" style="margin-bottom: 8px;">
             
             <label>Urządzenie grzewcze w lokalu:</label>
-            <select id="l_urz_${id}" style="margin-bottom: 8px;">
+            <select id="l_urz_${id}" onchange="zmienTypUrzadzenia(${id})" style="margin-bottom: 8px;">
                 <option value="Kocioł CO na opał stały">Kocioł CO na opał stały</option>
                 <option value="Kominek">Kominek</option>
                 <option value="Trzon kuchenny">Trzon kuchenny</option>
@@ -175,8 +247,25 @@
                 <option value="Podgrzewacz gazowy wody">Podgrzewacz gazowy wody</option>
                 <option value="Piec kaflowy">Piec kaflowy</option>
                 <option value="Koza">Koza</option>
+                <option value="Pompa ciepła">Pompa ciepła</option>
+                <option value="Ogrzewanie elektryczne">Ogrzewanie elektryczne</option>
                 <option value="Brak urządzenia / Tylko wentylacja">Brak urządzenia / Tylko wentylacja</option>
             </select>
+
+            <!-- Opcje dodatkowe dla Kotła CO na opał stały -->
+            <div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+                <label>Wentylator w kotle:</label>
+                <select id="l_wentylator_${id}" style="margin-bottom: 6px;">
+                    <option value="z wentylatorem">Z wentylatorem</option>
+                    <option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
+                </select>
+                <label>Funkcja układu grzewczego:</label>
+                <select id="l_funkcja_${id}">
+                    <option value="CO">Tylko CO (Ogrzewanie)</option>
+                    <option value="CWU">Tylko CWU (Ciepła woda użytkowa)</option>
+                    <option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
+                </select>
+            </div>
 
             <label>Ilość podłączeń do kominów:</label>
             <div class="grid-3" style="margin-bottom: 8px;">
@@ -186,27 +275,70 @@
             </div>
 
             <label>Imię i nazwisko lokatora:</label>
-            <input type="text" id="l_osoba_${id}" placeholder="np. Jan Kowalski" style="margin-bottom: 8px;">
-
-            <label>Podpis lokatora (narysuj palcem):</label>
-            <canvas id="canvas_${id}"></canvas>
-            <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 6px; font-size: 12px; margin-top: 4px;">Wyczyść podpis</button>
-            <button type="button" onclick="pobierzPodpisObrazek(${id})" class="btn-file" style="margin-top: 4px; font-size: 12px;">Pobierz podpis jako obrazek PNG (PC)</button>
+            <input type="text" id="l_osoba_${id}" placeholder="np. Jan Kowalski" oninput="aktualizujEtykietyLokali()">
+            
             ${id > 1 ? '<button type="button" onclick="usunLokal(' + id + ')" class="btn-red" style="padding: 6px; font-size: 12px; margin-top: 8px;">Usuń ten lokal</button>' : ''}
         `;
-        document.getElementById('kontener_lokali').appendChild(div);
+        document.getElementById('kontener_lokali_dane').appendChild(div);
+
+        // 2. Karta w zakładce PODPISY
+        let divPodpis = document.createElement('div');
+        divPodpis.className = 'lokal-card';
+        divPodpis.id = 'lokal_podpis_' + id;
+        divPodpis.innerHTML = `
+            <h3 id="tytul_podpis_${id}" style="color: #0d3880; margin-top: 0;">Lokal nr [Brak numeru]</h3>
+            <label>Podpis lokatora (narysuj palcem):</label>
+            <canvas id="canvas_${id}"></canvas>
+            
+            <button type="button" id="btn_czysc_${id}" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
+            <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
+        `;
+        document.getElementById('kontener_lokali_podpisy').appendChild(divPodpis);
+
         inicjalizujCanvas(id);
+        zmienTypUrzadzenia(id);
+    }
+
+    function zmienTypUrzadzenia(id) {
+        let urz = document.getElementById('l_urz_' + id).value;
+        let opcjeKotla = document.getElementById('opcje_kotla_' + id);
+        if (urz === "Kocioł CO na opał stały") {
+            opcjeKotla.style.display = 'block';
+        } else {
+            opcjeKotla.style.display = 'none';
+        }
     }
 
     function usunLokal(id) {
-        let el = document.getElementById('lokal_box_' + id);
-        if(el) el.remove();
+        let d = document.getElementById('lokal_dane_' + id);
+        let p = document.getElementById('lokal_podpis_' + id);
+        if(d) d.remove();
+        if(p) p.remove();
     }
+
+    function aktualizujEtykietyLokali() {
+        let karty = document.querySelectorAll('.lokal-card');
+        karty.forEach(k => {
+            if(k.id.startsWith('lokal_dane_')) {
+                let id = k.id.split('_')[2];
+                let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
+                let osoba = document.getElementById('l_osoba_' + id).value || 'Brak osoby';
+                let tytul = document.getElementById('tytul_podpis_' + id);
+                if(tytul) {
+                    tytul.innerText = `Lokal nr ${nr} (${osoba})`;
+                }
+            }
+        });
+    }
+
+    // Obsługa rysowania oraz blokady podpisu
+    let zatwierdzoneStan = {};
 
     function inicjalizujCanvas(id) {
         let canvas = document.getElementById('canvas_' + id);
         let ctx = canvas.getContext('2d');
         let isDrawing = false;
+        zatwierdzoneStan[id] = false;
 
         function getPos(e) {
             let rect = canvas.getBoundingClientRect();
@@ -215,29 +347,57 @@
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
-        canvas.addEventListener('mousedown', (e) => { isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); });
-        canvas.addEventListener('mousemove', (e) => { if (!isDrawing) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); });
+        canvas.addEventListener('mousedown', (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); });
+        canvas.addEventListener('mousemove', (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); });
         canvas.addEventListener('mouseup', () => { isDrawing = false; });
         canvas.addEventListener('mouseleave', () => { isDrawing = false; });
 
-        canvas.addEventListener('touchstart', (e) => { isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); e.preventDefault(); });
-        canvas.addEventListener('touchmove', (e) => { if (!isDrawing) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); e.preventDefault(); });
+        canvas.addEventListener('touchstart', (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); e.preventDefault(); });
+        canvas.addEventListener('touchmove', (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); e.preventDefault(); });
         canvas.addEventListener('touchend', () => { isDrawing = false; });
     }
 
     function wyczyscPodpis(id) {
+        if(zatwierdzoneStan[id]) {
+            alert("Podpis jest zatwierdzony i zablokowany. Kliknij najpierw 'Edytuj / Odblokuj'.");
+            return;
+        }
         let canvas = document.getElementById('canvas_' + id);
         let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function pobierzPodpisObrazek(id) {
-        let nrLokalu = document.getElementById('l_nr_' + id).value || id;
+    function zatwierdzonePodpisZapiszZdjecie(id) {
+        let nr = document.getElementById('l_nr_' + id).value || id;
+        let adres = document.getElementById('adres_budynku').value.trim() || 'Budynek';
         let canvas = document.getElementById('canvas_' + id);
         let link = document.createElement('a');
-        link.download = `Podpis_Lokal_${nrLokalu}.png`;
+        let bezpiecznyAdres = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_');
+        link.download = `Podpis_${bezpiecznyAdres}_Lokal_${nr}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
+    }
+
+    function zatwierdzPodpis(id) {
+        let btn = document.getElementById('btn_zatwierdz_' + id);
+        let canvas = document.getElementById('canvas_' + id);
+        
+        if(!zatwierdzoneStan[id]) {
+            // Zablokuj
+            zatwierdzoneStan[id] = true;
+            canvas.classList.add('locked-canvas');
+            btn.innerText = "Odblokuj podpis (Edytuj)";
+            btn.style.background = "#d97706";
+            // Automatyczne pobranie grafiki podpisu z adresem i lokalem
+            zatwierdzonePodpisZapiszZdjecie(id);
+            alert("Podpis został zatwierdzony i zablokowany przed przypadkową zmianą! Obrazek podpisu został pobrany.");
+        } else {
+            // Odblokuj
+            zatwierdzoneStan[id] = false;
+            canvas.classList.remove('locked-canvas');
+            btn.innerText = "Zatwierdź podpis (Zablokuj zmianę)";
+            btn.style.background = "#28a745";
+        }
     }
 
     function generujWszystko() {
@@ -257,7 +417,7 @@
         let nas = document.getElementById('nasady').value;
         let uwagiWłasne = document.getElementById('uwagi_własne').value.trim();
 
-        // Składanie nagłówka i uwag ogólnych
+        // Nagłówek
         let calyTekst = `=== PROTOKÓŁ / KONTROLA KOMINIARSKA ===\n` +
                         `Adres budynku: ${adres}\n` +
                         `Data i godzina kontroli: ${dc}\n\n` +
@@ -274,23 +434,32 @@
             calyTekst += `\n--- DODATKOWE UWAGI ---\n${uwagiWłasne}\n`;
         }
 
-        // Zestawienie lokali
+        // Lokale i urządzenia
         calyTekst += `\n--- ZESTAWIENIE KONTROLI LOKALI ---\n`;
         let karty = document.querySelectorAll('.lokal-card');
         karty.forEach((karta) => {
-            let id = karta.id.split('_')[2];
-            let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
-            let urz = document.getElementById('l_urz_' + id).value;
-            let w = document.getElementById('l_wen_' + id).value;
-            let d = document.getElementById('l_dym_' + id).value;
-            let s = document.getElementById('l_spa_' + id).value;
-            let osoba = document.getElementById('l_osoba_' + id).value || 'Brak danych lokatora';
+            if(karta.id.startsWith('lokal_dane_')) {
+                let id = karta.id.split('_')[2];
+                let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
+                let urz = document.getElementById('l_urz_' + id).value;
+                let w = document.getElementById('l_wen_' + id).value;
+                let d = document.getElementById('l_dym_' + id).value;
+                let s = document.getElementById('l_spa_' + id).value;
+                let osoba = document.getElementById('l_osoba_' + id).value || 'Brak danych lokatora';
 
-            calyTekst += `• Lokal nr ${nr} | Lokator: ${osoba}\n  - Urządzenie grzewcze: ${urz}\n  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n\n`;
+                let szczegolyUrz = urz;
+                if(urz === "Kocioł CO na opał stały") {
+                    let went = document.getElementById('l_wentylator_' + id).value;
+                    let funkcja = document.getElementById('l_funkcja_' + id).value;
+                    szczegolyUrz += ` (${went}, funkcja: ${funkcja})`;
+                }
+
+                calyTekst += `• Lokal nr ${nr} | Lokator: ${osoba}\n  - Urządzenie grzewcze: ${szczegolyUrz}\n  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n\n`;
+            }
         });
 
-        // Sekcja nieprawidłowości (1-14)
-        calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
+        // Nieprawidłowości (1-14)
+        calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOSCI I NAKAZY ---\n`;
         let items = [];
         let v1 = document.getElementById('u1').value.trim();
         if(v1) items.push("1. Wymiana przewodu łączącego z certyfikatem CE. Mieszkania nr: " + v1 + ".");
