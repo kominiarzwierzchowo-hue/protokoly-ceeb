@@ -26,9 +26,13 @@
         .btn-copy { background: #28a745; margin-top: 8px; padding: 10px; font-size: 14px; }
         .btn-file { background: #ffc107; color: #000; margin-top: 8px; padding: 10px; font-size: 14px; font-weight: bold; }
         .btn-file:hover { background: #e0a800; }
+        .btn-json { background: #17a2b8; color: #fff; margin-top: 8px; padding: 12px; font-size: 14px; font-weight: bold; }
         .btn-red { background: #dc3545; margin-top: 8px; }
         .btn-success { background: #28a745; margin-top: 8px; }
         .btn-warning { background: #6c757d; margin-top: 10px; }
+        
+        /* Pasek ładownia pliku edycji */
+        .edit-load-box { background: #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; }
         
         /* Zakładki na górze */
         .tabs-nav { display: flex; gap: 5px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 6px; }
@@ -44,7 +48,13 @@
 </head>
 <body>
 <div class="container">
-    <h1>Generator CEEB + Autozapis i Sumy</h1>
+    <h1>Generator CEEB + Pełna Edycja</h1>
+
+    <!-- Panel wczytywania zapisanego pliku do edycji -->
+    <div class="edit-load-box">
+        <label style="font-size: 12px; margin-bottom: 4px; color: #1e293b;">Chcesz edytować wcześniej zapisany protokół?</label>
+        <input type="file" id="input_wczytaj_json" accept=".json" onchange="wczytajPlikJSON(event)" style="background: #fff; padding: 6px; font-size: 12px;">
+    </div>
 
     <!-- Pasek zakładek głównych -->
     <div class="tabs-nav">
@@ -157,11 +167,12 @@
         <button type="button" onclick="wyczyscCaloscPamięci()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
 
         <div id="wynik_sekcja" style="display:none;">
-            <h3>Pełny dokument kontroli (jeden spójny plik):</h3>
+            <h3>Pełny dokument kontroli i edycja:</h3>
             <div class="output-box">
                 <div id="out_calosc" class="output-text"></div>
-                <button class="btn-copy" onclick="kopiujTekst('out_calosc')">Kopiuj cały dokument</button>
-                <button class="btn-file" onclick="pobierzCaloscTXT()">Pobierz cały dokument jako plik TXT na PC</button>
+                <button class="btn-copy" onclick="kopiujTekst('out_calosc')">Kopiuj cały tekst</button>
+                <button class="btn-file" onclick="pobierzCaloscTXT()">Pobierz jako plik tekstowy TXT</button>
+                <button class="btn-json" onclick="pobierzPlikJSON()">💾 Pobierz pełny plik ZAPISU DO EDYCJI (.json)</button>
             </div>
         </div>
     </div>
@@ -169,7 +180,7 @@
     <!-- ZAKŁADKA 1: LOKALE, URZĄDZENIA I PODPISY -->
     <div id="tab_1" class="tab-content">
         <h2>Kontrola lokali, urządzenia i podpisy</h2>
-        <p style="font-size: 12px; color: #666;">Wprowadzone ilości przewodów sumują się automatycznie w podsumowaniu budynku.</p>
+        <p style="font-size: 12px; color: #666;">Wszystko zapisuje się automatycznie. Podpisy po zatwierdzeniu są zabezpieczone, ale możesz je odblokować do edycji.</p>
         
         <div id="kontener_lokali"></div>
         <button type="button" onclick="dodajLokal(); zapiszStan();" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
@@ -360,6 +371,7 @@
         if (savedData) {
             let img = new Image();
             img.onload = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
             };
             img.src = savedData;
@@ -434,9 +446,8 @@
         zapiszStan();
     }
 
-    function zapiszStan() {
-        if (wczytujeStan) return;
-
+    // ZBIERANIE STANU DO OBIEKTU JSON
+    function zbierzCalowityStan() {
         let stan = {
             ogólne: {
                 adres_budynku: document.getElementById('adres_budynku').value,
@@ -484,38 +495,82 @@
             });
         });
 
+        return stan;
+    }
+
+    function zapiszStan() {
+        if (wczytujeStan) return;
+        let stan = zbierzCalowityStan();
         localStorage.setItem('protokol_ceeb_stan', JSON.stringify(stan));
+    }
+
+    function wczytajStanObiekt(stan) {
+        wczytujeStan = true;
+        for (let key in stan.ogólne) {
+            let el = document.getElementById(key);
+            if (el) el.value = stan.ogólne[key];
+        }
+        for (let key in stan.nieprawidłowości) {
+            let el = document.getElementById(key);
+            if (el) el.value = stan.nieprawidłowości[key];
+        }
+
+        document.getElementById('kontener_lokali').innerHTML = '';
+        licznikLokali = 0;
+        zatwierdzoneStan = {};
+
+        if (stan.lokale && stan.lokale.length > 0) {
+            stan.lokale.forEach(l => {
+                dodajLokal(l);
+            });
+        } else {
+            dodajLokal();
+        }
+        wczytujeStan = false;
+        przeliczSumePrzewodow();
     }
 
     function wczytajStan() {
         let zapis = localStorage.getItem('protokol_ceeb_stan');
         if (!zapis) return false;
-
         try {
             let stan = JSON.parse(zapis);
-            for (let key in stan.ogólne) {
-                let el = document.getElementById(key);
-                if (el) el.value = stan.ogólne[key];
-            }
-            for (let key in stan.nieprawidłowości) {
-                let el = document.getElementById(key);
-                if (el) el.value = stan.nieprawidłowości[key];
-            }
-
-            document.getElementById('kontener_lokali').innerHTML = '';
-            licznikLokali = 0;
-
-            if (stan.lokale && stan.lokale.length > 0) {
-                stan.lokale.forEach(l => {
-                    dodajLokal(l);
-                });
-            } else {
-                dodajLokal();
-            }
+            wczytajStanObiekt(stan);
             return true;
         } catch (e) {
             return false;
         }
+    }
+
+    // WCZYTYWANJE ZAPISANEGO PLIKU .JSON DO EDYCJI
+    function wczytajPlikJSON(event) {
+        let file = event.target.files[0];
+        if (!file) return;
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let stan = JSON.parse(e.target.result);
+                wczytajStanObiekt(stan);
+                zapiszStan();
+                alert("Protokół wraz z podpisami został wczytany poprawnie! Możesz kontynuować edycję.");
+            } catch (err) {
+                alert("Błąd odczytu pliku. Upewnij się, że to poprawny plik zapisu protokołu.");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function pobierzPlikJSON() {
+        let stan = zbierzCalowityStan();
+        let tekst = JSON.stringify(stan, null, 2);
+        let adres = document.getElementById('adres_budynku').value.trim() || 'Protokol_CEEB';
+        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_ZESTAW_EDYCJA.json';
+        
+        let blob = new Blob([tekst], { type: "application/json;charset=utf-8" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = bezpiecznaNazwa;
+        link.click();
     }
 
     function wyczyscCaloscPamięci() {
