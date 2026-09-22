@@ -375,7 +375,7 @@
             </select>
 
             <div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px; display:none;">
-                <div id="kontener_wentylator_${id}" style="margin-bottom: 6px;">
+                <div id="kontener_wentylator_${id}" style="margin-bottom: 6px; display:none;">
                     <label style="font-size:11px;">Wentylator w kotle:</label>
                     <select id="l_wentylator_${id}" onchange="zapiszStan()" style="font-size: 13px;">
                         <option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
@@ -384,9 +384,7 @@
                 </div>
                 <label style="font-size:11px;">Funkcja układu grzewczego:</label>
                 <select id="l_funkcja_${id}" onchange="zapiszStan()" style="font-size: 13px;">
-                    <option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
-                    <option value="CO">Tylko CO (Ogrzewanie)</option>
-                    <option value="CWU">Tylko CWU (Ciepła woda użytkowa)</option>
+                    <!-- Opcje dynamicznie zmieniane w JS -->
                 </select>
             </div>
 
@@ -406,11 +404,13 @@
         document.getElementById('kontener_lokali').appendChild(divLokal);
 
         if (daneLokalu && daneLokalu.urz) document.getElementById('l_urz_' + id).value = daneLokalu.urz;
+        
+        zmienTypUrzadzenia(id, !daneLokalu);
+
         if (daneLokalu && daneLokalu.wentylator) document.getElementById('l_wentylator_' + id).value = daneLokalu.wentylator;
         if (daneLokalu && daneLokalu.funkcja) document.getElementById('l_funkcja_' + id).value = daneLokalu.funkcja;
 
         inicjalizujCanvas(id, daneLokalu ? daneLokalu.canvasData : null, daneLokalu ? daneLokalu.zatwierdzony : false);
-        zmienTypUrzadzenia(id, !daneLokalu);
         aktualizujEtykietyLokali();
         przeliczSumePrzewodow();
     }
@@ -419,9 +419,10 @@
         let urz = document.getElementById('l_urz_' + id).value;
         let opcjeKotla = document.getElementById('opcje_kotla_' + id);
         let kontenerWentylator = document.getElementById('kontener_wentylator_' + id);
+        let funkcjaSelect = document.getElementById('l_funkcja_' + id);
         
         if(opcjeKotla) {
-            let maOpcje = (urz === "Kocioł CO na opał stały" || urz === "Kominek" || urz === "Trzon kuchenny" || urz === "Kocioł gazowy");
+            let maOpcje = (urz === "Kocioł CO na opał stały" || urz === "Kominek" || urz === "Trzon kuchenny" || urz === "Kocioł gazowy" || urz === "Pompa ciepła" || urz === "Ogrzewanie elektryczne");
             opcjeKotla.style.display = maOpcje ? 'block' : 'none';
             
             // Wentylator tylko dla kotła na opał stały
@@ -429,11 +430,36 @@
                 kontenerWentylator.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
             }
 
-            if (ustawDomyslne && maOpcje) {
-                let wentInput = document.getElementById('l_wentylator_' + id);
-                let funkcjaInput = document.getElementById('l_funkcja_' + id);
-                if(wentInput && urz === "Kocioł CO na opał stały") wentInput.value = "bez wentylatora";
-                if(funkcjaInput) funkcjaInput.value = "CO + CWU";
+            // Ustawienie odpowiednich opcji do wyboru funkcji w zależności od urządzenia
+            if(funkcjaSelect) {
+                let staraWartosc = funkcjaSelect.value;
+                funkcjaSelect.innerHTML = '';
+                
+                if(urz === "Kominek") {
+                    funkcjaSelect.innerHTML = `
+                        <option value="Miejscowy ogrzewacz pomieszczeń">Miejscowy ogrzewacz pomieszczeń</option>
+                        <option value="CO">CO</option>
+                        <option value="CO + CWU">CO + CWU</option>
+                    `;
+                } else {
+                    funkcjaSelect.innerHTML = `
+                        <option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
+                        <option value="CO">Tylko CO (Ogrzewanie)</option>
+                        <option value="CWU">Tylko CWU (Ciepła woda użytkowa)</option>
+                    `;
+                }
+
+                if (ustawDomyslne && maOpcje) {
+                    if(urz === "Kominek") {
+                        funkcjaSelect.value = "CO + CWU";
+                    } else {
+                        funkcjaSelect.value = "CO + CWU";
+                    }
+                    let wentInput = document.getElementById('l_wentylator_' + id);
+                    if(wentInput && urz === "Kocioł CO na opał stały") wentInput.value = "bez wentylatora";
+                } else if(staraWartosc) {
+                    funkcjaSelect.value = staraWartosc;
+                }
             }
         }
         zapiszStan();
@@ -744,7 +770,7 @@
                 let went = document.getElementById('l_wentylator_' + id).value;
                 let funkcja = document.getElementById('l_funkcja_' + id).value;
                 szczegolyUrz += ` (${went}, funkcja: ${funkcja})`;
-            } else if(urz === "Kominek" || urz === "Trzon kuchenny" || urz === "Kocioł gazowy") {
+            } else if(urz === "Kominek" || urz === "Trzon kuchenny" || urz === "Kocioł gazowy" || urz === "Pompa ciepła" || urz === "Ogrzewanie elektryczne") {
                 let funkcja = document.getElementById('l_funkcja_' + id).value;
                 szczegolyUrz += ` (funkcja: ${funkcja})`;
             }
