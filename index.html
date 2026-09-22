@@ -140,11 +140,6 @@
         </div>
 
         <div class="group">
-            <label>Nieudostępnione lokale:</label>
-            <input type="text" id="lokale_brak" placeholder="np. 4, 8 (lub brak)" oninput="zapiszStan()">
-        </div>
-
-        <div class="group">
             <label>Stan kominów ponad dachem:</label>
             <select id="s_dach_sel" onchange="document.getElementById('s_dach_opis').value=this.value; zapiszStan();">
                 <option value="dobry">dobry</option>
@@ -227,7 +222,7 @@
         <!-- Rubryka 14 (Tylko numery) -->
         <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego:</label><input type="text" id="u14" placeholder="np. 4, 12, 15" oninput="zapiszStan()"></div>
 
-        <!-- Rubryka 15 (Nowa treść - Tak/Nie + Mieszkanie) -->
+        <!-- Rubryka 15 -->
         <div class="group">
             <label>15. Przewody dymowe wyeksploatowane. Zamontować wkłady kominowe lub wykonać renowację poprzez szlamowanie. Montując wkład kominowy dostosować przekrój przewodu do urządzenia grzewczego:</label>
             <select id="u15_wybor" onchange="zmienPrzewodyDymowe(); zapiszStan();">
@@ -254,6 +249,12 @@
         <h2>Kontrola lokali, urządzenia i podpisy</h2>
         <p style="font-size: 12px; color: #666;">Wszystko zapisuje się w historii automatycznie.</p>
         
+        <!-- Nieudostępnione lokale -->
+        <div class="group">
+            <label>Nieudostępnione lokale do kontroli:</label>
+            <input type="text" id="lokale_brak" placeholder="Kliknij, aby wpisać numer mieszkania..." readonly onclick="promptLokaleBrak()" style="cursor: pointer; background: #fff;" oninput="zapiszStan()">
+        </div>
+
         <div id="kontener_lokali"></div>
         <button type="button" onclick="dodajLokal(); zapiszStan();" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
     </div>
@@ -329,6 +330,22 @@
             }
         });
     };
+
+    function promptLokaleBrak() {
+        let inputEl = document.getElementById('lokale_brak');
+        let obecnyTekst = inputEl.value.trim();
+        let wpis = prompt("Wpisz numer nieudostępnionego lokalu:");
+        
+        if(wpis !== null && wpis.trim() !== "") {
+            let czystyWpis = wpis.trim();
+            if(obecnyTekst !== "") {
+                inputEl.value = obecnyTekst + ", " + czystyWpis;
+            } else {
+                inputEl.value = czystyWpis;
+            }
+            zapiszStan();
+        }
+    }
 
     function zmienDostepKontroli() {
         let val = document.getElementById('dostep_wybor').value;
@@ -562,9 +579,6 @@
             
             <label style="font-size: 12px; margin-bottom: 4px;">Lokal / Mieszkanie nr:</label>
             <input type="text" id="l_nr_${id}" placeholder="np. 12" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? (daneLokalu.nr || '') : ''}">
-            
-            <label style="font-size: 12px; margin-bottom: 4px;">Imię i nazwisko lokatora:</label>
-            <input type="text" id="l_osoba_${id}" placeholder="np. Jan Kowalski" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? (daneLokalu.osoba || '') : ''}">
 
             <label style="font-size: 12px; margin-bottom: 4px;">Urządzenie grzewcze w lokalu:</label>
             <select id="l_urz_${id}" onchange="zmienTypUrzadzenia(${id}); zapiszStan();" style="margin-bottom: 8px;">
@@ -604,7 +618,7 @@
             <canvas id="canvas_${id}"></canvas>
             
             <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
-            <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierddzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
+            <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
         `;
         document.getElementById('kontener_lokali').appendChild(divLokal);
 
@@ -680,11 +694,9 @@
         karty.forEach(k => {
             let id = k.id.split('_')[2];
             let nrInput = document.getElementById('l_nr_' + id);
-            let osInput = document.getElementById('l_osoba_' + id);
             let nr = nrInput ? (nrInput.value || 'Brak numeru') : 'Brak numeru';
-            let osoba = osInput ? (osInput.value || 'Brak osoby') : 'Brak osoby';
             let tytul = document.getElementById('tytul_lokal_' + id);
-            if(tytul) tytul.innerText = `Lokal nr ${nr} (${osoba})`;
+            if(tytul) tytul.innerText = `Lokal nr ${nr}`;
         });
     }
 
@@ -811,7 +823,6 @@
             let canvas = document.getElementById('canvas_' + id);
             stan.lokale.push({
                 nr: document.getElementById('l_nr_' + id).value,
-                osoba: document.getElementById('l_osoba_' + id).value,
                 urz: document.getElementById('l_urz_' + id).value,
                 wentylator: document.getElementById('l_wentylator_' + id) ? document.getElementById('l_wentylator_' + id).value : '',
                 funkcja: document.getElementById('l_funkcja_' + id) ? document.getElementById('l_funkcja_' + id).value : '',
@@ -933,6 +944,7 @@
             document.getElementById('p_raz').value = '0';
             document.getElementById('wynik_sekcja').style.display = 'none';
 
+            // Automatyczne wstawienie bieżącej daty i godziny przy nowym protokole
             document.getElementById('data_czas').value = ustawAktualnaDateCzas();
 
             dodajLokal();
@@ -997,7 +1009,6 @@
             let w = document.getElementById('l_wen_' + id).value || '0';
             let d = document.getElementById('l_dym_' + id).value || '0';
             let s = document.getElementById('l_spa_' + id).value || '0';
-            let osoba = document.getElementById('l_osoba_' + id).value || 'Brak danych lokatora';
 
             let szczegolyUrz = urz;
             if(urz === "Kocioł CO na opał stały") {
@@ -1009,7 +1020,7 @@
                 szczegolyUrz += ` (funkcja: ${funkcja})`;
             }
 
-            calyTekst += `• Lokal nr ${nr} | Lokator: ${osoba}\n  - Urządzenie grzewcze: ${szczegolyUrz}\n  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n\n`;
+            calyTekst += `• Lokal nr ${nr}\n  - Urządzenie grzewcze: ${szczegolyUrz}\n  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n\n`;
         });
 
         calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
@@ -1038,7 +1049,6 @@
             }
         }
 
-        // Obsługa rubryki 15 z nową treścią
         let u15_wybor = document.getElementById('u15_wybor').value;
         if(u15_wybor === 'tak') {
             let u15_mieszkania = document.getElementById('u15_mieszkania').value.trim();
@@ -1062,10 +1072,9 @@
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
             let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
-            let osoba = document.getElementById('l_osoba_' + id).value || 'Brak lokatora';
             let canvas = document.getElementById('canvas_' + id);
             
-            htmlPodpisow += `<div class="podpis-podsumowanie-item"><strong>Lokal nr ${nr} (${osoba}):</strong><br><img src="${canvas.toDataURL('image/png')}"></div>`;
+            htmlPodpisow += `<div class="podpis-podsumowanie-item"><strong>Lokal nr ${nr}:</strong><br><img src="${canvas.toDataURL('image/png')}"></div>`;
         });
 
         document.getElementById('wynik_sekcja').style.display = 'block';
