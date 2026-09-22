@@ -121,21 +121,29 @@
                 <div><label>Razem</label><input type="text" id="p_raz" value="0" class="manual" oninput="zapiszStan()"></div>
             </div>
         </div>
-        <div class="group grid-2">
-            <div>
-                <label>Dostęp do kontroli:</label>
-                <select id="dostep" onchange="zapiszStan()">
-                    <option value="jest">jest</option>
-                    <option value="brak stopni">brak stopni</option>
-                    <option value="brak ław">brak ław</option>
-                    <option value="brak drabiny">brak drabiny</option>
-                </select>
-            </div>
-            <div>
-                <label>Nieudostępnione lokale:</label>
-                <input type="text" id="lokale_brak" placeholder="np. 4, 8 (lub brak)" oninput="zapiszStan()">
+        
+        <!-- DOSTĘP DO KONTROLI Z OPCJAMI -->
+        <div class="group">
+            <label>Dostęp do kontroli:</label>
+            <select id="dostep_wybor" onchange="zmienDostepKontroli(); zapiszStan();">
+                <option value="tak">Tak</option>
+                <option value="nie">Nie</option>
+            </select>
+            
+            <div id="dostep_opcje_nie" style="margin-top: 8px; display: none; background: #fff; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <label style="font-size: 11px; margin-bottom: 6px; color: #0d3880;">Zaznacz braki (możesz wybrać kilka):</label>
+                <label style="font-weight: normal; font-size: 12px; margin-bottom: 4px;"><input type="checkbox" id="chk_brak_wykazu" onchange="zapiszStan()"> Brak wykazu dachowego</label>
+                <label style="font-weight: normal; font-size: 12px; margin-bottom: 4px;"><input type="checkbox" id="chk_brak_law" onchange="zapiszStan()"> Brak ław kominiarskich</label>
+                <label style="font-weight: normal; font-size: 12px; margin-bottom: 4px;"><input type="checkbox" id="chk_brak_drabiny" onchange="zapiszStan()"> Brak drabiny</label>
+                <label style="font-weight: normal; font-size: 12px; margin-bottom: 0;"><input type="checkbox" id="chk_brak_stopni" onchange="zapiszStan()"> Brak stopni kominiarskich</label>
             </div>
         </div>
+
+        <div class="group">
+            <label>Nieudostępnione lokale:</label>
+            <input type="text" id="lokale_brak" placeholder="np. 4, 8 (lub brak)" oninput="zapiszStan()">
+        </div>
+
         <div class="group">
             <label>Stan kominów ponad dachem:</label>
             <select id="s_dach_sel" onchange="document.getElementById('s_dach_opis').value=this.value; zapiszStan();">
@@ -185,7 +193,7 @@
             <textarea id="uwagi_własne" rows="3" placeholder="Wpisz uwagi..." oninput="zapiszStan()"></textarea>
         </div>
 
-        <h2>Stwierdzone Nieprawidłowości (1-14)</h2>
+        <h2>Stwierdzone Nieprawidłowości (1-15)</h2>
         
         <!-- Rubryki 1, 2, 8, 12, 13 (Urządzenia) -->
         <div class="group"><label>1. Wymiana przewodu łączącego (gaz):</label><input type="text" id="u1" placeholder="np. 4 PGW / 12 KCOgaz" onclick="pokazPopup(1, 'urzadzenia')" oninput="zapiszStan()"><div id="popup_u1" class="skroty-popup"></div></div>
@@ -195,7 +203,7 @@
         <div class="group"><label>3. Demontaż siatek / żaluzji z kratek:</label><input type="text" id="u3" placeholder="np. 1 WŁ / 8 WK" onclick="pokazPopup(3, 'wentylacja')" oninput="zapiszStan()"><div id="popup_u3" class="skroty-popup"></div></div>
         <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm:</label><input type="text" id="u4" placeholder="np. 3 WK" onclick="pokazPopup(4, 'wentylacja')" oninput="zapiszStan()"><div id="popup_u4" class="skroty-popup"></div></div>
         
-        <!-- Rubryki 5, 9, 10, 11 (Pomieszczenia) -->
+        <!-- Rubryka 5 (Pomieszczenia) -->
         <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach:</label><input type="text" id="u5" placeholder="np. 7 K" onclick="pokazPopup(5, 'pomieszczenia')" oninput="zapiszStan()"><div id="popup_u5" class="skroty-popup"></div></div>
         
         <!-- Rubryka 6 i 7 (Wentylacje) -->
@@ -218,6 +226,16 @@
         
         <!-- Rubryka 14 (Tylko numery) -->
         <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego:</label><input type="text" id="u14" placeholder="np. 4, 12, 15" oninput="zapiszStan()"></div>
+
+        <!-- Rubryka 15 (Przewody dymowe wyeksploatowane - Tak/Nie + Mieszkanie) -->
+        <div class="group">
+            <label>15. Przewody dymowe wyeksploatowane:</label>
+            <select id="u15_wybor" onchange="zmienPrzewodyDymowe(); zapiszStan();">
+                <option value="nie">Nie</option>
+                <option value="tak">Tak</option>
+            </select>
+            <input type="text" id="u15_mieszkania" placeholder="Wpisz numer mieszkania..." style="margin-top: 6px; display: none;" oninput="zapiszStan()">
+        </div>
 
         <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
         <button type="button" onclick="rozpocznijNowyProtokol()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
@@ -247,7 +265,6 @@
     let aktualneIdHistorii = null;
     const KLUCZ_ROBOCZY = 'protokol_ceeb_aktualnie_pisany';
 
-    // Słowniki zamiany skrótów na pełne nazwy przy generowaniu
     const slownikUrządzeń = {
         "PGW": "podgrzewacz gazowy wody",
         "KCOgaz": "kocioł CO gaz",
@@ -301,6 +318,8 @@
             }
         }
 
+        zmienDostepKontroli();
+        zmienPrzewodyDymowe();
         przeliczSumePrzewodow();
         inicjalizujGestPrzelaczania();
 
@@ -310,6 +329,27 @@
             }
         });
     };
+
+    function zmienDostepKontroli() {
+        let val = document.getElementById('dostep_wybor').value;
+        let opcje = document.getElementById('dostep_opcje_nie');
+        if(val === 'nie') {
+            opcje.style.display = 'block';
+        } else {
+            opcje.style.display = 'none';
+        }
+    }
+
+    function zmienPrzewodyDymowe() {
+        let val = document.getElementById('u15_wybor').value;
+        let inputMieszkania = document.getElementById('u15_mieszkania');
+        if(val === 'tak') {
+            inputMieszkania.style.display = 'block';
+        } else {
+            inputMieszkania.style.display = 'none';
+            inputMieszkania.value = '';
+        }
+    }
 
     function inicjalizujPopupy() {
         let listy = {
@@ -334,7 +374,6 @@
             ]
         };
 
-        // Przypisanie typów do poszczególnych rubryk
         let typyRubryk = {
             1: 'urzadzenia', 2: 'urzadzenia',
             3: 'wentylacja', 4: 'wentylacja',
@@ -388,14 +427,10 @@
         zamknijWszystkiePopupy();
     }
 
-    // Funkcja rozwijająca skróty na pełne nazwy przy generowaniu dokumentu
     function rozwinięteSkrótyWTekście(tekst) {
         if(!tekst) return '';
         let wynik = tekst;
-        
-        // Łączymy wszystkie słowniki w jeden do zamiany
         let pelnySlownik = {...slownikUrządzeń, ...slownikWentylacji, ...slownikPomieszczeń};
-        
         for (let skrot in pelnySlownik) {
             let regex = new RegExp('\\b' + skrot + '\\b', 'g');
             wynik = wynik.replace(regex, pelnySlownik[skrot]);
@@ -744,7 +779,11 @@
                 p_wen: document.getElementById('p_wen').value,
                 p_awa: document.getElementById('p_awa').value,
                 p_raz: document.getElementById('p_raz').value,
-                dostep: document.getElementById('dostep').value,
+                dostep_wybor: document.getElementById('dostep_wybor').value,
+                chk_brak_wykazu: document.getElementById('chk_brak_wykazu').checked,
+                chk_brak_law: document.getElementById('chk_brak_law').checked,
+                chk_brak_drabiny: document.getElementById('chk_brak_drabiny').checked,
+                chk_brak_stopni: document.getElementById('chk_brak_stopni').checked,
                 lokale_brak: document.getElementById('lokale_brak').value,
                 s_dach_sel: document.getElementById('s_dach_sel').value,
                 s_dach_opis: document.getElementById('s_dach_opis').value,
@@ -754,6 +793,8 @@
                 drzwiczki_gdzie: document.getElementById('drzwiczki_gdzie').value,
                 nasady: document.getElementById('nasady').value,
                 uwagi_własne: document.getElementById('uwagi_własne').value,
+                u15_wybor: document.getElementById('u15_wybor').value,
+                u15_mieszkania: document.getElementById('u15_mieszkania').value
             },
             nieprawidłowości: {},
             lokale: []
@@ -798,7 +839,13 @@
         if(stan.ogólne) {
             for (let key in stan.ogólne) {
                 let el = document.getElementById(key);
-                if (el) el.value = stan.ogólne[key];
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        el.checked = stan.ogólne[key];
+                    } else {
+                        el.value = stan.ogólne[key];
+                    }
+                }
             }
         }
         if(stan.nieprawidłowości) {
@@ -807,6 +854,9 @@
                 if (el) el.value = stan.nieprawidłowości[key];
             }
         }
+
+        zmienDostepKontroli();
+        zmienPrzewodyDymowe();
 
         document.getElementById('kontener_lokali').innerHTML = '';
         licznikLokali = 0;
@@ -866,6 +916,15 @@
                     el.value = '';
                 }
             });
+
+            document.querySelectorAll('input[type="checkbox"]').forEach(el => {
+                el.checked = false;
+            });
+
+            document.getElementById('dostep_wybor').value = 'tak';
+            document.getElementById('u15_wybor').value = 'nie';
+            zmienDostepKontroli();
+            zmienPrzewodyDymowe();
             
             document.getElementById('p_dym').value = '0';
             document.getElementById('p_spa').value = '0';
@@ -892,7 +951,20 @@
         let pw = document.getElementById('p_wen').value;
         let pa = document.getElementById('p_awa').value;
         let pr = document.getElementById('p_raz').value;
-        let dos = document.getElementById('dostep').value;
+        
+        let dostepVal = document.getElementById('dostep_wybor').value;
+        let dostepTekst = dostepVal;
+        if(dostepVal === 'nie') {
+            let braki = [];
+            if(document.getElementById('chk_brak_wykazu').checked) braki.push("brak wykazu dachowego");
+            if(document.getElementById('chk_brak_law').checked) braki.push("brak ław kominiarskich");
+            if(document.getElementById('chk_brak_drabiny').checked) braki.push("brak drabiny");
+            if(document.getElementById('chk_brak_stopni').checked) braki.push("brak stopni kominiarskich");
+            if(braki.length > 0) {
+                dostepTekst += " (brak: " + braki.join(", ") + ")";
+            }
+        }
+
         let lb = document.getElementById('lokale_brak').value;
         let sd = document.getElementById('s_dach_opis').value;
         let ss = document.getElementById('s_strych_opis').value;
@@ -906,7 +978,7 @@
                         `Data i godzina kontroli: ${dc}\n\n` +
                         `--- INFORMACJE OGÓLNE O BUDYNKU ---\n` +
                         `Ilość przewodów - dymowe: ${pd}, spalinowe: ${ps}, wentylacyjne: ${pw}, awaryjne: ${pa}, razem: ${pr}.\n` +
-                        `Dostęp do kontroli: ${dos}. ` + (lb ? `Nieudostępnione lokale do kontroli nr: ${lb}. ` : '') + `\n` +
+                        `Dostęp do kontroli: ${dostepTekst}. ` + (lb ? `Nieudostępnione lokale do kontroli nr: ${lb}. ` : '') + `\n` +
                         `Stan kominów ponad dachem: ${sd}.\n` +
                         `Stan kominów na strychu: ${ss}.\n` +
                         `Stan drzwiczek kominowych: ${dzs}${dzg ? ' (' + dzg + ')' : ''}.\n` +
@@ -964,6 +1036,17 @@
                 ];
                 items.push(opisy[i] + val + ".");
             }
+        }
+
+        // Obsługa rubryki 15
+        let u15_wybor = document.getElementById('u15_wybor').value;
+        if(u15_wybor === 'tak') {
+            let u15_mieszkania = document.getElementById('u15_mieszkania').value.trim();
+            let wpis15 = "15. Przewody dymowe wyeksploatowane (tak)";
+            if(u15_mieszkania) {
+                wpis15 += " - Mieszkania nr: " + u15_mieszkania;
+            }
+            items.push(wpis15 + ".");
         }
 
         if(items.length > 0) {
