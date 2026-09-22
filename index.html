@@ -169,14 +169,13 @@
         <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13" placeholder="np. 20" oninput="zapiszStan()"></div>
         <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14" placeholder="np. 22" oninput="zapiszStan()"></div>
 
-        <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT (Pobierz pliki automatycznie)</button>
+        <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
         <button type="button" onclick="rozpocznijNowyProtokol()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
 
         <div id="wynik_sekcja" style="display:none;">
-            <h3>Podgląd całego dokumentu (z podpisami):</h3>
+            <h3>Podgląd całego dokumentu:</h3>
             <div class="output-box">
                 <div id="out_calosc" class="output-text"></div>
-                <div id="out_podpisy_zbiorczo" style="margin-top: 15px; border-top: 2px solid #0d3880; padding-top: 10px;"></div>
                 <button class="btn-copy" onclick="kopiujCaloscTekst()">Kopiuj cały tekst dokumentu</button>
             </div>
         </div>
@@ -766,31 +765,23 @@
 
         document.getElementById('out_calosc').innerText = calyTekst;
 
-        let kontenerPodpisow = document.getElementById('out_podpisy_zbiorczo');
-        kontenerPodpisow.innerHTML = `<h4 style="color: #0d3880; margin-bottom: 5px;">ZBIORCZE PODPISY LOKATORÓW:</h4>`;
-        
+        // Przygotowanie HTML z podpisami
+        let htmlPodpisow = `<h4 style="color: #0d3880; margin-bottom: 5px;">ZBIORCZE PODPISY LOKATORÓW:</h4>`;
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
             let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
             let osoba = document.getElementById('l_osoba_' + id).value || 'Brak lokatora';
             let canvas = document.getElementById('canvas_' + id);
             
-            let divP = document.createElement('div');
-            divP.className = 'podpis-podsumowanie-item';
-            divP.innerHTML = `<strong>Lokal nr ${nr} (${osoba}):</strong>`;
-            
-            let img = document.createElement('img');
-            img.src = canvas.toDataURL('image/png');
-            divP.appendChild(img);
-            kontenerPodpisow.appendChild(divP);
+            htmlPodpisow += `<div class="podpis-podsumowanie-item"><strong>Lokal nr ${nr} (${osoba}):</strong><br><img src="${canvas.toDataURL('image/png')}"></div>`;
         });
 
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
-        // AUTOMATYCZNE POBIERANIE WSZYSTKICH TRZECH PLIKÓW
+        // AUTOMATYCZNE POBIERANIE WSZYSTKICH 3 DOKUMENTÓW POD JEDNYM PRZYCISKIEM
         pobierzPlikTxtAutomatycznie(calyTekst, adres);
-        pobierzPelnyDokumentHTMLAutomatycznie(calyTekst, kontenerPodpisow.innerHTML, adres);
+        pobierzPelnyDokumentHTMLAutomatycznie(calyTekst, htmlPodpisow, adres);
         pobierzPlikJSONAutomatycznie();
     }
 
@@ -815,14 +806,13 @@
 body { font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.5; }
 h2 { color: #0d3880; border-bottom: 2px solid #0d3880; padding-bottom: 5px; }
 pre { white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 14px; background: #f8fafc; padding: 15px; border: 1px solid #cbd5e1; border-radius: 5px; }
-.podpis-item { margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px; }
-.podpis-item img { max-width: 250px; height: 80px; border: 1px solid #999; background: #fff; display: block; margin-top: 5px; }
+.podpis-podsumowanie-item { border-bottom: 1px dashed #ccc; padding: 8px 0; margin-bottom: 8px; }
+.podpis-podsumowanie-item img { max-width: 200px; height: 60px; border: 1px solid #999; background: #fff; display: block; margin-top: 4px; }
 </style>
 </head>
 <body>
 <h2>Protokół Kontroli Kominiarskiej CEEB</h2>
 <pre>${tekstDokumentu}</pre>
-<h2>Zbiór Podpisów Lokatorów</h2>
 <div>${htmlPodpisow}</div>
 </body>
 </html>`;
