@@ -375,11 +375,13 @@
             </select>
 
             <div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px; display:none;">
-                <label style="font-size:11px;">Wentylator w kotle:</label>
-                <select id="l_wentylator_${id}" onchange="zapiszStan()" style="margin-bottom: 6px; font-size: 13px;">
-                    <option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
-                    <option value="z wentylatorem">Z wentylatorem</option>
-                </select>
+                <div id="kontener_wentylator_${id}" style="margin-bottom: 6px;">
+                    <label style="font-size:11px;">Wentylator w kotle:</label>
+                    <select id="l_wentylator_${id}" onchange="zapiszStan()" style="font-size: 13px;">
+                        <option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
+                        <option value="z wentylatorem">Z wentylatorem</option>
+                    </select>
+                </div>
                 <label style="font-size:11px;">Funkcja układu grzewczego:</label>
                 <select id="l_funkcja_${id}" onchange="zapiszStan()" style="font-size: 13px;">
                     <option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
@@ -416,13 +418,21 @@
     function zmienTypUrzadzenia(id, ustawDomyslne = false) {
         let urz = document.getElementById('l_urz_' + id).value;
         let opcjeKotla = document.getElementById('opcje_kotla_' + id);
+        let kontenerWentylator = document.getElementById('kontener_wentylator_' + id);
+        
         if(opcjeKotla) {
-            let jestKocioł = (urz === "Kocioł CO na opał stały");
-            opcjeKotla.style.display = jestKocioł ? 'block' : 'none';
-            if (ustawDomyslne && jestKocioł) {
+            let maOpcje = (urz === "Kocioł CO na opał stały" || urz === "Kominek" || urz === "Trzon kuchenny" || urz === "Kocioł gazowy");
+            opcjeKotla.style.display = maOpcje ? 'block' : 'none';
+            
+            // Wentylator tylko dla kotła na opał stały
+            if(kontenerWentylator) {
+                kontenerWentylator.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
+            }
+
+            if (ustawDomyslne && maOpcje) {
                 let wentInput = document.getElementById('l_wentylator_' + id);
                 let funkcjaInput = document.getElementById('l_funkcja_' + id);
-                if(wentInput) wentInput.value = "bez wentylatora";
+                if(wentInput && urz === "Kocioł CO na opał stały") wentInput.value = "bez wentylatora";
                 if(funkcjaInput) funkcjaInput.value = "CO + CWU";
             }
         }
@@ -574,8 +584,8 @@
                 nr: document.getElementById('l_nr_' + id).value,
                 osoba: document.getElementById('l_osoba_' + id).value,
                 urz: document.getElementById('l_urz_' + id).value,
-                wentylator: document.getElementById('l_wentylator_' + id).value,
-                funkcja: document.getElementById('l_funkcja_' + id).value,
+                wentylator: document.getElementById('l_wentylator_' + id) ? document.getElementById('l_wentylator_' + id).value : '',
+                funkcja: document.getElementById('l_funkcja_' + id) ? document.getElementById('l_funkcja_' + id).value : '',
                 wen: document.getElementById('l_wen_' + id).value,
                 dym: document.getElementById('l_dym_' + id).value,
                 spa: document.getElementById('l_spa_' + id).value,
@@ -734,6 +744,9 @@
                 let went = document.getElementById('l_wentylator_' + id).value;
                 let funkcja = document.getElementById('l_funkcja_' + id).value;
                 szczegolyUrz += ` (${went}, funkcja: ${funkcja})`;
+            } else if(urz === "Kominek" || urz === "Trzon kuchenny" || urz === "Kocioł gazowy") {
+                let funkcja = document.getElementById('l_funkcja_' + id).value;
+                szczegolyUrz += ` (funkcja: ${funkcja})`;
             }
 
             calyTekst += `• Lokal nr ${nr} | Lokator: ${osoba}\n  - Urządzenie grzewcze: ${szczegolyUrz}\n  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n\n`;
