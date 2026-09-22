@@ -227,9 +227,9 @@
         <!-- Rubryka 14 (Tylko numery) -->
         <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego:</label><input type="text" id="u14" placeholder="np. 4, 12, 15" oninput="zapiszStan()"></div>
 
-        <!-- Rubryka 15 (Przewody dymowe wyeksploatowane - Tak/Nie + Mieszkanie) -->
+        <!-- Rubryka 15 (Nowa treść - Tak/Nie + Mieszkanie) -->
         <div class="group">
-            <label>15. Przewody dymowe wyeksploatowane:</label>
+            <label>15. Przewody dymowe wyeksploatowane. Zamontować wkłady kominowe lub wykonać renowację poprzez szlamowanie. Montując wkład kominowy dostosować przekrój przewodu do urządzenia grzewczego:</label>
             <select id="u15_wybor" onchange="zmienPrzewodyDymowe(); zapiszStan();">
                 <option value="nie">Nie</option>
                 <option value="tak">Tak</option>
@@ -604,7 +604,7 @@
             <canvas id="canvas_${id}"></canvas>
             
             <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
-            <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
+            <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierddzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
         `;
         document.getElementById('kontener_lokali').appendChild(divLokal);
 
@@ -1038,13 +1038,13 @@
             }
         }
 
-        // Obsługa rubryki 15
+        // Obsługa rubryki 15 z nową treścią
         let u15_wybor = document.getElementById('u15_wybor').value;
         if(u15_wybor === 'tak') {
             let u15_mieszkania = document.getElementById('u15_mieszkania').value.trim();
-            let wpis15 = "15. Przewody dymowe wyeksploatowane (tak)";
+            let wpis15 = "15. Przewody dymowe wyeksploatowane. Zamontować wkłady kominowe lub wykonać renowację poprzez szlamowanie. Montując wkład kominowy dostosować przekrój przewodu do urządzenia grzewczego";
             if(u15_mieszkania) {
-                wpis15 += " - Mieszkania nr: " + u15_mieszkania;
+                wpis15 += ". Mieszkania nr: " + u15_mieszkania;
             }
             items.push(wpis15 + ".");
         }
