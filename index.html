@@ -204,25 +204,8 @@
     window.onload = function() {
         wczytujeStan = true;
         odswiezListeHistorii();
-        let ostatniId = localStorage.getItem('protokol_ceeb_ostatni_id');
-        let wczytano = false;
-        
-        if (ostatniId && localStorage.getItem(ostatniId)) {
-            wczytano = wczytajZHistoriiPoId(ostatniId);
-        }
-        
-        if (!wczytano) {
-            let klucze = pobierzKluczeHistorii();
-            if (klucze.length > 0) {
-                wczytano = wczytajZHistoriiPoId(klucze[0]);
-            }
-        }
-
-        if (!wczytano) {
-            rozpocznijNowyProtokol(false);
-        } else {
-            wczytujeStan = false;
-        }
+        // Zawsze uruchomienie lub odświeżenie strony startuje całkowicie nowy protokół z aktualną datą
+        rozpocznijNowyProtokol(false);
         przeliczSumePrzewodow();
         inicjalizujGestPrzelaczania();
     };
@@ -272,7 +255,6 @@
         try {
             let stan = JSON.parse(zapis);
             aktualneIdHistorii = id;
-            localStorage.setItem('protokol_ceeb_ostatni_id', id);
             wczytajStanObiekt(stan);
             odswiezListeHistorii();
             return true;
@@ -285,7 +267,6 @@
         if (!aktualneIdHistorii) return;
         if (confirm("Czy na pewno chcesz usunąć ten protokół z historii?")) {
             localStorage.removeItem(aktualneIdHistorii);
-            localStorage.removeItem('protokol_ceeb_ostatni_id');
             location.reload();
         }
     }
@@ -575,7 +556,6 @@
         }
         let stan = zbierzCalowityStan();
         localStorage.setItem(aktualneIdHistorii, JSON.stringify(stan));
-        localStorage.setItem('protokol_ceeb_ostatni_id', aktualneIdHistorii);
         odswiezListeHistorii();
     }
 
@@ -642,7 +622,6 @@
         if (!pytaj || confirm("Czy na pewno chcesz rozpocząć nowy protokół i wyczyścić formularz?")) {
             wczytujeStan = true;
             aktualneIdHistorii = 'protokolec_' + Date.now();
-            localStorage.setItem('protokol_ceeb_ostatni_id', aktualneIdHistorii);
             
             document.getElementById('kontener_lokali').innerHTML = '';
             licznikLokali = 0;
@@ -661,6 +640,7 @@
             document.getElementById('p_raz').value = '0';
             document.getElementById('wynik_sekcja').style.display = 'none';
 
+            // Ustawienie aktualnej daty i godziny przy nowym protokole
             document.getElementById('data_czas').value = ustawAktualnaDateCzas();
 
             dodajLokal();
@@ -698,7 +678,7 @@
                         `Stan kominów ponad dachem: ${sd}.\n` +
                         `Stan kominów na strychu: ${ss}.\n` +
                         `Stan drzwiczek kominowych: ${dzs}${dzg ? ' (' + dzg + ')' : ''}.\n` +
-                        (nas ? `Nasady kominowe: ${nas}.\n` : '');
+                        (nas ? `Nasady kominowe: ${nas}\n` : '');
 
         if (uwagiWłasne) {
             calyTekst += `\n--- DODATKOWE UWAGI ---\n${uwagiWłasne}\n`;
