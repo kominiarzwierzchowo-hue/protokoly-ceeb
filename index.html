@@ -1,713 +1,787 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Generator CEEB - Jeden Plik Obrazu</title>
-<style>
-body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 10px; color: #333; margin: 0; }
-.container { max-width: 100%; margin: 0 auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-h1 { color: #0d3880; font-size: 18px; border-bottom: 2px solid #0d3880; padding-bottom: 6px; text-align: center; }
-h2 { color: #0d3880; font-size: 14px; margin-top: 20px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
-.group { background: #f7f8fa; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 5px; }
-label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 4px; color: #444; }
-input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background: #fff; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.grid-3 input { text-align: center; }
-.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-.grid-5 input { padding: 6px; text-align: center; font-size: 12px; background: #eef2f6; font-weight: bold; color: #0d3880; }
-.grid-5 input.manual { background: #fff; font-weight: normal; color: #333; }
-.grid-5 label { font-size: 10px; text-align: center; }
-button { background: #0d3880; color: white; border: none; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 15px; }
-button:active { background: #082454; }
-.btn-image { background: #28a745; margin-top: 10px; padding: 16px; font-size: 16px; font-weight: bold; }
-.btn-image:hover { background: #218838; }
-.btn-red { background: #dc3545; margin-top: 8px; }
-.btn-success { background: #28a745; margin-top: 8px; }
-.btn-warning { background: #6c757d; margin-top: 10px; }
-.edit-load-box { background: #e2e8f0; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #cbd5e1; }
-.tabs-nav { display: flex; gap: 5px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 6px; }
-.tab-btn { flex: 1; padding: 12px; background: #cbd5e1; border: none; font-weight: bold; font-size: 13px; border-radius: 4px; cursor: pointer; color: #334155; margin-top: 0; text-align: center; }
-.tab-btn.active { background: #0d3880; color: white; }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-canvas { border: 2px dashed #0d3880; background: #fff; width: 100%; height: 150px; border-radius: 4px; touch-action: none; cursor: crosshair; }
-.lokal-card { background: #fff; border: 2px solid #0d3880; padding: 12px; margin-bottom: 12px; border-radius: 6px; }
-.locked-canvas { background: #e2e8f0; border-color: #64748b; cursor: not-allowed; }
-.output-box { margin-top: 10px; background: #eef3fc; border: 1px solid #b2c8f0; padding: 12px; border-radius: 5px; }
-.output-text { white-space: pre-wrap; font-size: 12px; line-height: 1.4; word-break: break-word; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Generator CEEB - Kominiarz</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 10px; color: #333; margin: 0; }
+        .container { max-width: 100%; margin: 0 auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: #0d3880; font-size: 18px; border-bottom: 2px solid #0d3880; padding-bottom: 6px; text-align: center; }
+        h2 { color: #0d3880; font-size: 14px; margin-top: 20px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+        .group { background: #f7f8fa; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 5px; }
+        label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 4px; color: #444; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background: #fff; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .grid-3 input { text-align: center; }
+        .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+        .grid-5 input { padding: 6px; text-align: center; font-size: 12px; background: #eef2f6; font-weight: bold; color: #0d3880; }
+        .grid-5 input.manual { background: #fff; font-weight: normal; color: #333; }
+        .grid-5 label { font-size: 10px; text-align: center; }
+        button { background: #0d3880; color: white; border: none; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 15px; }
+        button:active { background: #082454; }
+        .output-box { margin-top: 10px; background: #eef3fc; border: 1px solid #b2c8f0; padding: 12px; border-radius: 5px; }
+        .output-text { white-space: pre-wrap; font-size: 12px; line-height: 1.4; word-break: break-word; }
+        .btn-copy { background: #28a745; margin-top: 8px; padding: 10px; font-size: 14px; }
+        .btn-file { background: #ffc107; color: #000; margin-top: 8px; padding: 10px; font-size: 14px; font-weight: bold; }
+        .btn-file:hover { background: #e0a800; }
+        .btn-json { background: #17a2b8; color: #fff; margin-top: 8px; padding: 12px; font-size: 14px; font-weight: bold; }
+        .btn-red { background: #dc3545; margin-top: 8px; }
+        .btn-success { background: #28a745; margin-top: 8px; }
+        .btn-warning { background: #6c757d; margin-top: 10px; }
+        
+        .edit-load-box { background: #e2e8f0; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #cbd5e1; }
+        
+        /* Zakładki na górze */
+        .tabs-nav { display: flex; gap: 5px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 6px; }
+        .tab-btn { flex: 1; padding: 12px; background: #cbd5e1; border: none; font-weight: bold; font-size: 13px; border-radius: 4px; cursor: pointer; color: #334155; margin-top: 0; text-align: center; }
+        .tab-btn.active { background: #0d3880; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        canvas { border: 2px dashed #0d3880; background: #fff; width: 100%; height: 150px; border-radius: 4px; touch-action: none; cursor: crosshair; }
+        .lokal-card { background: #fff; border: 2px solid #0d3880; padding: 12px; margin-bottom: 12px; border-radius: 6px; }
+        .locked-canvas { background: #e2e8f0; border-color: #64748b; cursor: not-allowed; }
+        
+        .podpis-podsumowanie-item { border-bottom: 1px dashed #ccc; padding: 8px 0; margin-bottom: 8px; }
+        .podpis-podsumowanie-item img { max-width: 200px; height: 60px; border: 1px solid #999; background: #fff; display: block; margin-top: 4px; }
+    </style>
 </head>
 <body>
 <div class="container">
-<h1>Generator CEEB - Jedno-Przyciskowy Obraz</h1>
-<!-- Panel wyboru historii do edycji -->
-<div class="edit-load-box">
-<label style="font-size: 13px; margin-bottom: 6px; color: #0d3880; font-weight: bold;">📁 Edytuj zapisany protokół z pamięci:</label>
-<select id="lista_historii_select" onchange="wczytajWybranyZHistorii()" style="margin-bottom: 8px; background: #fff;">
-<option value="">-- Wybierz protokół do edycji --</option>
-</select>
-<div style="display: flex; gap: 6px;">
-<button type="button" onclick="usunAktualnyZHistorii()" class="btn-red" style="margin-top: 0; padding: 6px 12px; font-size: 12px;">Usuń ten protokół</button>
+    <h1>Generator CEEB - Kominiarz</h1>
+
+    <div class="edit-load-box">
+        <label style="font-size: 13px; margin-bottom: 6px; color: #0d3880; font-weight: bold;">📁 Edytuj zapisany protokół z historii:</label>
+        <select id="lista_historii_select" onchange="wczytajWybranyZHistorii()" style="margin-bottom: 8px; background: #fff;">
+            <option value="">-- Wybierz protokół z listy do edycji --</option>
+        </select>
+        <div style="display: flex; gap: 6px;">
+            <input type="file" id="input_wczytaj_json" accept=".json" onchange="wczytajPlikJSON(event)" style="background: #fff; padding: 6px; font-size: 11px; flex: 1;">
+            <button type="button" onclick="usunAktualnyZHistorii()" class="btn-red" style="margin-top: 0; padding: 6px 12px; font-size: 12px; width: auto;">Usuń ten z historii</button>
+        </div>
+    </div>
+
+    <div class="tabs-nav">
+        <button type="button" class="tab-btn active" onclick="zmienZakladke(0)">📝 1. Dane Budynku i Uwagi</button>
+        <button type="button" class="tab-btn" onclick="zmienZakladke(1)">✍️ 2. Lokale i Podpisy</button>
+    </div>
+
+    <!-- ZAKŁADKA 0: DANE OGÓLNE BUDYNKU I NIEPRAWIDŁOWOŚCI -->
+    <div id="tab_0" class="tab-content active">
+        <h2>Informacje ogólne o budynku</h2>
+        <div class="group">
+            <label>Adres budynku:</label>
+            <input type="text" id="adres_budynku" placeholder="np. Wierzchowo, ul. 3 Marca 29F" oninput="zapiszStan()">
+        </div>
+        <div class="group">
+            <label>Data i godzina kontroli:</label>
+            <input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00" oninput="zapiszStan()">
+        </div>
+        <div class="group">
+            <label>Ilość przewodów kominowych (Cały budynek - Sumy z lokali):</label>
+            <div class="grid-5">
+                <div><label>Dym</label><input type="text" id="p_dym" value="0" readonly></div>
+                <div><label>Spal</label><input type="text" id="p_spa" value="0" readonly></div>
+                <div><label>Went</label><input type="text" id="p_wen" value="0" readonly></div>
+                <div><label>Awar</label><input type="text" id="p_awa" value="0" class="manual" oninput="zapiszStan()"></div>
+                <div><label>Razem</label><input type="text" id="p_raz" value="0" class="manual" oninput="zapiszStan()"></div>
+            </div>
+        </div>
+        <div class="group grid-2">
+            <div>
+                <label>Dostęp do kontroli:</label>
+                <select id="dostep" onchange="zapiszStan()">
+                    <option value="jest">jest</option>
+                    <option value="brak stopni">brak stopni</option>
+                    <option value="brak ław">brak ław</option>
+                    <option value="brak drabiny">brak drabiny</option>
+                </select>
+            </div>
+            <div>
+                <label>Nieudostępnione lokale:</label>
+                <input type="text" id="lokale_brak" placeholder="np. 4, 8 (lub brak)" oninput="zapiszStan()">
+            </div>
+        </div>
+        <div class="group">
+            <label>Stan kominów ponad dachem:</label>
+            <select id="s_dach_sel" onchange="document.getElementById('s_dach_opis').value=this.value; zapiszStan();">
+                <option value="dobry">dobry</option>
+                <option value="zły">zły</option>
+                <option value="uszkodzone tynki">uszkodzone tynki</option>
+                <option value="przebudowa">przebudowa</option>
+                <option value="naprawa">naprawa</option>
+                <option value="wadliwe">wadliwe</option>
+            </select>
+            <input type="text" id="s_dach_opis" value="dobry" style="margin-top: 5px;" oninput="zapiszStan()">
+        </div>
+        <div class="group">
+            <label>Stan kominów na strychu:</label>
+            <select id="s_strych_sel" onchange="document.getElementById('s_strych_opis').value=this.value; zapiszStan();">
+                <option value="dobry">dobry</option>
+                <option value="zły">zły</option>
+                <option value="uszkodzone tynki">uszkodzone tynki</option>
+                <option value="przebudowa">przebudowa</option>
+                <option value="naprawa">naprawa</option>
+                <option value="wadliwe">wadliwe</option>
+            </select>
+            <input type="text" id="s_strych_opis" value="dobry" style="margin-top: 5px;" oninput="zapiszStan()">
+        </div>
+        <div class="group grid-2">
+            <div>
+                <label>Stan drzwiczek:</label>
+                <select id="drzwiczki_stan" onchange="zapiszStan()">
+                    <option value="dobry">dobry</option>
+                    <option value="zły">zły</option>
+                    <option value="brak">brak</option>
+                </select>
+            </div>
+            <div>
+                <label>Gdzie:</label>
+                <input type="text" id="drzwiczki_gdzie" placeholder="np. w piwnicy" oninput="zapiszStan()">
+            </div>
+        </div>
+        <div class="group">
+            <label>Nasady kominowe:</label>
+            <input type="text" id="nasady" placeholder="np. uszkodzone, 1 sztuka" oninput="zapiszStan()">
+        </div>
+
+        <h2>Własne uwagi i spostrzeżenia z kontroli</h2>
+        <div class="group">
+            <label>Inne / dodatkowe uwagi (niestandardowe):</label>
+            <textarea id="uwagi_własne" rows="3" placeholder="Wpisz uwagi..." oninput="zapiszStan()"></textarea>
+        </div>
+
+        <h2>Stwierdzone Nieprawidłowości (1-14)</h2>
+        <div class="group"><label>1. Wymiana przewodu łączącego (gaz) - Mieszkania nr:</label><input type="text" id="u1" oninput="zapiszStan()"></div>
+        <div class="group"><label>2. Nieszczelne podłączenie rury spaliny - Mieszkania nr:</label><input type="text" id="u2" oninput="zapiszStan()"></div>
+        <div class="group"><label>3. Demontaż siatek / żaluzji z kratek - Mieszkania nr:</label><input type="text" id="u3" oninput="zapiszStan()"></div>
+        <div class="group"><label>4. Wymiana kratek na nowe 14x21 cm - Lokale nr:</label><input type="text" id="u4" oninput="zapiszStan()"></div>
+        <div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach - Mieszkania:</label><input type="text" id="u5" oninput="zapiszStan()"></div>
+        <div class="group"><label>6. Niedozwolony wyciąg mechaniczny - Mieszkania:</label><input type="text" id="u6" oninput="zapiszStan()"></div>
+        <div class="group"><label>7. Brak drożności / zasłonięcie kratki - Lokale:</label><input type="text" id="u7" oninput="zapiszStan()"></div>
+        <div class="group"><label>8. Zabudowana rura łącząca piec/kocioł - Mieszkania:</label><input type="text" id="u8" oninput="zapiszStan()"></div>
+        <div class="group"><label>9. Nieprawidłowa instalacja z rur PCV - Lokale:</label><input type="text" id="u9" oninput="zapiszStan()"></div>
+        <div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej - Lokale:</label><input type="text" id="u10" oninput="zapiszStan()"></div>
+        <div class="group"><label>11. Całkowity brak wentylacji - Lokale:</label><input type="text" id="u11" oninput="zapiszStan()"></div>
+        <div class="group"><label>12. Niedozwolona zabudowa meblowa gazu - Mieszkania:</label><input type="text" id="u12" oninput="zapiszStan()"></div>
+        <div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13" oninput="zapiszStan()"></div>
+        <div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14" oninput="zapiszStan()"></div>
+
+        <button onclick="generujWszystko()">GENERUJ CAŁY DOKUMENT</button>
+        <button type="button" onclick="wyczyscCaloscPamięci()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
+
+        <div id="wynik_sekcja" style="display:none;">
+            <h3>Podgląd całego dokumentu (z podpisami):</h3>
+            <div class="output-box">
+                <div id="out_calosc" class="output-text"></div>
+                <div id="out_podpisy_zbiorczo" style="margin-top: 15px; border-top: 2px solid #0d3880; padding-top: 10px;"></div>
+                <button class="btn-copy" onclick="kopiujCaloscTekst()">Kopiuj cały tekst dokumentu</button>
+                <button class="btn-file" onclick="pobierzCaloscTXT()">Pobierz jako plik tekstowy TXT</button>
+                <button class="btn-json" onclick="pobierzPlikJSON()">💾 Pobierz pełny plik ZAPISU DO EDYCJI (.json)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ZAKŁADKA 1: LOKALE, URZĄDZENIA I PODPISY -->
+    <div id="tab_1" class="tab-content">
+        <h2>Kontrola lokali, urządzenia i podpisy</h2>
+        <p style="font-size: 12px; color: #666;">Wszystko zapisuje się w historii automatycznie.</p>
+        
+        <div id="kontener_lokali"></div>
+        <button type="button" onclick="dodajLokal(); zapiszStan();" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
+    </div>
 </div>
-</div>
-<!-- Pasek zakładek głównych -->
-<div class="tabs-nav">
-<button type="button" class="tab-btn active" onclick="zmienZakladke(0)">📝 1. Dane Budynku i Uwagi</button>
-<button type="button" class="tab-btn" onclick="zmienZakladke(1)">✍️ 2. Lokale i Podpisy</button>
-</div>
-<!-- ZAKŁADKA 0: DANE OGÓLNE BUDYNKU I NIEPRAWIDŁOWOŚCI -->
-<div id="tab_0" class="tab-content active">
-<h2>Informacje ogólne o budynku</h2>
-<div class="group">
-<label>Adres budynku:</label>
-<input type="text" id="adres_budynku" placeholder="np. Wierzchowo, ul. 3 Marca 29F" oninput="zapiszStan()">
-</div>
-<div class="group">
-<label>Data i godzina kontroli:</label>
-<input type="text" id="data_czas" placeholder="np. 21.09.2026 r., godz. 10:00" oninput="zapiszStan()">
-</div>
-<div class="group">
-<label>Ilość przewodów kominowych (Cały budynek - Sumy z lokali):</label>
-<div class="grid-5">
-<div><label>Dym</label><input type="text" id="p_dym" value="0" readonly></div>
-<div><label>Spal</label><input type="text" id="p_spa" value="0" readonly></div>
-<div><label>Went</label><input type="text" id="p_wen" value="0" readonly></div>
-<div><label>Awar</label><input type="text" id="p_awa" value="0" class="manual" oninput="zapiszStan()"></div>
-<div><label>Razem</label><input type="text" id="p_raz" value="0" class="manual" oninput="zapiszStan()"></div>
-</div>
-</div>
-<div class="group grid-2">
-<div>
-<label>Dostęp do kontroli:</label>
-<select id="dostep" onchange="zapiszStan()">
-<option value="jest">jest</option>
-<option value="brak stopni">brak stopni</option>
-<option value="brak ław">brak ław</option>
-<option value="brak drabiny">brak drabiny</option>
-</select>
-</div>
-<div>
-<label>Nieudostępnione lokale:</label>
-<input type="text" id="lokale_brak" placeholder="np. 4, 8 (lub brak)" oninput="zapiszStan()">
-</div>
-</div>
-<div class="group">
-<label>Stan kominów ponad dachem:</label>
-<select id="s_dach_sel" onchange="document.getElementById('s_dach_opis').value=this.value; zapiszStan();">
-<option value="dobry">dobry</option>
-<option value="zły">zły</option>
-<option value="uszkodzone tynki">uszkodzone tynki</option>
-<option value="przebudowa">przebudowa</option>
-<option value="naprawa">naprawa</option>
-<option value="wadliwe">wadliwe</option>
-</select>
-<input type="text" id="s_dach_opis" value="dobry" style="margin-top: 5px;" oninput="zapiszStan()">
-</div>
-<div class="group">
-<label>Stan kominów na strychu:</label>
-<select id="s_strych_sel" onchange="document.getElementById('s_strych_opis').value=this.value; zapiszStan();">
-<option value="dobry">dobry</option>
-<option value="zły">zły</option>
-<option value="uszkodzone tynki">uszkodzone tynki</option>
-<option value="przebudowa">przebudowa</option>
-<option value="naprawa">naprawa</option>
-<option value="wadliwe">wadliwe</option>
-</select>
-<input type="text" id="s_strych_opis" value="dobry" style="margin-top: 5px;" oninput="zapiszStan()">
-</div>
-<div class="group grid-2">
-<div>
-<label>Stan drzwiczek:</label>
-<select id="drzwiczki_stan" onchange="zapiszStan()">
-<option value="dobry">dobry</option>
-<option value="zły">zły</option>
-<option value="brak">brak</option>
-</select>
-</div>
-<div>
-<label>Gdzie:</label>
-<input type="text" id="drzwiczki_gdzie" placeholder="np. w piwnicy" oninput="zapiszStan()">
-</div>
-</div>
-<div class="group">
-<label>Nasady kominowe:</label>
-<input type="text" id="nasady" placeholder="np. uszkodzone, 1 sztuka" oninput="zapiszStan()">
-</div>
-<h2>Własne uwagi i spostrzeżenia z kontroli</h2>
-<div class="group">
-<label>Inne / dodatkowe uwagi (niestandardowe):</label>
-<textarea id="uwagi_własne" rows="3" placeholder="Wpisz uwagi..." oninput="zapiszStan()"></textarea>
-</div>
-<h2>Stwierdzone Nieprawidłowości (1-14)</h2>
-<div class="group"><label>1. Wymiana przewodu łączącego (gaz) - Mieszkania nr:</label><input type="text" id="u1" oninput="zapiszStan()"></div>
-<div class="group"><label>2. Nieszczelne podłączenie rury spaliny - Mieszkania nr:</label><input type="text" id="u2" oninput="zapiszStan()"></div>
-<div class="group"><label>3. Demontaż siatek / żaluzji z kratek - Mieszkania nr:</label><input type="text" id="u3" oninput="zapiszStan()"></div>
-<div class="group"><label>4. Wymiana kratek na nowe 14x21 cm - Lokale nr:</label><input type="text" id="u4" oninput="zapiszStan()"></div>
-<div class="group"><label>5. Za mała powierzchnia dopływu powietrza w drzwiach - Mieszkania:</label><input type="text" id="u5" oninput="zapiszStan()"></div>
-<div class="group"><label>6. Niedozwolony wyciąg mechaniczny - Mieszkania:</label><input type="text" id="u6" oninput="zapiszStan()"></div>
-<div class="group"><label>7. Brak drożności / zasłonięcie kratki - Lokale:</label><input type="text" id="u7" oninput="zapiszStan()"></div>
-<div class="group"><label>8. Zabudowana rura łącząca piec/kocioł - Mieszkania:</label><input type="text" id="u8" oninput="zapiszStan()"></div>
-<div class="group"><label>9. Nieprawidłowa instalacja z rur PCV - Lokale:</label><input type="text" id="u9" oninput="zapiszStan()"></div>
-<div class="group"><label>10. Wentylacja jako otwór w ścianie zewnętrznej - Lokale:</label><input type="text" id="u10" oninput="zapiszStan()"></div>
-<div class="group"><label>11. Całkowity brak wentylacji - Lokale:</label><input type="text" id="u11" oninput="zapiszStan()"></div>
-<div class="group"><label>12. Niedozwolona zabudowa meblowa gazu - Mieszkania:</label><input type="text" id="u12" oninput="zapiszStan()"></div>
-<div class="group"><label>13. Palny osad smolny w przewodzie dymowym - Mieszkania:</label><input type="text" id="u13" oninput="zapiszStan()"></div>
-<div class="group"><label>14. Brak/niewystarczająca ilość powietrza nawiewnego - Mieszkania:</label><input type="text" id="u14" oninput="zapiszStan()"></div>
-<!-- JEDNO-PRZYCISKOWY EKSPORT DO OBRAZU -->
-<button onclick="generujWszystkoJakoObraz()" class="btn-image">📸 ZAPISZ CAŁY PROTOKÓŁ Z PODPISAMI (PLIK OBRAZU)</button>
-<button type="button" onclick="wyczyscCaloscPamięci()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
-<div id="wynik_sekcja" style="display:none;">
-<h3>Podgląd wygenerowanego dokumentu:</h3>
-<div class="output-box">
-<div id="out_calosc" class="output-text"></div>
-</div>
-</div>
-</div>
-<!-- ZAKŁADKA 1: LOKALE, URZĄDZENIA I PODPISY -->
-<div id="tab_1" class="tab-content">
-<h2>Kontrola lokali, urządzenia i podpisy</h2>
-<p style="font-size: 12px; color: #666;">Wszystko zapisuje się w historii automatycznie.</p>
-<div id="kontener_lokali"></div>
-<button type="button" onclick="dodajLokal(); zapiszStan();" style="background: #17a2b8; margin-top: 5px;">+ Dodaj kolejny lokal / mieszkanie</button>
-</div>
-</div>
+
 <script>
-let licznikLokali = 0;
-let zatwierdzoneStan = {};
-let wczytujeStan = false;
-let aktualneIdHistorii = null;
-window.onload = function() {
-wczytujeStan = true;
-odswiezListeHistorii();
-let ostatniId = localStorage.getItem('protokol_ceeb_ostatni_id');
-let wczytano = false;
-if (ostatniId) {
-wczytano = wczytajZHistoriiPoId(ostatniId);
-}
-if (!wczytano) {
-let klucze = pobierzKluczeHistorii();
-if (klucze.length > 0) {
-wczytano = wczytajZHistoriiPoId(klucze[0]);
-}
-}
-if (!wczytano) {
-ustawAktualnaDateCzas();
-let nowyId = 'protokolec_' + Date.now();
-aktualneIdHistorii = nowyId;
-dodajLokal();
-zapiszStan();
-}
-wczytujeStan = false;
-przeliczSumePrzewodow();
-inicjalizujGestPrzelaczania();
-};
-function pobierzKluczeHistorii() {
-let lista = [];
-for (let i = 0; i < localStorage.length; i++) {
-let key = localStorage.key(i);
-if (key && key.startsWith('protokolec_')) {
-lista.push(key);
-}
-}
-return lista.sort().reverse();
-}
-function odswiezListeHistorii() {
-let select = document.getElementById('lista_historii_select');
-let klucze = pobierzKluczeHistorii();
-select.innerHTML = '<option value="">-- Wybierz protokół do edycji --</option>';
-klucze.forEach(key => {
-try {
-let dane = JSON.parse(localStorage.getItem(key));
-let adres = dane.ogólne.adres_budynku || 'Brak adresu';
-let data = dane.ogólne.data_czas || key;
-let opt = document.createElement('option');
-opt.value = key;
-opt.innerText = ⁠${adres} (${data})⁠;
-if (key === aktualneIdHistorii) {
-opt.selected = true;
-}
-select.appendChild(opt);
-} catch (e) {}
-});
-}
-function wczytajWybranyZHistorii() {
-let select = document.getElementById('lista_historii_select');
-let id = select.value;
-if (!id) return;
-wczytajZHistoriiPoId(id);
-}
-function wczytajZHistoriiPoId(id) {
-let zapis = localStorage.getItem(id);
-if (!zapis) return false;
-try {
-let stan = JSON.parse(zapis);
-aktualneIdHistorii = id;
-localStorage.setItem('protokol_ceeb_ostatni_id', id);
-wczytajStanObiekt(stan);
-odswiezListeHistorii();
-return true;
-} catch (e) {
-return false;
-}
-}
-function usunAktualnyZHistorii() {
-if (!aktualneIdHistorii) return;
-if (confirm("Czy na pewno chcesz usunąć ten protokół z historii?")) {
-localStorage.removeItem(aktualneIdHistorii);
-localStorage.removeItem('protokol_ceeb_ostatni_id');
-location.reload();
-}
-}
-function ustawAktualnaDateCzas() {
-let teraz = new Date();
-let dzien = String(teraz.getDate()).padStart(2, '0');
-let miesiac = String(teraz.getMonth() + 1).padStart(2, '0');
-let rok = teraz.getFullYear();
-let godziny = String(teraz.getHours()).padStart(2, '0');
-let minuty = String(teraz.getMinutes()).padStart(2, '0');
-document.getElementById('data_czas').value = ⁠${dzien}.${miesiac}.${rok} r., godz. ${godzini}:${minuty}⁠;
-}
-function zmienZakladke(index) {
-let tabs = document.querySelectorAll('.tab-content');
-let btns = document.querySelectorAll('.tab-btn');
-tabs.forEach((t, i) => { t.classList.toggle('active', i === index); });
-btns.forEach((b, i) => { b.classList.toggle('active', i === index); });
-window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-function inicjalizujGestPrzelaczania() {
-let touchstartX = 0, touchendX = 0;
-const container = document.querySelector('.container');
-container.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, false);
-container.addEventListener('touchend', e => {
-touchendX = e.changedTouches[0].screenX;
-if (touchendX < touchstartX - 70) zmienZakladke(1);
-if (touchendX > touchstartX + 70) zmienZakladke(0);
-}, false);
-}
-function przeliczSumePrzewodow() {
-let sumaWen = 0, sumaDym = 0, sumaSpa = 0;
-let karty = document.querySelectorAll('.lokal-card');
-karty.forEach(k => {
-let id = k.id.split('')[2];
-let wInput = document.getElementById('l_wen' + id);
-let dInput = document.getElementById('l_dym_' + id);
-let sInput = document.getElementById('l_spa_' + id);
-if (wInput) sumaWen += parseInt(wInput.value) || 0;
-if (dInput) sumaDym += parseInt(dInput.value) || 0;
-if (sInput) sumaSpa += parseInt(sInput.value) || 0;
-});
-document.getElementById('p_wen').value = sumaWen;
-document.getElementById('p_dym').value = sumaDym;
-document.getElementById('p_spa').value = sumaSpa;
-}
-function dodajLokal(daneLokalu = null) {
-licznikLokali++;
-let id = licznikLokali;
-let divLokal = document.createElement('div');
-divLokal.className = 'lokal-card';
-divLokal.id = 'lokal_box_' + id;
-divLokal.innerHTML = `
-<h3 id="tytul_lokal_${id}" style="color: #0d3880; margin-top: 0;">Lokal nr [Brak numeru]</h3>
-<label style="font-size: 12px; margin-bottom: 4px;">Lokal / Mieszkanie nr:</label>
-<input type="text" id="l_nr_${id}" placeholder="np. 12" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? daneLokalu.nr : ''}">
-<label style="font-size: 12px; margin-bottom: 4px;">Imię i nazwisko lokatora:</label>
-<input type="text" id="l_osoba_${id}" placeholder="np. Jan Kowalski" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? daneLokalu.osoba : ''}">
-<label style="font-size: 12px; margin-bottom: 4px;">Urządzenie grzewcze w lokalu:</label>
-<select id="l_urz_${id}" onchange="zmienTypUrzadzenia(${id}); zapiszStan();" style="margin-bottom: 8px;">
-<option value="Kocioł CO na opał stały">Kocioł CO na opał stały</option>
-<option value="Kominek">Kominek</option>
-<option value="Trzon kuchenny">Trzon kuchenny</option>
-<option value="Kocioł gazowy">Kocioł gazowy</option>
-<option value="Podgrzewacz gazowy wody">Podgrzewacz gazowy wody</option>
-<option value="Piec kaflowy">Piec kaflowy</option>
-<option value="Koza">Koza</option>
-<option value="Pompa ciepła">Pompa ciepła</option>
-<option value="Ogrzewanie elektryczne">Ogrzewanie elektryczne</option>
-<option value="Brak urządzenia / Tylko wentylacja">Brak urządzenia / Tylko wentylacja</option>
-</select>
-<div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px; display:none;">
-<label style="font-size:11px;">Wentylator w kotle:</label>
-<select id="l_wentylator_${id}" onchange="zapiszStan()" style="margin-bottom: 6px; font-size: 13px;">
-<option value="z wentylatorem">Z wentylatorem</option>
-<option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
-</select>
-<label style="font-size:11px;">Funkcja układu grzewczego:</label>
-<select id="l_funkcja_${id}" onchange="zapiszStan()" style="font-size: 13px;">
-<option value="CO">Tylko CO (Ogrzewanie)</option>
-<option value="CWU">Tylko CWU (Ciepła woda użytkowa)</option>
-<option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
-</select>
-</div>
-<label style="font-size: 12px; margin-bottom: 4px;">Ilość podłączeń do kominów w lokalu:</label>
-<div class="grid-3" style="margin-bottom: 8px;">
-<div><label style="font-size:10px;">Wentylacyjne</label><input type="number" id="l_wen_${id}" value="${daneLokalu ? daneLokalu.wen : 1}" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
-<div><label style="font-size:10px;">Dymowe</label><input type="number" id="l_dym_${id}" value="${daneLokalu ? daneLokalu.dym : 0}" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
-<div><label style="font-size:10px;">Spalinowe</label><input type="number" id="l_spa_${id}" value="${daneLokalu ? daneLokalu.spa : 0}" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
-</div>
-<label style="font-size: 12px; margin-bottom: 4px;">Podpis lokatora (narysuj palcem):</label>
-<canvas id="canvas_${id}"></canvas>
-<button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
-<button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
-${id > 1 ? '<button type="button" onclick="usunLokal(' + id + ')" class="btn-red" style="padding: 8px; font-size: 12px; margin-top: 10px;">Usuń ten lokal</button>' : ''}
-`;
-document.getElementById('kontener_lokali').appendChild(divLokal);
-if (daneLokalu && daneLokalu.urz) document.getElementById('l_urz_' + id).value = daneLokalu.urz;
-if (daneLokalu && daneLokalu.wentylator) document.getElementById('l_wentylator_' + id).value = daneLokalu.wentylator;
-if (daneLokalu && daneLokalu.funkcja) document.getElementById('l_funkcja_' + id).value = daneLokalu.funkcja;
-inicjalizujCanvas(id, daneLokalu ? daneLokalu.canvasData : null, daneLokalu ? daneLokalu.zatwierdzony : false);
-zmienTypUrzadzenia(id);
-aktualizujEtykietyLokali();
-przeliczSumePrzewodow();
-}
-function zmienTypUrzadzenia(id) {
-let urz = document.getElementById('l_urz_' + id).value;
-let opcjeKotla = document.getElementById('opcje_kotla_' + id);
-opcjeKotla.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
-}
-function usunLokal(id) {
-let el = document.getElementById('lokal_box_' + id);
-if(el) el.remove();
-przeliczSumePrzewodow();
-zapiszStan();
-}
-function aktualizujEtykietyLokali() {
-let karty = document.querySelectorAll('.lokal-card');
-karty.forEach(k => {
-let id = k.id.split('')[2];
-let nr = document.getElementById('l_nr' + id).value || 'Brak numeru';
-let osoba = document.getElementById('l_osoba_' + id).value || 'Brak osoby';
-let tytul = document.getElementById('tytul_lokal_' + id);
-if(tytul) tytul.innerText = ⁠Lokal nr ${nr} (${osoba})⁠;
-});
-}
-function inicjalizujCanvas(id, savedData = null, isLocked = false) {
-let canvas = document.getElementById('canvas_' + id);
-let ctx = canvas.getContext('2d');
-let isDrawing = false;
-zatwierdzoneStan[id] = false;
-if (savedData) {
-let img = new Image();
-img.onload = function() {
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-ctx.drawImage(img, 0, 0);
-};
-img.src = savedData;
-}
-if (isLocked) {
-zatwierdzoneStan[id] = true;
-canvas.classList.add('locked-canvas');
-let btn = document.getElementById('btn_zatwierdz_' + id);
-if (btn) {
-btn.innerText = "Odblokuj podpis (Edytuj)";
-btn.style.background = "#d97706";
-}
-}
-function getPos(e) {
-let rect = canvas.getBoundingClientRect();
-let clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-let clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-return { x: clientX - rect.left, y: clientY - rect.top };
-}
-canvas.addEventListener('mousedown', (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); });
-canvas.addEventListener('mousemove', (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); });
-canvas.addEventListener('mouseup', () => { if(isDrawing) { isDrawing = false; zapiszStan(); } });
-canvas.addEventListener('mouseleave', () => { if(isDrawing) { isDrawing = false; zapiszStan(); } });
-canvas.addEventListener('touchstart', (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); e.preventDefault(); });
-canvas.addEventListener('touchmove', (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); e.preventDefault(); });
-canvas.addEventListener('touchend', () => { if(isDrawing) { isDrawing = false; zapiszStan(); } });
-}
-function wyczyscPodpis(id) {
-if(zatwierdzoneStan[id]) {
-alert("Podpis jest zatwierdzony i zablokowany. Kliknij najpierw 'Odblokuj podpis'.");
-return;
-}
-let canvas = document.getElementById('canvas_' + id);
-let ctx = canvas.getContext('2d');
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-zapiszStan();
-}
-function zatwierdzPodpis(id) {
-let btn = document.getElementById('btn_zatwierdz_' + id);
-let canvas = document.getElementById('canvas_' + id);
-if(!zatwierdzoneStan[id]) {
-zatwierdzoneStan[id] = true;
-canvas.classList.add('locked-canvas');
-btn.innerText = "Odblokuj podpis (Edytuj)";
-btn.style.background = "#d97706";
-} else {
-zatwierdzoneStan[id] = false;
-canvas.classList.remove('locked-canvas');
-btn.innerText = "Zatwierdź podpis (Zablokuj zmianę)";
-btn.style.background = "#28a745";
-}
-zapiszStan();
-}
-function zbierzCalowityStan() {
-let stan = {
-ogólne: {
-adres_budynku: document.getElementById('adres_budynku').value,
-data_czas: document.getElementById('data_czas').value,
-p_dym: document.getElementById('p_dym').value,
-p_spa: document.getElementById('p_spa').value,
-p_wen: document.getElementById('p_wen').value,
-p_awa: document.getElementById('p_awa').value,
-p_raz: document.getElementById('p_raz').value,
-dostep: document.getElementById('dostep').value,
-lokale_brak: document.getElementById('lokale_brak').value,
-s_dach_sel: document.getElementById('s_dach_sel').value,
-s_dach_opis: document.getElementById('s_dach_opis').value,
-s_strych_sel: document.getElementById('s_strych_sel').value,
-s_strych_opis: document.getElementById('s_strych_opis').value,
-drzwiczki_stan: document.getElementById('drzwiczki_stan').value,
-drzwiczki_gdzie: document.getElementById('drzwiczki_gdzie').value,
-nasady: document.getElementById('nasady').value,
-uwagi_własne: document.getElementById('uwagi_własne').value,
-},
-nieprawidłowości: {},
-lokale: []
-};
-for (let i = 1; i <= 14; i++) {
-let el = document.getElementById('u' + i);
-if (el) stan.nieprawidłowości['u' + i] = el.value;
-}
-let karty = document.querySelectorAll('.lokal-card');
-karty.forEach(k => {
-let id = k.id.split('')[2];
-let canvas = document.getElementById('canvas' + id);
-stan.lokale.push({
-nr: document.getElementById('l_nr_' + id).value,
-osoba: document.getElementById('l_osoba_' + id).value,
-urz: document.getElementById('l_urz_' + id).value,
-wentylator: document.getElementById('l_wentylator_' + id).value,
-funkcja: document.getElementById('l_funkcja_' + id).value,
-wen: document.getElementById('l_wen_' + id).value,
-dym: document.getElementById('l_dym_' + id).value,
-spa: document.getElementById('l_spa_' + id).value,
-canvasData: canvas ? canvas.toDataURL('image/png') : null,
-zatwierdzony: zatwierdzoneStan[id] || false
-});
-});
-return stan;
-}
-function zapiszStan() {
-if (wczytujeStan) return;
-if (!aktualneIdHistorii) {
-aktualneIdHistorii = 'protokolec_' + Date.now();
-}
-let stan = zbierzCalowityStan();
-localStorage.setItem(aktualneIdHistorii, JSON.stringify(stan));
-localStorage.setItem('protokol_ceeb_ostatni_id', aktualneIdHistorii);
-odswiezListeHistorii();
-}
-function wczytajStanObiekt(stan) {
-wczytujeStan = true;
-for (let key in stan.ogólne) {
-let el = document.getElementById(key);
-if (el) el.value = stan.ogólne[key];
-}
-for (let key in stan.nieprawidłowości) {
-let el = document.getElementById(key);
-if (el) el.value = stan.nieprawidłowości[key];
-}
-document.getElementById('kontener_lokali').innerHTML = '';
-licznikLokali = 0;
-zatwierdzoneStan = {};
-if (stan.lokale && stan.lokale.length > 0) {
-stan.lokale.forEach(l => { dodajLokal(l); });
-} else {
-dodajLokal();
-}
-wczytujeStan = false;
-przeliczSumePrzewodow();
-}
-function wyczyscCaloscPamięci() {
-if (confirm("Czy na pewno chcesz utworzyć zupełnie nowy protokół? (Poprzedni pozostaje w historii edycji).")) {
-aktualneIdHistorii = 'protokolec_' + Date.now();
-document.getElementById('kontener_lokali').innerHTML = '';
-licznikLokali = 0;
-zatwierdzoneStan = {};
-document.querySelectorAll('input[type="text"], textarea').forEach(el => {
-if(!el.readOnly && el.id !== 'lista_historii_select') el.value = '';
-});
-ustawAktualnaDateCzas();
-dodajLokal();
-zapiszStan();
-}
-}
-// GENEROWANIE CAŁEGO DOKUMENTU JAKO JEDNEGO PLIKU GRAFICZNEGO (PNG)
-async function generujWszystkoJakoObraz() {
-zapiszStan();
-let adres = document.getElementById('adres_budynku').value.trim() || 'Budynek_bez_adresu';
-let dc = document.getElementById('data_czas').value;
-let pd = document.getElementById('p_dym').value;
-let ps = document.getElementById('p_spa').value;
-let pw = document.getElementById('p_wen').value;
-let pa = document.getElementById('p_awa').value;
-let pr = document.getElementById('p_raz').value;
-let dos = document.getElementById('dostep').value;
-let lb = document.getElementById('lokale_brak').value;
-let sd = document.getElementById('s_dach_opis').value;
-let ss = document.getElementById('s_strych_opis').value;
-let dzs = document.getElementById('drzwiczki_stan').value;
-let dzg = document.getElementById('drzwiczki_gdzie').value;
-let nas = document.getElementById('nasady').value;
-let uwagiWłasne = document.getElementById('uwagi_własne').value.trim();
-// Przygotowanie tekstu do renderowania w pliku obrazu
-let linieTekstu = [
-"=== PROTOKÓŁ / KONTROLA KOMINIARSKA ===",
-⁠Adres budynku: ${adres}⁠,
-⁠Data i godzina kontroli: ${dc}⁠,
-"",
-"--- INFORMACJE OGÓLNE O BUDYNKU ---",
-⁠Ilość przewodów - dymowe: ${pd}, spalinowe: ${ps}, wentylacyjne: ${pw}, awaryjne: ${pa}, razem: ${pr}.⁠,
-⁠Dostęp do kontroli: ${dos}. ⁠ + (lb ? ⁠Nieudostępnione lokale nr: ${lb}.⁠ : ''),
-⁠Stan kominów ponad dachem: ${sd}.⁠,
-⁠Stan kominów na strychu: ${ss}.⁠,
-⁠Stan drzwiczek kominowych: ${dzs}${dzg ? ' (' + dzg + ')' : ''}.⁠,
-nas ? ⁠Nasady kominowe: ${nas}.⁠ : ""
-];
-if (uwagiWłasne) {
-linieTekstu.push("", "--- DODATKOWE UWAGI ---", uwagiWłasne);
-}
-linieTekstu.push("", "--- ZESTAWIENIE KONTROLI LOKALI ---");
-let karty = document.querySelectorAll('.lokal-card');
-let lokaleDane = [];
-karty.forEach((karta) => {
-let id = karta.id.split('')[2];
-let nr = document.getElementById('l_nr' + id).value || 'Brak numeru';
-let urz = document.getElementById('l_urz_' + id).value;
-let w = document.getElementById('l_wen_' + id).value;
-let d = document.getElementById('l_dym_' + id).value;
-let s = document.getElementById('l_spa_' + id).value;
-let osoba = document.getElementById('l_osoba_' + id).value || 'Brak danych lokatora';
-let canvas = document.getElementById('canvas_' + id);
-let szczegolyUrz = urz;
-if(urz === "Kocioł CO na opał stały") {
-let went = document.getElementById('l_wentylator_' + id).value;
-let funkcja = document.getElementById('l_funkcja_' + id).value;
-szczegolyUrz += ⁠ (${went}, funkcja: ${funkcja})⁠;
-}
-lokaleDane.push({
-tekst: ⁠• Lokal nr ${nr} | Lokator: ${osoba}\n  - Urządzenie: ${szczegolyUrz}\n  - Podłączenia: Went: ${w}, Dym: ${d}, Spal: ${s}⁠,
-canvasImg: canvas
-});
-});
-let items = [];
-for (let i = 1; i <= 14; i++) {
-let val = document.getElementById('u' + i).value.trim();
-if (val) {
-let opisy = [
-"", "1. Wymiana przewodu łączącego z certyfikatem CE. Mieszkania nr: ",
-"2. Nieszczelne podłączenie rury odprowadzającej spaliny. Mieszkania nr: ",
-"3. Demontaż siatek / żaluzji z kratek wentylacyjnych. Mieszkania nr: ",
-"4. Wymiana kratek wentylacyjnych na nowe 14x21 cm. Lokale nr: ",
-"5. Za mała powierzchnia dopływu powietrza w drzwiach. Mieszkania nr: ",
-"6. Niedozwolony wyciąg mechaniczny. Mieszkania nr: ",
-"7. Brak drożności / zasłonięcie kratki wentylacyjnej. Lokale nr: ",
-"8. Zabudowana rura łącząca piec/kocioł z kominem. Mieszkania nr: ",
-"9. Nieprawidłowa instalacja z rur PCV. Lokale: ",
-"10. Wentylacja jako otwór w ścianie zewnętrznej. Lokale: ",
-"11. Całkowity brak wentylacji w pomieszczeniu. Nakaz dotyczy lokali: ",
-"12. Niedozwolona stała zabudowa meblowa gazu. Mieszkania nr: ",
-"13. Obecność palnego osadu smolnego w przewodzie dymowym. Mieszkania nr: ",
-"14. Brak lub niewystarczająca ilość powietrza nawiewnego. Mieszkania nr: "
-];
-items.push(opisy[i] + val + ".");
-}
-}
-let nieprawidlowosciTekst = [];
-if(items.length > 0) {
-nieprawidlowosciTekst.push("", "--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---");
-items.forEach(it => nieprawidlowosciTekst.push(it));
-nieprawidlowosciTekst.push("", "Administrator (zarządca)/właściciel przyjął do wiadomości art.70 Prawa Budowlanego.");
-} else {
-nieprawidlowosciTekst.push("", "--- STWIERDZONE NIEPRAWIDŁOWOŚCI ---", "Nie stwierdzono nieprawidłowości.");
-}
-// TWORZENIE PŁÓTNA GRAFICZNEGO (CANVAS) DLA CAŁEGO DOKUMENTU W JEDNYM PLIKU
-let offCanvas = document.createElement('canvas');
-let ctx = offCanvas.getContext('2d');
-offCanvas.width = 800; // Szerokość dokumentu graficznego
-// Szacowanie wysokości płótna w zależności od liczby lokali i linii tekstu
-let bazowaWysokosc = 800 + (linieTekstu.length * 20) + (lokaleDane.length * 130) + (nieprawidlowosciTekst.length * 20);
-offCanvas.height = Math.max(bazowaWysokosc, 1200);
-// Rysowanie tła dokumentu
-ctx.fillStyle = "#ffffff";
-ctx.fillRect(0, 0, offCanvas.width, offCanvas.height);
-// Styl czcionki i nagłówka
-ctx.fillStyle = "#0d3880";
-ctx.font = "bold 20px Arial";
-ctx.fillText("PROTOKÓŁ KONTROLI CEEB", 40, 50);
-ctx.fillStyle = "#333333";
-ctx.font = "14px Arial";
-let currentY = 90;
-let lineSpacing = 22;
-// Rysowanie danych ogólnych
-linieTekstu.forEach(linia => {
-if (linia.startsWith("===") || linia.startsWith("---")) {
-ctx.fillStyle = "#0d3880";
-ctx.font = "bold 15px Arial";
-currentY += 10;
-} else {
-ctx.fillStyle = "#333333";
-ctx.font = "14px Arial";
-}
-ctx.fillText(linia, 40, currentY);
-currentY += lineSpacing;
-});
-// Rysowanie lokali i podpisów w tym samym pliku graficznym
-currentY += 10;
-ctx.fillStyle = "#0d3880";
-ctx.font = "bold 15px Arial";
-ctx.fillText("--- PODPISY I DANE LOKATORÓW ---", 40, currentY);
-currentY += lineSpacing;
-lokaleDane.forEach((lokal, idx) => {
-ctx.fillStyle = "#222222";
-ctx.font = "bold 13px Arial";
-ctx.fillText(⁠Lokal ${idx + 1}:⁠, 40, currentY);
-currentY += 18;
-let subLines = lokal.tekst.split('\n');
-subLines.forEach(sl => {
-ctx.font = "13px Arial";
-ctx.fillText(sl, 60, currentY);
-currentY += 20;
-});
-// Wklejanie obrazu podpisu danego lokatora bezpośrednio do pliku obrazu dokumentu
-ctx.font = "11px Arial";
-ctx.fillStyle = "#555555";
-ctx.fillText("Podpis lokatora:", 60, currentY);
-currentY += 4;
-try {
-ctx.drawImage(lokal.canvasImg, 60, currentY, 250, 70);
-ctx.strokeStyle = "#cccccc";
-ctx.strokeRect(60, currentY, 250, 70);
-} catch(e) {}
-currentY += 85;
-});
-// Rysowanie nieprawidłowości na końcu obrazu
-nieprawidlowosciTekst.forEach(linia => {
-if (linia.startsWith("---")) {
-ctx.fillStyle = "#0d3880";
-ctx.font = "bold 15px Arial";
-currentY += 10;
-} else {
-ctx.fillStyle = "#333333";
-ctx.font = "13px Arial";
-}
-ctx.fillText(linia, 40, currentY);
-currentY += lineSpacing;
-});
-// Generowanie i automatyczne pobieranie gotowego pliku obrazu PNG
-let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_Protokol_Kompletny.png';
-let link = document.createElement('a');
-link.download = bezpiecznaNazwa;
-link.href = offCanvas.toDataURL('image/png');
-link.click();
-document.getElementById('out_calosc').innerText = "Wygenerowano kompletny dokument graficzny zawierający wszystkie dane oraz podpisy lokatorów w jednym pliku!";
-document.getElementById('wynik_sekcja').style.display = 'block';
-window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-}
+    let licznikLokali = 0;
+    let zatwierdzoneStan = {};
+    let wczytujeStan = false;
+    let aktualneIdHistorii = null;
+
+    window.onload = function() {
+        wczytujeStan = true;
+        odswiezListeHistorii();
+        let ostatniId = localStorage.getItem('protokol_ceeb_ostatni_id');
+        let wczytano = false;
+        
+        if (ostatniId) {
+            wczytano = wczytajZHistoriiPoId(ostatniId);
+        }
+        
+        if (!wczytano) {
+            let klucze = pobierzKluczeHistorii();
+            if (klucze.length > 0) {
+                wczytano = wczytajZHistoriiPoId(klucze[0]);
+            }
+        }
+
+        if (!wczytano) {
+            ustawAktualnaDateCzas();
+            let nowyId = 'protokolec_' + Date.now();
+            aktualneIdHistorii = nowyId;
+            dodajLokal();
+            zapiszStan();
+        }
+        wczytujeStan = false;
+        przeliczSumePrzewodow();
+        inicjalizujGestPrzelaczania();
+    };
+
+    function pobierzKluczeHistorii() {
+        let lista = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i);
+            if (key && key.startsWith('protokolec_')) {
+                lista.push(key);
+            }
+        }
+        return lista.sort().reverse();
+    }
+
+    function odswiezListeHistorii() {
+        let select = document.getElementById('lista_historii_select');
+        let klucze = pobierzKluczeHistorii();
+        select.innerHTML = '<option value="">-- Wybierz protokół z listy do edycji --</option>';
+
+        klucze.forEach(key => {
+            try {
+                let dane = JSON.parse(localStorage.getItem(key));
+                let adres = dane.ogólne.adres_budynku || 'Brak adresu';
+                let data = dane.ogólne.data_czas || key;
+                let opt = document.createElement('option');
+                opt.value = key;
+                opt.innerText = `${adres} (${data})`;
+                if (key === aktualneIdHistorii) {
+                    opt.selected = true;
+                }
+                select.appendChild(opt);
+            } catch (e) {}
+        });
+    }
+
+    function wczytajWybranyZHistorii() {
+        let select = document.getElementById('lista_historii_select');
+        let id = select.value;
+        if (!id) return;
+        wczytajZHistoriiPoId(id);
+    }
+
+    function wczytajZHistoriiPoId(id) {
+        let zapis = localStorage.getItem(id);
+        if (!zapis) return false;
+        try {
+            let stan = JSON.parse(zapis);
+            aktualneIdHistorii = id;
+            localStorage.setItem('protokol_ceeb_ostatni_id', id);
+            wczytajStanObiekt(stan);
+            odswiezListeHistorii();
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function usunAktualnyZHistorii() {
+        if (!aktualneIdHistorii) return;
+        if (confirm("Czy na pewno chcesz usunąć ten protokół z historii?")) {
+            localStorage.removeItem(aktualneIdHistorii);
+            localStorage.removeItem('protokol_ceeb_ostatni_id');
+            location.reload();
+        }
+    }
+
+    function ustawAktualnaDateCzas() {
+        let teraz = new Date();
+        let dzien = String(teraz.getDate()).padStart(2, '0');
+        let miesiac = String(teraz.getMonth() + 1).padStart(2, '0');
+        let rok = teraz.getFullYear();
+        let godziny = String(teraz.getHours()).padStart(2, '0');
+        let minuty = String(teraz.getMinutes()).padStart(2, '0');
+        document.getElementById('data_czas').value = `${dzien}.${miesiac}.${rok} r., godz. ${godzini}:${minuty}`;
+    }
+
+    function zmienZakladke(index) {
+        let tabs = document.querySelectorAll('.tab-content');
+        let btns = document.querySelectorAll('.tab-btn');
+        tabs.forEach((t, i) => { t.classList.toggle('active', i === index); });
+        btns.forEach((b, i) => { b.classList.toggle('active', i === index); });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function inicjalizujGestPrzelaczania() {
+        let touchstartX = 0, touchendX = 0;
+        const container = document.querySelector('.container');
+        container.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, false);
+        container.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            if (touchendX < touchstartX - 70) zmienZakladke(1);
+            if (touchendX > touchstartX + 70) zmienZakladke(0);
+        }, false);
+    }
+
+    function przeliczSumePrzewodow() {
+        let sumaWen = 0, sumaDym = 0, sumaSpa = 0;
+        let karty = document.querySelectorAll('.lokal-card');
+        karty.forEach(k => {
+            let id = k.id.split('_')[2];
+            let wInput = document.getElementById('l_wen_' + id);
+            let dInput = document.getElementById('l_dym_' + id);
+            let sInput = document.getElementById('l_spa_' + id);
+
+            if (wInput) sumaWen += parseInt(wInput.value) || 0;
+            if (dInput) sumaDym += parseInt(dInput.value) || 0;
+            if (sInput) sumaSpa += parseInt(sInput.value) || 0;
+        });
+
+        document.getElementById('p_wen').value = sumaWen;
+        document.getElementById('p_dym').value = sumaDym;
+        document.getElementById('p_spa').value = sumaSpa;
+    }
+
+    function dodajLokal(daneLokalu = null) {
+        licznikLokali++;
+        let id = licznikLokali;
+
+        let divLokal = document.createElement('div');
+        divLokal.className = 'lokal-card';
+        divLokal.id = 'lokal_box_' + id;
+        divLokal.innerHTML = `
+            <h3 id="tytul_lokal_${id}" style="color: #0d3880; margin-top: 0;">Lokal nr [Brak numeru]</h3>
+            
+            <label style="font-size: 12px; margin-bottom: 4px;">Lokal / Mieszkanie nr:</label>
+            <input type="text" id="l_nr_${id}" placeholder="np. 12" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? (daneLokalu.nr || '') : ''}">
+            
+            <label style="font-size: 12px; margin-bottom: 4px;">Imię i nazwisko lokatora:</label>
+            <input type="text" id="l_osoba_${id}" placeholder="np. Jan Kowalski" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? (daneLokalu.osoba || '') : ''}">
+
+            <label style="font-size: 12px; margin-bottom: 4px;">Urządzenie grzewcze w lokalu:</label>
+            <select id="l_urz_${id}" onchange="zmienTypUrzadzenia(${id}); zapiszStan();" style="margin-bottom: 8px;">
+                <option value="Kocioł CO na opał stały">Kocioł CO na opał stały</option>
+                <option value="Kominek">Kominek</option>
+                <option value="Trzon kuchenny">Trzon kuchenny</option>
+                <option value="Kocioł gazowy">Kocioł gazowy</option>
+                <option value="Podgrzewacz gazowy wody">Podgrzewacz gazowy wody</option>
+                <option value="Piec kaflowy">Piec kaflowy</option>
+                <option value="Koza">Koza</option>
+                <option value="Pompa ciepła">Pompa ciepła</option>
+                <option value="Ogrzewanie elektryczne">Ogrzewanie elektryczne</option>
+                <option value="Brak urządzenia / Tylko wentylacja">Brak urządzenia / Tylko wentylacja</option>
+            </select>
+
+            <div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px; display:none;">
+                <label style="font-size:11px;">Wentylator w kotle:</label>
+                <select id="l_wentylator_${id}" onchange="zapiszStan()" style="margin-bottom: 6px; font-size: 13px;">
+                    <option value="z wentylatorem">Z wentylatorem</option>
+                    <option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
+                </select>
+                <label style="font-size:11px;">Funkcja układu grzewczego:</label>
+                <select id="l_funkcja_${id}" onchange="zapiszStan()" style="font-size: 13px;">
+                    <option value="CO">Tylko CO (Ogrzewanie)</option>
+                    <option value="CWU">Tylko CWU (Ciepła woda użytkowa)</option>
+                    <option value="CO + CWU">CO + CWU (Ogrzewanie i ciepła woda)</option>
+                </select>
+            </div>
+
+            <label style="font-size: 12px; margin-bottom: 4px;">Ilość podłączeń do kominów w lokalu:</label>
+            <div class="grid-3" style="margin-bottom: 8px;">
+                <div><label style="font-size:10px;">Wentylacyjne</label><input type="number" id="l_wen_${id}" value="${daneLokalu ? (daneLokalu.wen !== undefined ? daneLokalu.wen : 1) : 1}" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
+                <div><label style="font-size:10px;">Dymowe</label><input type="number" id="l_dym_${id}" value="${daneLokalu ? (daneLokalu.dym !== undefined ? daneLokalu.dym : 0) : 0}" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
+                <div><label style="font-size:10px;">Spalinowe</label><input type="number" id="l_spa_${id}" value="${daneLokalu ? (daneLokalu.spa !== undefined ? daneLokalu.spa : 0) : 0}" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
+            </div>
+
+            <label style="font-size: 12px; margin-bottom: 4px;">Podpis lokatora (narysuj palcem):</label>
+            <canvas id="canvas_${id}"></canvas>
+            
+            <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
+            <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
+            
+            ${id > 1 ? '<button type="button" onclick="usunLokal(' + id + ')" class="btn-red" style="padding: 8px; font-size: 12px; margin-top: 10px;">Usuń ten lokal</button>' : ''}
+        `;
+        document.getElementById('kontener_lokali').appendChild(divLokal);
+
+        if (daneLokalu && daneLokalu.urz) document.getElementById('l_urz_' + id).value = daneLokalu.urz;
+        if (daneLokalu && daneLokalu.wentylator) document.getElementById('l_wentylator_' + id).value = daneLokalu.wentylator;
+        if (daneLokalu && daneLokalu.funkcja) document.getElementById('l_funkcja_' + id).value = daneLokalu.funkcja;
+
+        inicjalizujCanvas(id, daneLokalu ? daneLokalu.canvasData : null, daneLokalu ? daneLokalu.zatwierdzony : false);
+        zmienTypUrzadzenia(id);
+        aktualizujEtykietyLokali();
+        przeliczSumePrzewodow();
+    }
+
+    function zmienTypUrzadzenia(id) {
+        let urz = document.getElementById('l_urz_' + id).value;
+        let opcjeKotla = document.getElementById('opcje_kotla_' + id);
+        if(opcjeKotla) {
+            opcjeKotla.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
+        }
+    }
+
+    function usunLokal(id) {
+        let el = document.getElementById('lokal_box_' + id);
+        if(el) el.remove();
+        przeliczSumePrzewodow();
+        zapiszStan();
+    }
+
+    function aktualizujEtykietyLokali() {
+        let karty = document.querySelectorAll('.lokal-card');
+        karty.forEach(k => {
+            let id = k.id.split('_')[2];
+            let nrInput = document.getElementById('l_nr_' + id);
+            let osInput = document.getElementById('l_osoba_' + id);
+            let nr = nrInput ? (nrInput.value || 'Brak numeru') : 'Brak numeru';
+            let osoba = osInput ? (osInput.value || 'Brak osoby') : 'Brak osoby';
+            let tytul = document.getElementById('tytul_lokal_' + id);
+            if(tytul) tytul.innerText = `Lokal nr ${nr} (${osoba})`;
+        });
+    }
+
+    function inicjalizujCanvas(id, savedData = null, isLocked = false) {
+        let canvas = document.getElementById('canvas_' + id);
+        if(!canvas) return;
+        let ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        zatwierdzoneStan[id] = false;
+
+        canvas.width = canvas.offsetWidth || 300;
+        canvas.height = 150;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+
+        if (savedData) {
+            let img = new Image();
+            img.onload = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            };
+            img.src = savedData;
+        }
+
+        if (isLocked) {
+            zatwierdzoneStan[id] = true;
+            canvas.classList.add('locked-canvas');
+            let btn = document.getElementById('btn_zatwierdz_' + id);
+            if (btn) {
+                btn.innerText = "Odblokuj podpis (Edytuj)";
+                btn.style.background = "#d97706";
+            }
+        }
+
+        function getPos(e) {
+            let rect = canvas.getBoundingClientRect();
+            let clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            let clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        canvas.onmousedown = (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
+        canvas.onmousemove = (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
+        canvas.onmouseup = () => { if(isDrawing) { isDrawing = false; zapiszStan(); } };
+        canvas.onmouseleave = () => { if(isDrawing) { isDrawing = false; zapiszStan(); } };
+
+        canvas.ontouchstart = (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); e.preventDefault(); };
+        canvas.ontouchmove = (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); e.preventDefault(); };
+        canvas.ontouchend = () => { if(isDrawing) { isDrawing = false; zapiszStan(); } };
+    }
+
+    function wyczyscPodpis(id) {
+        if(zatwierdzoneStan[id]) {
+            alert("Podpis jest zatwierdzony i zablokowany. Kliknij najpierw 'Odblokuj podpis'.");
+            return;
+        }
+        let canvas = document.getElementById('canvas_' + id);
+        if(!canvas) return;
+        let ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        zapiszStan();
+    }
+
+    function zatwierdzPodpis(id) {
+        let btn = document.getElementById('btn_zatwierdz_' + id);
+        let canvas = document.getElementById('canvas_' + id);
+        if(!canvas || !btn) return;
+        
+        if(!zatwierdzoneStan[id]) {
+            zatwierdzoneStan[id] = true;
+            canvas.classList.add('locked-canvas');
+            btn.innerText = "Odblokuj podpis (Edytuj)";
+            btn.style.background = "#d97706";
+        } else {
+            zatwierdzoneStan[id] = false;
+            canvas.classList.remove('locked-canvas');
+            btn.innerText = "Zatwierdź podpis (Zablokuj zmianę)";
+            btn.style.background = "#28a745";
+        }
+        zapiszStan();
+    }
+
+    function zbierzCalowityStan() {
+        let stan = {
+            ogólne: {
+                adres_budynku: document.getElementById('adres_budynku').value,
+                data_czas: document.getElementById('data_czas').value,
+                p_dym: document.getElementById('p_dym').value,
+                p_spa: document.getElementById('p_spa').value,
+                p_wen: document.getElementById('p_wen').value,
+                p_awa: document.getElementById('p_awa').value,
+                p_raz: document.getElementById('p_raz').value,
+                dostep: document.getElementById('dostep').value,
+                lokale_brak: document.getElementById('lokale_brak').value,
+                s_dach_sel: document.getElementById('s_dach_sel').value,
+                s_dach_opis: document.getElementById('s_dach_opis').value,
+                s_strych_sel: document.getElementById('s_strych_sel').value,
+                s_strych_opis: document.getElementById('s_strych_opis').value,
+                drzwiczki_stan: document.getElementById('drzwiczki_stan').value,
+                drzwiczki_gdzie: document.getElementById('drzwiczki_gdzie').value,
+                nasady: document.getElementById('nasady').value,
+                uwagi_własne: document.getElementById('uwagi_własne').value,
+            },
+            nieprawidłowości: {},
+            lokale: []
+        };
+
+        for (let i = 1; i <= 14; i++) {
+            let el = document.getElementById('u' + i);
+            if (el) stan.nieprawidłowości['u' + i] = el.value;
+        }
+
+        let karty = document.querySelectorAll('.lokal-card');
+        karty.forEach(k => {
+            let id = k.id.split('_')[2];
+            let canvas = document.getElementById('canvas_' + id);
+            stan.lokale.push({
+                nr: document.getElementById('l_nr_' + id).value,
+                osoba: document.getElementById('l_osoba_' + id).value,
+                urz: document.getElementById('l_urz_' + id).value,
+                wentylator: document.getElementById('l_wentylator_' + id).value,
+                funkcja: document.getElementById('l_funkcja_' + id).value,
+                wen: document.getElementById('l_wen_' + id).value,
+                dym: document.getElementById('l_dym_' + id).value,
+                spa: document.getElementById('l_spa_' + id).value,
+                canvasData: canvas ? canvas.toDataURL('image/png') : null,
+                zatwierdzony: zatwierdzoneStan[id] || false
+            });
+        });
+
+        return stan;
+    }
+
+    function zapiszStan() {
+        if (wczytujeStan) return;
+        if (!aktualneIdHistorii) {
+            aktualneIdHistorii = 'protokolec_' + Date.now();
+        }
+        let stan = zbierzCalowityStan();
+        localStorage.setItem(aktualneIdHistorii, JSON.stringify(stan));
+        localStorage.setItem('protokol_ceeb_ostatni_id', aktualneIdHistorii);
+        odswiezListeHistorii();
+    }
+
+    function wczytajStanObiekt(stan) {
+        wczytujeStan = true;
+        if(stan.ogólne) {
+            for (let key in stan.ogólne) {
+                let el = document.getElementById(key);
+                if (el) el.value = stan.ogólne[key];
+            }
+        }
+        if(stan.nieprawidłowości) {
+            for (let key in stan.nieprawidłowości) {
+                let el = document.getElementById(key);
+                if (el) el.value = stan.nieprawidłowości[key];
+            }
+        }
+
+        document.getElementById('kontener_lokali').innerHTML = '';
+        licznikLokali = 0;
+        zatwierdzoneStan = {};
+
+        if (stan.lokale && stan.lokale.length > 0) {
+            stan.lokale.forEach(l => { dodajLokal(l); });
+        } else {
+            dodajLokal();
+        }
+        wczytujeStan = false;
+        przeliczSumePrzewodow();
+    }
+
+    function wczytajPlikJSON(event) {
+        let file = event.target.files[0];
+        if (!file) return;
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let stan = JSON.parse(e.target.result);
+                aktualneIdHistorii = 'protokolec_' + Date.now();
+                wczytajStanObiekt(stan);
+                zapiszStan();
+                alert("Protokół został pomyślnie zaimportowany i dodany do historii edycji!");
+            } catch (err) {
+                alert("Błąd odczytu pliku JSON.");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function pobierzPlikJSON() {
+        let stan = zbierzCalowityStan();
+        let tekst = JSON.stringify(stan, null, 2);
+        let adres = document.getElementById('adres_budynku').value.trim() || 'Protokol_CEEB';
+        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_ZESTAW_EDYCJA.json';
+        
+        let blob = new Blob([tekst], { type: "application/json;charset=utf-8" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = bezpiecznaNazwa;
+        link.click();
+    }
+
+    function wyczyscCaloscPamięci() {
+        if (confirm("Czy na pewno chcesz utworzyć zupełnie nowy protokół? (Stary pozostaje zapisany w historii).")) {
+            aktualneIdHistorii = 'protokolec_' + Date.now();
+            document.getElementById('kontener_lokali').innerHTML = '';
+            licznikLokali = 0;
+            zatwierdzoneStan = {};
+            document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+                if(!el.readOnly && el.id !== 'lista_historii_select') el.value = '';
+            });
+            ustawAktualnaDateCzas();
+            dodajLokal();
+            zapiszStan();
+        }
+    }
+
+    function generujWszystko() {
+        zapiszStan();
+        let adres = document.getElementById('adres_budynku').value.trim() || 'Budynek_bez_adresu';
+        let dc = document.getElementById('data_czas').value;
+        let pd = document.getElementById('p_dym').value;
+        let ps = document.getElementById('p_spa').value;
+        let pw = document.getElementById('p_wen').value;
+        let pa = document.getElementById('p_awa').value;
+        let pr = document.getElementById('p_raz').value;
+        let dos = document.getElementById('dostep').value;
+        let lb = document.getElementById('lokale_brak').value;
+        let sd = document.getElementById('s_dach_opis').value;
+        let ss = document.getElementById('s_strych_opis').value;
+        let dzs = document.getElementById('drzwiczki_stan').value;
+        let dzg = document.getElementById('drzwiczki_gdzie').value;
+        let nas = document.getElementById('nasady').value;
+        let uwagiWłasne = document.getElementById('uwagi_własne').value.trim();
+
+        let calyTekst = `=== PROTOKÓŁ / KONTROLA KOMINIARSKA ===\n` +
+                        `Adres budynku: ${adres}\n` +
+                        `Data i godzina kontroli: ${dc}\n\n` +
+                        `--- INFORMACJE OGÓLNE O BUDYNKU ---\n` +
+                        `Ilość przewodów - dymowe: ${pd}, spalinowe: ${ps}, wentylacyjne: ${pw}, awaryjne: ${pa}, razem: ${pr}.\n` +
+                        `Dostęp do kontroli: ${dos}. ` + (lb ? `Nieudostępnione lokale do kontroli nr: ${lb}. ` : '') + `\n` +
+                        `Stan kominów ponad dachem: ${sd}.\n` +
+                        `Stan kominów na strychu: ${ss}.\n` +
+                        `Stan drzwiczek kominowych: ${dzs}${dzg ? ' (' + dzg + ')' : ''}.\n` +
+                        (nas ? `Nasady kominowe: ${nas}.\n` : '');
+
+        if (uwagiWłasne) {
+            calyTekst += `\n--- DODATKOWE UWAGI ---\n${uwagiWłasne}\n`;
+        }
+
+        calyTekst += `\n--- ZESTAWIENIE KONTROLI LOKALI ---\n`;
+        let karty = document.querySelectorAll('.lokal-card');
+        karty.forEach((karta) => {
+            let id = karta.id.split('_')[2];
+            let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
+            let urz = document.getElementById('l_urz_' + id).value;
+            let w = document.getElementById('l_wen_' + id).value;
+            let d = document.getElementById('l_dym_' + id).value;
+            let s = document.getElementById('l_spa_' + id).value;
+            let osoba = document.getElementById('l_osoba_' + id).value || 'Brak danych lokatora';
+
+            let szczegolyUrz = urz;
+            if(urz === "Kocioł CO na opał stały") {
+                let went = document.getElementById('l_wentylator_' + id).value;
+                let funkcja = document.getElementById('l_funkcja_' + id).value;
+                szczegolyUrz += ` (${went}, funkcja: ${funkcja})`;
+            }
+
+            calyTekst += `• Lokal nr ${nr} | Lokator: ${osoba}\n  - Urządzenie grzewcze: ${szczegolyUrz}\n  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n\n`;
+        });
+
+        calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
+        let items = [];
+        for (let i = 1; i <= 14; i++) {
+            let val = document.getElementById('u' + i).value.trim();
+            if (val) {
+                let opisy = [
+                    "", "1. Wymiana przewodu łączącego z certyfikatem CE. Mieszkania nr: ",
+                    "2. Nieszczelne podłączenie rury odprowadzającej spaliny. Mieszkania nr: ",
+                    "3. Demontaż siatek / żaluzji z kratek wentylacyjnych. Mieszkania nr: ",
+                    "4. Wymiana kratek wentylacyjnych na nowe 14x21 cm. Lokale nr: ",
+                    "5. Za mała powierzchnia dopływu powietrza w drzwiach (min. 220 cm²). Mieszkania nr: ",
+                    "6. Niedozwolone podłączenie mechanicznego wyciągu do wentylacji. Mieszkania nr: ",
+                    "7. Brak drożności / zasłonięcie kratki wentylacyjnej. Lokale nr: ",
+                    "8. Zabudowana rura łącząca piec/kocioł z kominem. Mieszkania nr: ",
+                    "9. Nieprawidłowa instalacja z rur PCV (wymiana ponad dach). Lokale: ",
+                    "10. Wentylacja jako otwór w ścianie zewnętrznej (wymiana na pion). Lokale: ",
+                    "11. Całkowity brak wentylacji w pomieszczeniu. Nakaz dotyczy lokali: ",
+                    "12. Niedozwolona stała zabudowa meblowa gazu. Mieszkania nr: ",
+                    "13. Obecność palnego osadu smolnego w przewodzie dymowym. Mieszkania nr: ",
+                    "14. Brak lub niewystarczająca ilość powietrza nawiewnego. Mieszkania nr: "
+                ];
+                items.push(opisy[i] + val + ".");
+            }
+        }
+
+        if(items.length > 0) {
+            calyTekst += items.join("\n") + "\n\n";
+            calyTekst += "Administrator (zarządca)/właściciel obiektu budowlanego przyjął do wiadomości zakres stosowania art.70 Ustawy Prawo Budowlane o obowiązkowym usunięciu usterek.";
+        } else {
+            calyTekst += "Nie stwierdzono nieprawidłowości.";
+        }
+
+        document.getElementById('out_calosc').innerText = calyTekst;
+
+        let kontenerPodpisow = document.getElementById('out_podpisy_zbiorczo');
+        kontenerPodpisow.innerHTML = `<h4 style="color: #0d3880; margin-bottom: 5px;">ZBIORCZE PODPISY LOKATORÓW:</h4>`;
+        
+        karty.forEach((karta) => {
+            let id = karta.id.split('_')[2];
+            let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
+            let osoba = document.getElementById('l_osoba_' + id).value || 'Brak lokatora';
+            let canvas = document.getElementById('canvas_' + id);
+            
+            let divP = document.createElement('div');
+            divP.className = 'podpis-podsumowanie-item';
+            divP.innerHTML = `<strong>Lokal nr ${nr} (${osoba}):</strong>`;
+            
+            let img = document.createElement('img');
+            img.src = canvas.toDataURL('image/png');
+            divP.appendChild(img);
+            kontenerPodpisow.appendChild(divP);
+        });
+
+        document.getElementById('wynik_sekcja').style.display = 'block';
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function kopiujCaloscTekst() {
+        let tekst = document.getElementById('out_calosc').innerText;
+        navigator.clipboard.writeText(tekst).then(() => alert("Skopiowano tekst dokumentu do schowka!"));
+    }
+
+    function pobierzCaloscTXT() {
+        let tekst = document.getElementById('out_calosc').innerText;
+        let adres = document.getElementById('adres_budynku').value.trim() || 'Protokoł_CEEB';
+        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '.txt';
+        
+        let blob = new Blob([tekst], { type: "text/plain;charset=utf-8" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = bezpiecznaNazwa;
+        link.click();
+    }
 </script>
 </body>
 </html>
