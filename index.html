@@ -44,7 +44,7 @@
         .btn-usun-lokal-top { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 0; width: auto; }
         .btn-usun-lokal-top:hover { background: #b02a37; }
 
-        . urzadzenie-item { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px; border-radius: 4px; margin-bottom: 8px; position: relative; }
+        .urzadzenie-item { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px; border-radius: 4px; margin-bottom: 8px; position: relative; }
         .btn-usun-urz { background: #dc3545; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 3px; cursor: pointer; float: right; margin-top: -2px; }
 
         /* Pływająca listwa skrótów nad polem */
@@ -328,7 +328,6 @@
         zmienDostepKontroli();
         zmienPrzewodyDymowe();
         przeliczSumePrzewodow();
-        inicjalizujGestPrzelaczania();
 
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.group')) {
@@ -558,17 +557,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function inicjalizujGestPrzelaczania() {
-        let touchstartX = 0, touchendX = 0;
-        const container = document.querySelector('.container');
-        container.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, false);
-        container.addEventListener('touchend', e => {
-            touchendX = e.changedTouches[0].screenX;
-            if (touchendX < touchstartX - 70) zmienZakladke(1);
-            if (touchendX > touchstartX + 70) zmienZakladke(0);
-        }, false);
-    }
-
     function przeliczSumePrzewodow() {
         let sumaWen = 0, sumaDym = 0, sumaSpa = 0;
         let karty = document.querySelectorAll('.lokal-card');
@@ -632,7 +620,6 @@
                 dodajUrzadzenieDoLokalu(id, u);
             });
         } else {
-            // Dodaj jedno domyślne urządzenie startowe
             dodajUrzadzenieDoLokalu(id);
         }
 
