@@ -25,7 +25,6 @@
         .output-text { white-space: pre-wrap; font-size: 12px; line-height: 1.4; word-break: break-word; }
         .btn-copy { background: #28a745; margin-top: 8px; padding: 10px; font-size: 14px; }
         .btn-red { background: #dc3545; margin-top: 8px; }
-        .btn-success { background: #28a745; margin-top: 8px; }
         .btn-warning { background: #6c757d; margin-top: 10px; }
         
         .edit-load-box { background: #e2e8f0; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #cbd5e1; }
@@ -80,7 +79,7 @@
         .skroty-popup button:hover { background: #1d4ed8; }
 
         .podpis-podsumowanie-item { border-bottom: 1px dashed #ccc; padding: 8px 0; margin-bottom: 8px; }
-        .podpis-podsumowanie-item img { max-width: 200px; height: 60px; border: 1px solid #999; background: #fff; display: block; margin-top: 4px; }
+        .podpis-podsumowanie-item img { max-width: 250px; height: 70px; border: 1px solid #999; background: #fff; display: block; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -242,9 +241,10 @@
         <button type="button" onclick="rozpocznijNowyProtokol()" class="btn-warning">Rozpocznij nowy protokół (Wyczyść dane)</button>
 
         <div id="wynik_sekcja" style="display:none;">
-            <h3>Podgląd całego dokumentu:</h3>
+            <h3>Podgląd całego dokumentu i podpisów:</h3>
             <div class="output-box">
                 <div id="out_calosc" class="output-text"></div>
+                <div id="out_grafiki_podpisow" style="margin-top: 15px;"></div>
                 <button class="btn-copy" onclick="kopiujCaloscTekst()">Kopiuj cały tekst dokumentu</button>
             </div>
         </div>
@@ -987,7 +987,7 @@
         let stan = zbierzCalowityStan();
         let tekst = JSON.stringify(stan, null, 2);
         let adres = document.getElementById('adres_budynku').value.trim() || 'Protokol_CEEB';
-        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_ZESTAW_EDYCJA.json';
+        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_EDYCJA.json';
         
         let blob = new Blob([tekst], { type: "application/json;charset=utf-8" });
         let link = document.createElement("a");
@@ -1179,15 +1179,16 @@
             calyTekst += "Nie stwierdzono nieprawidłowości.\n\n";
         }
 
-        // Dopisywanie informacji o podpisach do pliku tekstowego (TXT)
+        // Dopisywanie podpisów do pliku TXT
         calyTekst += `--- ZBIORCZE PODPISY LOKATORÓW ---\n`;
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
             let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
-            calyTekst += `Podpis lokatora (Lokal nr ${nr}): [Złożono podpis graficzny w systemie]\n`;
+            calyTekst += `Podpis lokatora (Lokal nr ${nr}): [Podpis graficzny zatwierdzony w protokole]\n`;
         });
 
-        let htmlPodpisow = `<h4 style="color: #0d3880; margin-bottom: 5px;">ZBIORCZE PODPISY LOKATORÓW:</h4>`;
+        // Generowanie sekcji graficznej podpisów do podglądu i pliku HTML
+        let htmlPodpisow = `<h4 style="color: #0d3880; margin-bottom: 5px; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">ZBIORCZE PODPISY LOKATORÓW:</h4>`;
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
             let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
@@ -1196,10 +1197,14 @@
             htmlPodpisow += `<div class="podpis-podsumowanie-item"><strong>Lokal nr ${nr}:</strong><br><img src="${canvas.toDataURL('image/png')}"></div>`;
         });
 
+        // Wstawienie tekstu i grafik do podglądu na ekranie
         document.getElementById('out_calosc').innerText = calyTekst;
+        document.getElementById('out_grafiki_podpisow').innerHTML = htmlPodpisow;
+
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
+        // Automatyczny pobór plików
         pobierzPlikTxtAutomatycznie(calyTekst, adres);
         pobierzPelnyDokumentHTMLAutomatycznie(calyTekst, htmlPodpisow, adres);
         pobierzPlikJSONAutomatycznie();
@@ -1227,7 +1232,7 @@ body { font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 
 h2 { color: #0d3880; border-bottom: 2px solid #0d3880; padding-bottom: 5px; }
 pre { white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 14px; background: #f8fafc; padding: 15px; border: 1px solid #cbd5e1; border-radius: 5px; }
 .podpis-podsumowanie-item { border-bottom: 1px dashed #ccc; padding: 8px 0; margin-bottom: 8px; }
-.podpis-podsumowanie-item img { max-width: 200px; height: 60px; border: 1px solid #999; background: #fff; display: block; margin-top: 4px; }
+.podpis-podsumowanie-item img { max-width: 250px; height: 70px; border: 1px solid #999; background: #fff; display: block; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -1245,8 +1250,8 @@ pre { white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 14px; ba
     }
 
     function kopiujCaloscTekst() {
-        let tekst = document.getElementById('out_calosc').innerText;
-        navigator.clipboard.writeText(tekst).then(() => alert("Skopiowano tekst dokumentu do schowka!"));
+        let tekst = document.getElementById('out_calosc').innerText + "\n\n" + document.getElementById('out_grafiki_podpisow').innerText;
+        navigator.clipboard.writeText(tekst).then(() => alert("Skopiowano cały tekst i podsumowanie do schowka!"));
     }
 </script>
 </body>
