@@ -34,8 +34,10 @@
         .tabs-nav { display: flex; gap: 5px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 6px; }
         .tab-btn { flex: 1; padding: 12px; background: #cbd5e1; border: none; font-weight: bold; font-size: 13px; border-radius: 4px; cursor: pointer; color: #334155; margin-top: 0; text-align: center; }
         .tab-btn.active { background: #0d3880; color: white; }
+        
+        /* Poprawione wyświetlanie zakładek żeby zawsze działało */
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block !important; }
 
         canvas { border: 2px dashed #94a3b8; background: #f8fafc; width: 100%; height: 150px; border-radius: 4px; touch-action: none; cursor: crosshair; }
         .canvas-active { border: 2px solid #0d3880 !important; background: #fff !important; box-shadow: 0 0 8px rgba(13, 56, 128, 0.3); }
@@ -553,8 +555,12 @@
     function zmienZakladke(index) {
         let tabs = document.querySelectorAll('.tab-content');
         let btns = document.querySelectorAll('.tab-btn');
-        tabs.forEach((t, i) => { t.classList.toggle('active', i === index); });
-        btns.forEach((b, i) => { b.classList.toggle('active', i === index); });
+        tabs.forEach((t, i) => { 
+            t.classList.toggle('active', i === index); 
+        });
+        btns.forEach((b, i) => { 
+            b.classList.toggle('active', i === index); 
+        });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1128,7 +1134,6 @@
         calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
         let items = [];
 
-        // Pełne opisy nieprawidłowości (1-15 + Drzwiczki i Nasady)
         let pelneOpisy = {
             1: "1. Nakaz wymiany przewodu łączącego urządzenie grzewcze (kocioł CO/piec/kominek / podgrzewacz gazowy wody/kocioł gazowy) z przewodem kominowym na nowy, wykonany ze stali kwasoodpornej posiadający deklarację właściwości użytkowych (certyfikat CE).. Mieszkania nr: ",
             2: "2. Nieszczelne podłączenie rury odprowadzającej spaliny. Nakazuje się bezzwłoczne i trwałe uszczelnienie połączeń rury spalinowej podgrzewacza/kotła z wlotem do komina. Dotyczy mieszkań nr: ",
@@ -1164,7 +1169,6 @@
             items.push(wpis15 + ".");
         }
 
-        // Dodanie wpisu o drzwiczkach jeśli stan to zły lub brak
         let dzs = document.getElementById('drzwiczki_stan').value;
         let dzg = document.getElementById('drzwiczki_gdzie').value.trim();
         if(dzs === 'zły' || dzs === 'brak') {
@@ -1172,7 +1176,6 @@
             items.push(wpisDrzwiczki);
         }
 
-        // Dodanie wpisu o nasadach jeśli wpisano nasady
         let nas = document.getElementById('nasady').value.trim();
         if(nas) {
             let wpisNasady = "Nasady kominowe:\nNiewłaściwe, nieatestowane nasady kominowe na wylotach przewodów kominowych (" + nas + "): zdemontować lub wymienić na atestowane zgodnie z przeznaczeniem przewodów kominowych.";
