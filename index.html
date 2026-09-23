@@ -26,6 +26,7 @@
         .btn-copy { background: #28a745; margin-top: 8px; padding: 10px; font-size: 14px; }
         .btn-red { background: #dc3545; margin-top: 8px; }
         .btn-warning { background: #6c757d; margin-top: 10px; }
+        .btn-pobierz { background: #17a2b8; margin-top: 6px; padding: 10px; font-size: 13px; font-weight: bold; }
         
         .edit-load-box { background: #e2e8f0; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #cbd5e1; }
         
@@ -245,7 +246,13 @@
             <div class="output-box">
                 <div id="out_calosc" class="output-text"></div>
                 <div id="out_grafiki_podpisow" style="margin-top: 15px;"></div>
-                <button class="btn-copy" onclick="kopiujCaloscTekst()">Kopiuj cały tekst dokumentu</button>
+                
+                <h4 style="color: #0d3880; margin-top: 15px; border-top: 1px solid #ccc; padding-top: 8px;">Pobieranie plików na urządzenie:</h4>
+                <button type="button" class="btn-pobierz" onclick="pobierzTxtRęcznie()">📄 Pobierz plik tekstowy (.txt) dla zarządcy</button>
+                <button type="button" class="btn-pobierz" onclick="pobierzHtmlRęcznie()" style="background: #28a745;">🖼️ Pobierz plik HTML z grafikami podpisów</button>
+                <button type="button" class="btn-pobierz" onclick="pobierzJsonRęcznie()" style="background: #6c757d;">💾 Pobierz plik edycji (.json)</button>
+                
+                <button class="btn-copy" onclick="kopiujCaloscTekst()">Kopiuj cały tekst dokumentu do schowka</button>
             </div>
         </div>
     </div>
@@ -272,6 +279,10 @@
     let zatwierdzoneStan = {};
     let aktualneIdHistorii = null;
     const KLUCZ_ROBOCZY = 'protokol_ceeb_aktualnie_pisany';
+
+    let ostatniTekstTXT = "";
+    let ostatniHtmlPodpisow = "";
+    let ostatniAdresPliku = "";
 
     const slownikUrządzeń = {
         "PGW": "podgrzewacz gazowy wody",
@@ -983,19 +994,6 @@
         reader.readAsText(file);
     }
 
-    function pobierzPlikJSONAutomatycznie() {
-        let stan = zbierzCalowityStan();
-        let tekst = JSON.stringify(stan, null, 2);
-        let adres = document.getElementById('adres_budynku').value.trim() || 'Protokol_CEEB';
-        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_EDYCJA.json';
-        
-        let blob = new Blob([tekst], { type: "application/json;charset=utf-8" });
-        let link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = bezpiecznaNazwa;
-        link.click();
-    }
-
     function rozpocznijNowyProtokol(pytaj = true) {
         if (!pytaj || confirm("Czy na pewno chcesz rozpocząć nowy protokół i wyczyścić formularz?")) {
             aktualneIdHistorii = 'protokolec_' + Date.now();
@@ -1041,6 +1039,7 @@
     function generujWszystko() {
         zapiszStan();
         let adres = document.getElementById('adres_budynku').value.trim() || 'Budynek_bez_adresu';
+        ostatniAdresPliku = adres;
         let surowaData = document.getElementById('data_czas').value;
         let dc = sformatujDateDoTekstu(surowaData) || surowaData;
         
@@ -1179,7 +1178,6 @@
             calyTekst += "Nie stwierdzono nieprawidłowości.\n\n";
         }
 
-        // Dopisywanie podpisów do pliku TXT
         calyTekst += `--- ZBIORCZE PODPISY LOKATORÓW ---\n`;
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
@@ -1187,7 +1185,6 @@
             calyTekst += `Podpis lokatora (Lokal nr ${nr}): [Podpis graficzny zatwierdzony w protokole]\n`;
         });
 
-        // Generowanie sekcji graficznej podpisów do podglądu i pliku HTML
         let htmlPodpisow = `<h4 style="color: #0d3880; margin-bottom: 5px; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">ZBIORCZE PODPISY LOKATORÓW:</h4>`;
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
@@ -1197,36 +1194,35 @@
             htmlPodpisow += `<div class="podpis-podsumowanie-item"><strong>Lokal nr ${nr}:</strong><br><img src="${canvas.toDataURL('image/png')}"></div>`;
         });
 
-        // Wstawienie tekstu i grafik do podglądu na ekranie
+        ostatniTekstTXT = calyTekst;
+        ostatniHtmlPodpisow = htmlPodpisow;
+
         document.getElementById('out_calosc').innerText = calyTekst;
         document.getElementById('out_grafiki_podpisow').innerHTML = htmlPodpisow;
 
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-
-        // Automatyczny pobór plików
-        pobierzPlikTxtAutomatycznie(calyTekst, adres);
-        pobierzPelnyDokumentHTMLAutomatycznie(calyTekst, htmlPodpisow, adres);
-        pobierzPlikJSONAutomatycznie();
     }
 
-    function pobierzPlikTxtAutomatycznie(tekst, adres) {
-        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '.txt';
-        let blob = new Blob([tekst], { type: "text/plain;charset=utf-8" });
+    function pobierzTxtRęcznie() {
+        if (!ostatniTekstTXT) { generujWszystko(); }
+        let bezpiecznaNazwa = ostatniAdresPliku.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '.txt';
+        let blob = new Blob([ostatniTekstTXT], { type: "text/plain;charset=utf-8" });
         let link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = bezpiecznaNazwa;
         link.click();
     }
 
-    function pobierzPelnyDokumentHTMLAutomatycznie(tekstDokumentu, htmlPodpisow, adres) {
-        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_KOMPLETNY_Z_PODPISAMI.html';
+    function pobierzHtmlRęcznie() {
+        if (!ostatniTekstTXT) { generujWszystko(); }
+        let bezpiecznaNazwa = ostatniAdresPliku.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_KOMPLETNY_Z_PODPISAMI.html';
         
         let htmlZawartosc = `<!DOCTYPE html>
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Protokół CEEB - ${adres}</title>
+<title>Protokół CEEB - ${ostatniAdresPliku}</title>
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.5; }
 h2 { color: #0d3880; border-bottom: 2px solid #0d3880; padding-bottom: 5px; }
@@ -1237,12 +1233,25 @@ pre { white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 14px; ba
 </head>
 <body>
 <h2>Protokół Kontroli Kominiarskiej CEEB</h2>
-<pre>${tekstDokumentu}</pre>
-<div>${htmlPodpisow}</div>
+<pre>${ostatniTekstTXT}</pre>
+<div>${ostatniHtmlPodpisow}</div>
 </body>
 </html>`;
 
         let blob = new Blob([htmlZawartosc], { type: "text/html;charset=utf-8" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = bezpiecznaNazwa;
+        link.click();
+    }
+
+    function pobierzJsonRęcznie() {
+        let stan = zbierzCalowityStan();
+        let tekst = JSON.stringify(stan, null, 2);
+        let adres = document.getElementById('adres_budynku').value.trim() || 'Protokol_CEEB';
+        let bezpiecznaNazwa = adres.replace(/[^a-zA-Z0-9żźćąęłóśźŻŹĆĄĘŁÓŚŚ -]/g, '_') + '_EDYCJA.json';
+        
+        let blob = new Blob([tekst], { type: "application/json;charset=utf-8" });
         let link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = bezpiecznaNazwa;
