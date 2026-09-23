@@ -34,10 +34,8 @@
         .tabs-nav { display: flex; gap: 5px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 6px; }
         .tab-btn { flex: 1; padding: 12px; background: #cbd5e1; border: none; font-weight: bold; font-size: 13px; border-radius: 4px; cursor: pointer; color: #334155; margin-top: 0; text-align: center; }
         .tab-btn.active { background: #0d3880; color: white; }
-        
-        /* Krytyczne poprawki widoczności zakładek */
         .tab-content { display: none; }
-        .tab-content.active { display: block !important; }
+        .tab-content.active { display: block; }
 
         canvas { border: 2px dashed #94a3b8; background: #f8fafc; width: 100%; height: 150px; border-radius: 4px; touch-action: none; cursor: crosshair; }
         .canvas-active { border: 2px solid #0d3880 !important; background: #fff !important; box-shadow: 0 0 8px rgba(13, 56, 128, 0.3); }
@@ -555,12 +553,8 @@
     function zmienZakladke(index) {
         let tabs = document.querySelectorAll('.tab-content');
         let btns = document.querySelectorAll('.tab-btn');
-        tabs.forEach((t, i) => { 
-            t.classList.toggle('active', i === index); 
-        });
-        btns.forEach((b, i) => { 
-            b.classList.toggle('active', i === index); 
-        });
+        tabs.forEach((t, i) => { t.classList.toggle('active', i === index); });
+        btns.forEach((b, i) => { b.classList.toggle('active', i === index); });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1077,6 +1071,16 @@
         let nas = document.getElementById('nasady').value;
         let uwagiWłasne = document.getElementById('uwagi_własne').value.trim();
 
+        let stanDrzwiczekTekst = `Stan drzwiczek kominowych: ${dzs}${dzg ? ' (' + dzg + ')' : ''}`;
+        if (dzs === 'zły' || dzs === 'brak') {
+            stanDrzwiczekTekst += "\nZe względu na niesprawność drzwiczek kominowych, nakazuje się bezzwłoczny demontaż uszkodzonych osłon. W ich miejsce należy prawidłowo i szczelnie obsadzić nowe, metalowe drzwiczki rewizyjne z podwójnym zamknięciem.";
+        }
+
+        let nasadyTekst = nas ? `Nasady kominowe: ${nas}` : '';
+        if (nas) {
+            nasadyTekst += "\nNiewłaściwe, nieatestowane nasady kominowe na wylotach przewodów kominowych: zdemontować lub wymienić na atestowane zgodnie z przeznaczeniem przewodów kominowych.";
+        }
+
         let calyTekst = `=== PROTOKÓŁ / KONTROLA KOMINIARSKA ===\n` +
                         `Adres budynku: ${adres}\n` +
                         `Data i godzina kontroli: ${dc}\n\n` +
@@ -1085,8 +1089,8 @@
                         `Dostęp do kontroli: ${dostepTekst}. ` + (lb ? `Nieudostępnione lokale do kontroli nr: ${lb}. ` : '') + `\n` +
                         `Stan kominów ponad dachem: ${sd}.\n` +
                         `Stan kominów na strychu: ${ss}.\n` +
-                        `Stan drzwiczek kominowych: ${dzs}${dzg ? ' (' + dzg + ')' : ''}.\n` +
-                        (nas ? `Nasady kominowe: ${nas}\n` : '');
+                        `${stanDrzwiczekTekst}.\n` +
+                        (nasadyTekst ? `${nasadyTekst}\n` : '');
 
         if (uwagiWłasne) {
             calyTekst += `\n--- DODATKOWE UWAGI ---\n${uwagiWłasne}\n`;
@@ -1133,29 +1137,28 @@
 
         calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
         let items = [];
-
-        let pelneOpisy = {
-            1: "1. Nakaz wymiany przewodu łączącego urządzenie grzewcze (kocioł CO/piec/kominek / podgrzewacz gazowy wody/kocioł gazowy) z przewodem kominowym na nowy, wykonany ze stali kwasoodpornej posiadający deklarację właściwości użytkowych (certyfikat CE).. Mieszkania nr: ",
-            2: "2. Nieszczelne podłączenie rury odprowadzającej spaliny. Nakazuje się bezzwłoczne i trwałe uszczelnienie połączeń rury spalinowej podgrzewacza/kotła z wlotem do komina. Dotyczy mieszkań nr: ",
-            3: "3. Stwierdzono zamontowanie na kratkach wentylacyjnych osłon (siatek przeciw owadom / żaluzji regulowanych), które powodują znaczne przewężenie strumienia powietrza lub całkowite zablokowanie odpływu wentylacji grawitacyjnej. Nakazuje się: Usunięcie (demontaż) siatek oraz żaluzji z kratek wentylacyjnych w celu przywrócenia pełnej powierzchni czynnej otworów wywiewnych. Mieszkania nr: ",
-            4: "4. Stwierdzono zamontowanie kratek wentylacyjnych o zbyt małych wymiarach, co ogranicza prawidłowy odpływ zużytego powietrza i zakłóca działanie wentylacji grawitacyjnej. Nakazuje się: Wymianę dotychczasowych kratek na nowe, o standardowych wymiarach 14 cm x 21 cm. Nowe kratki muszą być pozbawione elementów tłumiących przepływ, takich jak żaluzje zamykane czy siatki przeciw owadom.Nakaz dotyczy lokali: ",
-            5: "5. Ze względu na niedostateczną powierzchnię dopływu powietrza w drzwiach wewnętrznych, nakazuje się doprowadzenie skrzydeł drzwiowych do stanu zgodnego z przepisami techniczno-budowlanymi. W dolnej części drzwi do wskazanych pomieszczeń należy wykonać otwory lub zamontować kratkę o powierzchni czynnej min. 220 cm². Mieszkania nr: ",
-            6: "6. Stwierdzono niedozwolone podłączenie mechanicznego wyciągu do przewodu wentylacji grawitacyjnej. Działanie to zakłóca działanie wentylacji. Nakazuje się: Natychmiastowe zdemontowanie podłączenia wyciągu mechanicznego od kratki wentylacyjnej. Wentylacja grawitacyjna musi pozostać drożna i działać w sposób naturalny. Mieszkania nr: ",
-            7: "7. Brak drożności otworów wentylacyjnych. Stwierdzono zanieczyszczenie lub zasłonięcie (zatkanie) kratki wentylacyjnej, co całkowicie uniemożliwia prawidłowe działanie wentylacji grawitacyjnej i odpływ zużytego powietrza z lokalu. Nakazuje się: Oczyszczenie z nagromadzonego kurzu/tłuszczu lub całkowite usunięcie materiałów blokujących przepływ powietrza (np. papieru, gąbki, folii) z kratki wentylacyjnej w celu przywrócenia jej pełnej drożności. Lokale nr : ",
-            8: "8. Zabudowana rura łącząca piec, kocioł, podgrzewacz gazowy wody z kominem. Zdemontować zabudowę lub wykonać rewizję umożliwiającą dostęp do przewodu kominowego i sprawdzenia stanu rury przyłączeniowej . Mieszkania nr: ",
-            9: "9. Nieprawidłowy materiał i prowadzenie przewodów wentylacyjnych. Stwierdzono wykonanie instalacji wentylacyjnej z tworzywa sztucznego (rury PCV) oraz brak prawidłowego wyprowadzenia przewodu ponad konstrukcję dachu, co jest niezgodne z przepisami techniczno-budowlanymi. Nakazuje się: Demontaż instalacji z rur PCV i zastąpienie jej atestowanym, izolowanym termicznie przewodem stalowym, a następnie wyprowadzenie go ponad dach budynku na wysokość zgodną z Polską Normą (PN-B-03430), w celu zapewnienia prawidłowego ciągu grawitacyjnego i ochrony przed kondensacją wilgoci. Mieszkania nr: ",
-            10: "10. Wentylacja pomieszczenia została wykonana jako otwór wycięty na wylot w ścianie zewnętrznej budynku. Rozwiązanie to nie spełnia wymogów wentylacji grawitacyjnej – brak pionowego kanału uniemożliwia powstanie ciągu kominowego, powoduje intensywne wychładzanie pomieszczenia, skraplanie wilgoci na ścianach oraz podwiewanie zimnego powietrza z zewnątrz (ciąg wsteczny).Nakazane wykonanie: Wykonać i zamontować zewnętrzny pionowy przewód wentylacyjny z dwuściennych rur stalowych izolowanych termicznie i wyprowadzić ponad połać dachu zgodnie z obowiązującymi normami. Dotyczy lokali: ",
-            11: "11. Brak wentylacji w pomieszczeniu. Stwierdzono całkowity brak sprawnie działającej wentylacji we wskazanym pomieszczeniu, co uniemożliwia prawidłową wymianę powietrza . Nakazuje się: Wykonać sprawny układ wentylacyjny (zapewniający prawidłowy nawiew i wywiew powietrza), zgodnie z obowiązującymi przepisami techniczno-budowlanymi oraz sztuką budowlaną. Nakaz dotyczy lokali: ",
-            12: "12. Niedozwolona zabudowa urządzeń gazowych. Stwierdzono wykonanie stałej zabudowy meblowej urządzenia gazowego, co uniemożliwia swobodny dostęp w celu konserwacji, ogranicza wymaganą kubaturę pomieszczenia oraz odcina dopływ powietrza niezbędnego do prawidłowego procesu spalania. Nakazuje się: Całkowity demontaż zabudowy otaczającej urządzenie gazowe (kocioł c.o. / gazowy podgrzewacz wody) w celu przywrócenia pełnego, bezpiecznego dostępu oraz zapewnienia właściwej wentylacji wokół aparatu. Mieszkania nr: ",
-            13: "13. W związku ze stwierdzeniem obecności palnego osadu smolnego w przewodzie dymowym, nakazuje się wykonanie mechanicznego czyszczenia komina.. Dotyczy mieszkań nr: ",
-            14: "14. Stwierdzono brak lub niewystarczającą ilość powietrza nawiewnego, co uniemożliwia prawidłowe funkcjonowanie przewodów kominowych oraz urządzeń grzewczych. Nakazuje się: Zapewnić stały, całodobowy dopływ powietrza zewnętrznego niezbędnego do bezpiecznej pracy instalacji. Cel ten należy osiągnąć poprzez wykonanie wentylacji nawiewnej (np. montaż nawietrzaka w ścianie zewnętrznej) lub instalację nawiewników okiennych. Mieszkania nr: "
-        };
-
         for (let i = 1; i <= 14; i++) {
             let surowyTekst = document.getElementById('u' + i).value.trim();
             let val = rozwinięteSkrótyWTekście(surowyTekst);
             if (val) {
-                items.push(pelneOpisy[i] + val + ".");
+                let opisy = [
+                    "", 
+                    "1. Nakaz wymiany przewodu łączącego urządzenie grzewcze (kocioł CO/piec/kominek / podgrzewacz gazowy wody/kocioł gazowy) z przewodem kominowym na nowy, wykonany ze stali kwasoodpornej posiadający deklarację właściwości użytkowych (certyfikat CE).. Mieszkania nr: ",
+                    "2. Nieszczelne podłączenie rury odprowadzającej spaliny. Nakazuje się bezzwłoczne i trwałe uszczelnienie połączeń rury spalinowej podgrzewacza/kotła z wlotem do komina. Dotyczy mieszkań nr: ",
+                    "3. Stwierdzono zamontowanie na kratkach wentylacyjnych osłon (siatek przeciw owadom / żaluzji regulowanych), które powodują znaczne przewężenie strumienia powietrza lub całkowite zablokowanie odpływu wentylacji grawitacyjnej. Nakazuje się: Usunięcie (demontaż) siatek oraz żaluzji z kratek wentylacyjnych w celu przywrócenia pełnej powierzchni czynnej otworów wywiewnych. Mieszkania nr: ",
+                    "4. Stwierdzono zamontowanie kratek wentylacyjnych o zbyt małych wymiarach, co ogranicza prawidłowy odpływ zużytego powietrza i zakłóca działanie wentylacji grawitacyjnej. Nakazuje się: Wymianę dotychczasowych kratek na nowe, o standardowych wymiarach 14 cm x 21 cm. Nowe kratki muszą być pozbawione elementów tłumiących przepływ, takich jak żaluzje zamykane czy siatki przeciw owadom. Nakaz dotyczy lokali: ",
+                    "5. Ze względu na niedostateczną powierzchnię dopływu powietrza w drzwiach wewnętrznych, nakazuje się doprowadzenie skrzydeł drzwiowych do stanu zgodnego z przepisami techniczno-budowlanymi. W dolnej części drzwi do wskazanych pomieszczeń należy wykonać otwory lub zamontować kratkę o powierzchni czynnej min. 220 cm². Mieszkania nr: ",
+                    "6. Stwierdzono niedozwolone podłączenie mechanicznego wyciągu do przewodu wentylacji grawitacyjnej. Działanie to zakłóca działanie wentylacji. Nakazuje się: Natychmiastowe zdemontowanie podłączenia wyciągu mechanicznego od kratki wentylacyjnej. Wentylacja grawitacyjna musi pozostać drożna i działać w sposób naturalny. Mieszkania nr: ",
+                    "7. Brak drożności otworów wentylacyjnych. Stwierdzono zanieczyszczenie lub zasłonięcie (zatkanie) kratki wentylacyjnej, co całkowicie uniemożliwia prawidłowe działanie wentylacji grawitacyjnej i odpływ zużytego powietrza z lokalu. Nakazuje się: Oczyszczenie z nagromadzonego kurzu/tłuszczu lub całkowite usunięcie materiałów blokujących przepływ powietrza (np. papieru, gąbki, folii) z kratki wentylacyjnej w celu przywrócenia jej pełnej drożności. Lokale nr: ",
+                    "8. Zabudowana rura łącząca piec, kocioł, podgrzewacz gazowy wody z kominem. Zdemontować zabudowę lub wykonać rewizję umożliwiającą dostęp do przewodu kominowego i sprawdzenia stanu rury przyłączeniowej. Mieszkania nr: ",
+                    "9. Nieprawidłowy materiał i prowadzenie przewodów wentylacyjnych. Stwierdzono wykonanie instalacji wentylacyjnej z tworzywa sztucznego (rury PCV) oraz brak prawidłowego wyprowadzenia przewodu ponad konstrukcję dachu, co jest niezgodne z przepisami techniczno-budowlanymi.\nNakazuje się: Demontaż instalacji z rur PCV i zastąpienie jej atestowanym, izolowanym termicznie przewodem stalowym, a następnie wyprowadzenie go ponad dach budynku na wysokość zgodną z Polską Normą (PN-B-03430), w celu zapewnienia prawidłowego ciągu grawitacyjnego i ochrony przed kondensacją wilgoci. Mieszkania nr: ",
+                    "10. Wentylacja pomieszczenia została wykonana jako otwór wycięty na wylot w ścianie zewnętrznej budynku. Rozwiązanie to nie spełnia wymogów wentylacji grawitacyjnej – brak pionowego kanału uniemożliwia powstanie ciągu kominowego, powoduje intensywne wychładzanie pomieszczenia, skraplanie wilgoci na ścianach oraz podwiewanie zimnego powietrza z zewnątrz (ciąg wsteczny). Nakazane wykonanie: Wykonać i zamontować zewnętrzny pionowy przewód wentylacyjny z dwuściennych rur stalowych izolowanych termicznie i wyprowadzić ponad połać dachu zgodnie z obowiązującymi normami. Dotyczy lokali: ",
+                    "11. Brak wentylacji w pomieszczeniu. Stwierdzono całkowity brak sprawnie działającej wentylacji we wskazanym pomieszczeniu, co uniemożliwia prawidłową wymianę powietrza. Nakazuje się: Wykonać sprawny układ wentylacyjny (zapewniający prawidłowy nawiew i wywiew powietrza), zgodnie z obowiązującymi przepisami techniczno-budowlanymi oraz sztuką budowlaną. Nakaz dotyczy lokali: ",
+                    "12. Niedozwolona zabudowa urządzeń gazowych. Stwierdzono wykonanie stałej zabudowy meblowej urządzenia gazowego, co uniemożliwia swobodny dostęp w celu konserwacji, ogranicza wymaganą kubaturę pomieszczenia oraz odcina dopływ powietrza niezbędnego do prawidłowego procesu spalania.\nNakazuje się: Całkowity demontaż zabudowy otaczającej urządzenie gazowe (kocioł c.o. / gazowy podgrzewacz wody) w celu przywrócenia pełnego, bezpiecznego dostępu oraz zapewnienia właściwej wentylacji wokół aparatu. Mieszkania nr: ",
+                    "13. W związku ze stwierdzeniem obecności palnego osadu smolnego w przewodzie dymowym, nakazuje się wykonanie mechanicznego czyszczenia komina. Dotyczy mieszkań nr: ",
+                    "14. Stwierdzono brak lub niewystarczającą ilość powietrza nawiewnego, co uniemożliwia prawidłowe funkcjonowanie przewodów kominowych oraz urządzeń grzewczych.\nNakazuje się: Zapewnić stały, całodobowy dopływ powietrza zewnętrznego niezbędnego do bezpiecznej pracy instalacji. Cel ten należy osiągnąć poprzez wykonanie wentylacji nawiewnej (np. montaż nawietrzaka w ścianie zewnętrznej) lub instalację nawiewników okiennych. Mieszkania nr: "
+                ];
+                items.push(opisy[i] + val + ".");
             }
         }
 
@@ -1164,22 +1167,9 @@
             let u15_mieszkania = document.getElementById('u15_mieszkania').value.trim();
             let wpis15 = "15. Przewody dymowe są wyeksploatowane – stwierdzono ubytki i nieszczelności na długości trzonu kominowego. Wykonać tynkowanie odśrodkowe (szlamowanie) wnętrza przewodów dymowych przy użyciu atestowanej, żaroodpornej i mrozoodpornej masy uszczelniającej lub zamontować wkłady kominowe";
             if(u15_mieszkania) {
-                wpis15 += ". Mieszkania Nr. " + u15_mieszkania;
+                wpis15 += ". Mieszkania nr: " + u15_mieszkania;
             }
             items.push(wpis15 + ".");
-        }
-
-        let dzs = document.getElementById('drzwiczki_stan').value;
-        let dzg = document.getElementById('drzwiczki_gdzie').value.trim();
-        if(dzs === 'zły' || dzs === 'brak') {
-            let wpisDrzwiczki = "Drzwiczki Kominowe:\nZe względu na niesprawność drzwiczek kominowych" + (dzg ? " (" + dzg + ")" : "") + ", nakazuje się bezzwłoczny demontaż uszkodzonych osłon. W ich miejsce należy prawidłowo i szczelnie obsadzić nowe, metalowe drzwiczki rewizyjne z podwójnym zamknięciem.";
-            items.push(wpisDrzwiczki);
-        }
-
-        let nas = document.getElementById('nasady').value.trim();
-        if(nas) {
-            let wpisNasady = "Nasady kominowe:\nNiewłaściwe, nieatestowane nasady kominowe na wylotach przewodów kominowych (" + nas + "): zdemontować lub wymienić na atestowane zgodnie z przeznaczeniem przewodów kominowych.";
-            items.push(wpisNasady);
         }
 
         if(items.length > 0) {
