@@ -1135,7 +1135,7 @@
             calyTekst += `\n`;
         });
 
-        calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOSCI I NAKAZY ---\n`;
+        calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
         let items = [];
         for (let i = 1; i <= 14; i++) {
             let surowyTekst = document.getElementById('u' + i).value.trim();
@@ -1179,12 +1179,12 @@
             calyTekst += "Nie stwierdzono nieprawidłowości.\n\n";
         }
 
-        // Dodanie informacji o podpisach do pełnego tekstu TXT
+        // Dopisywanie sekcji podpisów do pliku tekstowego (TXT)
         calyTekst += `--- ZBIORCZE PODPISY LOKATORÓW ---\n`;
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
             let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
-            calyTekst += `[Podpis złożony dla Lokalu nr ${nr}]\n`;
+            calyTekst += `Podpis lokatora (Lokal nr ${nr}): [Złożono podpis graficzny w systemie]\n`;
         });
 
         let htmlPodpisow = `<h4 style="color: #0d3880; margin-bottom: 5px;">ZBIORCZE PODPISY LOKATORÓW:</h4>`;
@@ -1196,12 +1196,8 @@
             htmlPodpisow += `<div class="podpis-podsumowanie-item"><strong>Lokal nr ${nr}:</strong><br><img src="${canvas.toDataURL('image/png')}"></div>`;
         });
 
-        // Wyświetlenie całości w podglądzie ekranowym
-        document.getElementById('out_calosc').innerText = calyTekst + "\n" + Array.from(karty).map(k => {
-            let id = k.id.split('_')[2];
-            let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
-            return `Lokal nr ${nr}: [Podpis graficzny zapisany w pliku HTML/JSON]`;
-        }).join("\n");
+        // Wyświetlenie w podglądzie ekranowym
+        document.getElementById('out_calosc').innerText = calyTekst;
 
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
