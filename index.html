@@ -44,6 +44,9 @@
         .btn-usun-lokal-top { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 0; width: auto; }
         .btn-usun-lokal-top:hover { background: #b02a37; }
 
+        . urzadzenie-item { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px; border-radius: 4px; margin-bottom: 8px; position: relative; }
+        .btn-usun-urz { background: #dc3545; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 3px; cursor: pointer; float: right; margin-top: -2px; }
+
         /* Pływająca listwa skrótów nad polem */
         .skroty-popup {
             display: none;
@@ -585,6 +588,8 @@
         document.getElementById('p_spa').value = sumaSpa;
     }
 
+    let licznikUrządzeńGlobal = 0;
+
     function dodajLokal(daneLokalu = null) {
         licznikLokali++;
         let id = licznikLokali;
@@ -599,8 +604,55 @@
             <label style="font-size: 12px; margin-bottom: 4px;">Lokal / Mieszkanie nr:</label>
             <input type="text" id="l_nr_${id}" placeholder="np. 12" oninput="aktualizujEtykietyLokali(); zapiszStan();" style="margin-bottom: 8px;" value="${daneLokalu ? (daneLokalu.nr || '') : ''}">
 
-            <label style="font-size: 12px; margin-bottom: 4px;">Urządzenie grzewcze w lokalu:</label>
-            <select id="l_urz_${id}" onchange="zmienTypUrzadzenia(${id}); zapiszStan();" style="margin-bottom: 8px;">
+            <label style="font-size: 12px; margin-bottom: 4px; font-weight: bold; color: #0d3880;">Urządzenia grzewcze w lokalu:</label>
+            <div id="kontener_urzadzen_${id}"></div>
+            <button type="button" onclick="dodajUrzadzenieDoLokalu(${id}); zapiszStan();" style="background: #0d3880; padding: 8px; font-size: 12px; margin-bottom: 8px; margin-top: 0;">+ Dodaj kolejne urządzenie</button>
+
+            <label style="font-size: 12px; margin-bottom: 4px;">Ilość podłączeń do kominów w lokalu:</label>
+            <div class="grid-3" style="margin-bottom: 8px;">
+                <div><label style="font-size:10px;">Wentylacyjne</label><input type="number" id="l_wen_${id}" value="${daneLokalu ? (daneLokalu.wen !== undefined ? daneLokalu.wen : '') : ''}" placeholder="" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
+                <div><label style="font-size:10px;">Dymowe</label><input type="number" id="l_dym_${id}" value="${daneLokalu ? (daneLokalu.dym !== undefined ? daneLokalu.dym : '') : ''}" placeholder="" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
+                <div><label style="font-size:10px;">Spalinowe</label><input type="number" id="l_spa_${id}" value="${daneLokalu ? (daneLokalu.spa !== undefined ? daneLokalu.spa : '') : ''}" placeholder="" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
+            </div>
+
+            <label style="font-size: 12px; margin-bottom: 4px;">Uwagi / notatki dla tego lokalu:</label>
+            <textarea id="l_uwagi_${id}" rows="2" placeholder="Wpisz uwagi..." oninput="zapiszStan()" style="margin-bottom: 8px;">${daneLokalu ? (daneLokalu.uwagi || '') : ''}</textarea>
+
+            <label style="font-size: 12px; margin-bottom: 4px;">Podpis lokatora (narysuj palcem):</label>
+            <canvas id="canvas_${id}"></canvas>
+            
+            <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
+            <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
+        `;
+        document.getElementById('kontener_lokali').appendChild(divLokal);
+
+        let kontenerUrz = document.getElementById('kontener_urzadzen_' + id);
+        if (daneLokalu && daneLokalu.urzadzenia && daneLokalu.urzadzenia.length > 0) {
+            daneLokalu.urzadzenia.forEach(u => {
+                dodajUrzadzenieDoLokalu(id, u);
+            });
+        } else {
+            // Dodaj jedno domyślne urządzenie startowe
+            dodajUrzadzenieDoLokalu(id);
+        }
+
+        inicjalizujCanvas(id, daneLokalu ? daneLokalu.canvasData : null, daneLokalu ? daneLokalu.zatwierdzony : false);
+        aktualizujEtykietyLokali();
+        przeliczSumePrzewodow();
+    }
+
+    function dodajUrzadzenieDoLokalu(lokalId, daneUrz = null) {
+        licznikUrządzeńGlobal++;
+        let urzId = licznikUrządzeńGlobal;
+
+        let kontener = document.getElementById('kontener_urzadzen_' + lokalId);
+        let divUrz = document.createElement('div');
+        divUrz.className = 'urzadzenie-item';
+        divUrz.id = 'urz_item_' + urzId;
+        divUrz.innerHTML = `
+            <button type="button" class="btn-usun-urz" onclick="usunUrzadzenieZLokalu(${urzId}, ${lokalId})">Usuń</button>
+            <label style="font-size: 11px; margin-bottom: 2px;">Urządzenie:</label>
+            <select id="u_typ_${urzId}" onchange="zmienTypUrzadzeniaWew(${urzId}); zapiszStan();" style="margin-bottom: 6px; font-size: 13px; padding: 6px;">
                 <option value="">-- Wybierz urządzenie --</option>
                 <option value="Kocioł CO na opał stały">Kocioł CO na opał stały</option>
                 <option value="Kominek">Kominek</option>
@@ -614,55 +666,52 @@
                 <option value="Brak urządzenia / Tylko wentylacja">Brak urządzenia / Tylko wentylacja</option>
             </select>
 
-            <div id="opcje_kotla_${id}" style="background: #eef2f6; padding: 8px; border-radius: 4px; margin-bottom: 8px; display:none;">
-                <div id="kontener_wentylator_${id}" style="margin-bottom: 6px; display:none;">
-                    <label style="font-size:11px;">Wentylator w kotle:</label>
-                    <select id="l_wentylator_${id}" onchange="zapiszStan()" style="font-size: 13px;">
+            <div id="u_opcje_box_${urzId}" style="background: #fff; padding: 6px; border-radius: 4px; border: 1px solid #ddd; display:none;">
+                <div id="u_went_box_${urzId}" style="margin-bottom: 4px; display:none;">
+                    <label style="font-size:10px;">Wentylator w kotle:</label>
+                    <select id="u_went_${urzId}" onchange="zapiszStan()" style="font-size: 12px; padding: 4px;">
                         <option value="bez wentylatora">Bez wentylatora (grawitacyjny)</option>
                         <option value="z wentylatorem">Z wentylatorem</option>
                     </select>
                 </div>
-                <label style="font-size:11px;">Funkcja układu grzewczego:</label>
-                <select id="l_funkcja_${id}" onchange="zapiszStan()" style="font-size: 13px;"></select>
+                <label style="font-size:10px;">Funkcja układu grzewczego:</label>
+                <select id="u_funkcja_${urzId}" onchange="zapiszStan()" style="font-size: 12px; padding: 4px;"></select>
             </div>
-
-            <label style="font-size: 12px; margin-bottom: 4px;">Ilość podłączeń do kominów w lokalu:</label>
-            <div class="grid-3" style="margin-bottom: 8px;">
-                <div><label style="font-size:10px;">Wentylacyjne</label><input type="number" id="l_wen_${id}" value="${daneLokalu ? (daneLokalu.wen !== undefined ? daneLokalu.wen : '') : ''}" placeholder="" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
-                <div><label style="font-size:10px;">Dymowe</label><input type="number" id="l_dym_${id}" value="${daneLokalu ? (daneLokalu.dym !== undefined ? daneLokalu.dym : '') : ''}" placeholder="" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
-                <div><label style="font-size:10px;">Spalinowe</label><input type="number" id="l_spa_${id}" value="${daneLokalu ? (daneLokalu.spa !== undefined ? daneLokalu.spa : '') : ''}" placeholder="" oninput="przeliczSumePrzewodow(); zapiszStan();"></div>
-            </div>
-
-            <label style="font-size: 12px; margin-bottom: 4px;">Podpis lokatora (narysuj palcem):</label>
-            <canvas id="canvas_${id}"></canvas>
-            
-            <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
-            <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
         `;
-        document.getElementById('kontener_lokali').appendChild(divLokal);
+        kontener.appendChild(divUrz);
 
-        if (daneLokalu && daneLokalu.urz) document.getElementById('l_urz_' + id).value = daneLokalu.urz;
-        zmienTypUrzadzenia(id, !daneLokalu);
-        if (daneLokalu && daneLokalu.wentylator) document.getElementById('l_wentylator_' + id).value = daneLokalu.wentylator;
-        if (daneLokalu && daneLokalu.funkcja) document.getElementById('l_funkcja_' + id).value = daneLokalu.funkcja;
-
-        inicjalizujCanvas(id, daneLokalu ? daneLokalu.canvasData : null, daneLokalu ? daneLokalu.zatwierdzony : false);
-        aktualizujEtykietyLokali();
-        przeliczSumePrzewodow();
+        if (daneUrz && daneUrz.typ) {
+            document.getElementById('u_typ_' + urzId).value = daneUrz.typ;
+        }
+        zmienTypUrzadzeniaWew(urzId, !daneUrz);
+        if (daneUrz && daneUrz.wentylator) {
+            let wInput = document.getElementById('u_went_' + urzId);
+            if(wInput) wInput.value = daneUrz.wentylator;
+        }
+        if (daneUrz && daneUrz.funkcja) {
+            let fInput = document.getElementById('u_funkcja_' + urzId);
+            if(fInput) fInput.value = daneUrz.funkcja;
+        }
     }
 
-    function zmienTypUrzadzenia(id, ustawDomyslne = false) {
-        let urz = document.getElementById('l_urz_' + id).value;
-        let opcjeKotla = document.getElementById('opcje_kotla_' + id);
-        let kontenerWentylator = document.getElementById('kontener_wentylator_' + id);
-        let funkcjaSelect = document.getElementById('l_funkcja_' + id);
+    function usunUrzadzenieZLokalu(urzId, lokalId) {
+        let el = document.getElementById('urz_item_' + urzId);
+        if(el) el.remove();
+        zapiszStan();
+    }
+
+    function zmienTypUrzadzeniaWew(urzId, ustawDomyslne = false) {
+        let urz = document.getElementById('u_typ_' + urzId).value;
+        let opcjeBox = document.getElementById('u_opcje_box_' + urzId);
+        let wentBox = document.getElementById('u_went_box_' + urzId);
+        let funkcjaSelect = document.getElementById('u_funkcja_' + urzId);
         
-        if(opcjeKotla) {
+        if(opcjeBox) {
             let maOpcje = (urz === "Kocioł CO na opał stały" || urz === "Kominek" || urz === "Trzon kuchenny" || urz === "Kocioł gazowy" || urz === "Pompa ciepła" || urz === "Ogrzewanie elektryczne");
-            opcjeKotla.style.display = maOpcje ? 'block' : 'none';
+            opcjeBox.style.display = maOpcje ? 'block' : 'none';
             
-            if(kontenerWentylator) {
-                kontenerWentylator.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
+            if(wentBox) {
+                wentBox.style.display = (urz === "Kocioł CO na opał stały") ? 'block' : 'none';
             }
 
             if(funkcjaSelect) {
@@ -685,7 +734,7 @@
 
                 if (ustawDomyslne && maOpcje) {
                     funkcjaSelect.value = "CO + CWU";
-                    let wentInput = document.getElementById('l_wentylator_' + id);
+                    let wentInput = document.getElementById('u_went_' + urzId);
                     if(wentInput && urz === "Kocioł CO na opał stały") wentInput.value = "bez wentylatora";
                 } else if(staraWartosc) {
                     funkcjaSelect.value = staraWartosc;
@@ -840,14 +889,24 @@
         karty.forEach(k => {
             let id = k.id.split('_')[2];
             let canvas = document.getElementById('canvas_' + id);
+            
+            let urzList = [];
+            let urzItems = k.querySelectorAll('.urzadzenie-item');
+            urzItems.forEach(ui => {
+                let uId = ui.id.split('_')[2];
+                let typVal = document.getElementById('u_typ_' + uId) ? document.getElementById('u_typ_' + uId).value : '';
+                let wentVal = document.getElementById('u_went_' + uId) ? document.getElementById('u_went_' + uId).value : '';
+                let funkcjaVal = document.getElementById('u_funkcja_' + uId) ? document.getElementById('u_funkcja_' + uId).value : '';
+                urzList.push({ typ: typVal, wentylator: wentVal, funkcja: funkcjaVal });
+            });
+
             stan.lokale.push({
                 nr: document.getElementById('l_nr_' + id).value,
-                urz: document.getElementById('l_urz_' + id).value,
-                wentylator: document.getElementById('l_wentylator_' + id) ? document.getElementById('l_wentylator_' + id).value : '',
-                funkcja: document.getElementById('l_funkcja_' + id) ? document.getElementById('l_funkcja_' + id).value : '',
+                urzadzenia: urzList,
                 wen: document.getElementById('l_wen_' + id).value,
                 dym: document.getElementById('l_dym_' + id).value,
                 spa: document.getElementById('l_spa_' + id).value,
+                uwagi: document.getElementById('l_uwagi_' + id) ? document.getElementById('l_uwagi_' + id).value : '',
                 canvasData: canvas ? canvas.toDataURL('image/png') : null,
                 zatwierdzony: zatwierdzoneStan[id] || false
             });
@@ -1030,22 +1089,38 @@
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
             let nr = document.getElementById('l_nr_' + id).value || 'Brak numeru';
-            let urz = document.getElementById('l_urz_' + id).value || 'Brak wybranego urządzenia';
             let w = document.getElementById('l_wen_' + id).value || '0';
             let d = document.getElementById('l_dym_' + id).value || '0';
             let s = document.getElementById('l_spa_' + id).value || '0';
+            let uwagiLokalowe = document.getElementById('l_uwagi_' + id) ? document.getElementById('l_uwagi_' + id).value.trim() : '';
 
-            let szczegolyUrz = urz;
-            if(urz === "Kocioł CO na opał stały") {
-                let went = document.getElementById('l_wentylator_' + id).value;
-                let funkcja = document.getElementById('l_funkcja_' + id).value;
-                szczegolyUrz += ` (${went}, funkcja: ${funkcja})`;
-            } else if(urz === "Kominek" || urz === "Trzon kuchenny" || urz === "Kocioł gazowy" || urz === "Pompa ciepła" || urz === "Ogrzewanie elektryczne") {
-                let funkcja = document.getElementById('l_funkcja_' + id).value;
-                szczegolyUrz += ` (funkcja: ${funkcja})`;
+            calyTekst += `• Lokal nr ${nr}\n`;
+            
+            let urzItems = karta.querySelectorAll('.urzadzenie-item');
+            if(urzItems.length > 0) {
+                calyTekst += `  - Urządzenia grzewcze:\n`;
+                urzItems.forEach(ui => {
+                    let uId = ui.id.split('_')[2];
+                    let typ = document.getElementById('u_typ_' + uId) ? document.getElementById('u_typ_' + uId).value : '';
+                    if(!typ) return;
+                    let szczegoly = typ;
+                    if(typ === "Kocioł CO na opał stały") {
+                        let went = document.getElementById('u_went_' + uId).value;
+                        let funkcja = document.getElementById('u_funkcja_' + uId).value;
+                        szczegoly += ` (${went}, funkcja: ${funkcja})`;
+                    } else if(typ === "Kominek" || typ === "Trzon kuchenny" || typ === "Kocioł gazowy" || typ === "Pompa ciepła" || typ === "Ogrzewanie elektryczne") {
+                        let funkcja = document.getElementById('u_funkcja_' + uId).value;
+                        szczegoly += ` (funkcja: ${funkcja})`;
+                    }
+                    calyTekst += `    * ${szczegoly}\n`;
+                });
             }
 
-            calyTekst += `• Lokal nr ${nr}\n  - Urządzenie grzewcze: ${szczegolyUrz}\n  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n\n`;
+            calyTekst += `  - Podłączenia: Wentylacyjne: ${w}, Dymowe: ${d}, Spalinowe: ${s}\n`;
+            if(uwagiLokalowe) {
+                calyTekst += `  - Uwagi lokalu: ${uwagiLokalowe}\n`;
+            }
+            calyTekst += `\n`;
         });
 
         calyTekst += `--- STWIERDZONE NIEPRAWIDŁOWOŚCI I NAKAZY ---\n`;
