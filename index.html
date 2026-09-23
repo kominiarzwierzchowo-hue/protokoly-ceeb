@@ -37,9 +37,9 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        canvas { border: 2px dashed #0d3880; background: #fff; width: 100%; height: 150px; border-radius: 4px; touch-action: none; cursor: crosshair; }
+        canvas { border: 2px dashed #94a3b8; background: #f8fafc; width: 100%; height: 150px; border-radius: 4px; touch-action: none; cursor: crosshair; }
+        .canvas-active { border: 2px solid #0d3880 !important; background: #fff !important; box-shadow: 0 0 8px rgba(13, 56, 128, 0.3); }
         .lokal-card { background: #fff; border: 2px solid #0d3880; padding: 12px; margin-bottom: 12px; border-radius: 6px; position: relative; }
-        .locked-canvas { background: #e2e8f0; border-color: #64748b; cursor: not-allowed; }
         
         .btn-usun-lokal-top { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 0; width: auto; }
         .btn-usun-lokal-top:hover { background: #b02a37; }
@@ -268,6 +268,7 @@
 
 <script>
     let licznikLokali = 0;
+    let trybRysowaniaAktywny = {};
     let zatwierdzoneStan = {};
     let aktualneIdHistorii = null;
     const KLUCZ_ROBOCZY = 'protokol_ceeb_aktualnie_pisany';
@@ -581,6 +582,7 @@
     function dodajLokal(daneLokalu = null) {
         licznikLokali++;
         let id = licznikLokali;
+        trybRysowaniaAktywny[id] = false;
 
         let divLokal = document.createElement('div');
         divLokal.className = 'lokal-card';
@@ -606,11 +608,14 @@
             <label style="font-size: 12px; margin-bottom: 4px;">Uwagi / notatki dla tego lokalu:</label>
             <textarea id="l_uwagi_${id}" rows="2" placeholder="Wpisz uwagi..." oninput="zapiszStan()" style="margin-bottom: 8px;">${daneLokalu ? (daneLokalu.uwagi || '') : ''}</textarea>
 
-            <label style="font-size: 12px; margin-bottom: 4px;">Podpis lokatora (narysuj palcem):</label>
-            <canvas id="canvas_${id}"></canvas>
-            
-            <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 10px; font-size: 13px; margin-top: 8px;">Wyczyść podpis</button>
-            <button type="button" id="btn_zatwierdz_${id}" onclick="zatwierdzPodpis(${id})" class="btn-success" style="padding: 10px; font-size: 13px; margin-top: 6px;">Zatwierdź podpis (Zablokuj zmianę)</button>
+            <div style="background: #eef2f6; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 10px;">
+                <label style="font-size: 12px; margin-bottom: 6px; color: #0d3880;">Podpis lokatora:</label>
+                <canvas id="canvas_${id}"></canvas>
+                <div style="display: flex; gap: 6px; margin-top: 8px;">
+                    <button type="button" id="btn_tryb_rysowania_${id}" onclick="przelaczTrybRysowania(${id})" style="background: #0d3880; padding: 8px; font-size: 12px; margin-top: 0; flex: 1;">✍️ Rysuj podpis</button>
+                    <button type="button" onclick="wyczyscPodpis(${id})" style="background: #6c757d; padding: 8px; font-size: 12px; margin-top: 0; width: auto;">Wyczyść</button>
+                </div>
+            </div>
         `;
         document.getElementById('kontener_lokali').appendChild(divLokal);
 
@@ -779,10 +784,9 @@
 
         if (isLocked) {
             zatwierdzoneStan[id] = true;
-            canvas.classList.add('locked-canvas');
-            let btn = document.getElementById('btn_zatwierdz_' + id);
+            let btn = document.getElementById('btn_tryb_rysowania_' + id);
             if (btn) {
-                btn.innerText = "Odblokuj podpis (Edytuj)";
+                btn.innerText = "🔒 Podpis zatwierdzony (Kliknij, aby edytować)";
                 btn.style.background = "#d97706";
             }
         }
@@ -794,44 +798,53 @@
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
-        canvas.onmousedown = (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
-        canvas.onmousemove = (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
+        canvas.onmousedown = (e) => { if(!trybRysowaniaAktywny[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
+        canvas.onmousemove = (e) => { if (!isDrawing || !trybRysowaniaAktywny[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
         canvas.onmouseup = () => { if(isDrawing) { isDrawing = false; zapiszStan(); } };
         canvas.onmouseleave = () => { if(isDrawing) { isDrawing = false; zapiszStan(); } };
 
-        canvas.ontouchstart = (e) => { if(zatwierdzoneStan[id]) return; isDrawing = true; let pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); e.preventDefault(); };
-        canvas.ontouchmove = (e) => { if (!isDrawing || zatwierdzoneStan[id]) return; let pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); e.preventDefault(); };
+        canvas.ontouchstart = (e) => { 
+            if(!trybRysowaniaAktywny[id]) return; 
+            isDrawing = true; 
+            let pos = getPos(e); 
+            ctx.beginPath(); 
+            ctx.moveTo(pos.x, pos.y); 
+            e.preventDefault(); 
+        };
+        canvas.ontouchmove = (e) => { 
+            if (!isDrawing || !trybRysowaniaAktywny[id]) return; 
+            let pos = getPos(e); 
+            ctx.lineTo(pos.x, pos.y); 
+            ctx.stroke(); 
+            e.preventDefault(); 
+        };
         canvas.ontouchend = () => { if(isDrawing) { isDrawing = false; zapiszStan(); } };
     }
 
-    function wyczyscPodpis(id) {
-        if(zatwierdzoneStan[id]) {
-            alert("Podpis jest zatwierdzony i zablokowany. Kliknij najpierw 'Odblokuj podpis'.");
-            return;
+    function przelaczTrybRysowania(id) {
+        let canvas = document.getElementById('canvas_' + id);
+        let btn = document.getElementById('btn_tryb_rysowania_' + id);
+        
+        trybRysowaniaAktywny[id] = !trybRysowaniaAktywny[id];
+        
+        if (trybRysowaniaAktywny[id]) {
+            canvas.classList.add('canvas-active');
+            btn.innerText = "✅ Gotowe (Zablokuj rysowanie)";
+            btn.style.background = "#28a745";
+        } else {
+            canvas.classList.remove('canvas-active');
+            zatwierdzoneStan[id] = true;
+            btn.innerText = "✍️ Rysuj podpis (Odblokuj)";
+            btn.style.background = "#0d3880";
         }
+        zapiszStan();
+    }
+
+    function wyczyscPodpis(id) {
         let canvas = document.getElementById('canvas_' + id);
         if(!canvas) return;
         let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        zapiszStan();
-    }
-
-    function zatwierdzPodpis(id) {
-        let btn = document.getElementById('btn_zatwierdz_' + id);
-        let canvas = document.getElementById('canvas_' + id);
-        if(!canvas || !btn) return;
-        
-        if(!zatwierdzoneStan[id]) {
-            zatwierdzoneStan[id] = true;
-            canvas.classList.add('locked-canvas');
-            btn.innerText = "Odblokuj podpis (Edytuj)";
-            btn.style.background = "#d97706";
-        } else {
-            zatwierdzoneStan[id] = false;
-            canvas.classList.remove('locked-canvas');
-            btn.innerText = "Zatwierdź podpis (Zablokuj zmianę)";
-            btn.style.background = "#28a745";
-        }
         zapiszStan();
     }
 
@@ -942,6 +955,7 @@
         document.getElementById('kontener_lokali').innerHTML = '';
         licznikLokali = 0;
         zatwierdzoneStan = {};
+        trybRysowaniaAktywny = {};
 
         if (stan.lokale && stan.lokale.length > 0) {
             stan.lokale.forEach(l => { dodajLokal(l); });
@@ -991,6 +1005,7 @@
             document.getElementById('kontener_lokali').innerHTML = '';
             licznikLokali = 0;
             zatwierdzoneStan = {};
+            trybRysowaniaAktywny = {};
             
             document.querySelectorAll('input[type="text"], textarea, input[type="number"]').forEach(el => {
                 if(!el.readOnly && el.id !== 'lista_historii_select') {
