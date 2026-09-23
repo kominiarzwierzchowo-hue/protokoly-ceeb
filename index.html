@@ -24,7 +24,7 @@
         .output-box { margin-top: 10px; background: #eef3fc; border: 1px solid #b2c8f0; padding: 12px; border-radius: 5px; }
         .output-text { white-space: pre-wrap; font-size: 12px; line-height: 1.4; word-break: break-word; }
         .btn-copy { background: #28a745; margin-top: 8px; padding: 10px; font-size: 14px; }
-        .btn-red { background: #dc3545; margin-top: 8px; }
+        .btn-red { background: #dc3545; margin-top: 12px; font-size: 16px; padding: 16px; }
         .btn-warning { background: #6c757d; margin-top: 10px; }
         .btn-pobierz { background: #17a2b8; margin-top: 6px; padding: 10px; font-size: 13px; font-weight: bold; }
         
@@ -247,9 +247,12 @@
                 <div id="out_calosc" class="output-text"></div>
                 <div id="out_grafiki_podpisow" style="margin-top: 15px;"></div>
                 
-                <h4 style="color: #0d3880; margin-top: 15px; border-top: 1px solid #ccc; padding-top: 8px;">Pobieranie plików na urządzenie:</h4>
-                <button type="button" class="btn-pobierz" onclick="pobierzTxtRęcznie()">📄 Pobierz plik tekstowy (.txt) dla zarządcy</button>
-                <button type="button" class="btn-pobierz" onclick="pobierzHtmlRęcznie()" style="background: #28a745;">🖼️ Pobierz plik HTML z grafikami podpisów</button>
+                <!-- CZERWONY PRZYCISK POBIERZ WSZYSTKO -->
+                <button type="button" class="btn-red" onclick="pobierzWszystkoNaraz()">📥 POBIERZ WSZYSTKO NARAZ (TXT, HTML, JSON)</button>
+
+                <h4 style="color: #0d3880; margin-top: 15px; border-top: 1px solid #ccc; padding-top: 8px;">Lub pobierz pojedyncze pliki:</h4>
+                <button type="button" class="btn-pobierz" onclick="pobierzTxtRęcznie()">📄 Pobierz plik tekstowy (.txt)</button>
+                <button type="button" class="btn-pobierz" onclick="pobierzHtmlRęcznie()" style="background: #28a745;">🖼️ Pobierz plik HTML z grafikami</button>
                 <button type="button" class="btn-pobierz" onclick="pobierzJsonRęcznie()" style="background: #6c757d;">💾 Pobierz plik edycji (.json)</button>
                 
                 <button class="btn-copy" onclick="kopiujCaloscTekst()">Kopiuj cały tekst dokumentu do schowka</button>
@@ -1202,6 +1205,23 @@
 
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function pobierzWszystkoNaraz() {
+        if (!ostatniTekstTXT) { generujWszystko(); }
+        
+        // Pobierz TXT
+        pobierzTxtRęcznie();
+        
+        // Pobierz HTML z opóźnieniem 400ms żeby przeglądarka nie zablokowała
+        setTimeout(() => {
+            pobierzHtmlRęcznie();
+        }, 400);
+
+        // Pobierz JSON z opóźnieniem 800ms
+        setTimeout(() => {
+            pobierzJsonRęcznie();
+        }, 800);
     }
 
     function pobierzTxtRęcznie() {
