@@ -88,7 +88,7 @@
     <h1>Generator CEEB - Kominiarz</h1>
 
     <div class="edit-load-box">
-        <label style="font-size: 13px; margin-bottom: 6px; color: #0d3880; font-weight: bold;">📁 Edytuj zapisany protokół z historii:</label>
+        <label style="font-size: 13px; margin-bottom: 6px; color: #0d3880; font-weight: bold;">📁 Edytuj zapisany protokół z historii / Wgraj plik edycji JSON:</label>
         <select id="lista_historii_select" onchange="wczytajWybranyZHistorii()" style="margin-bottom: 8px; background: #fff;">
             <option value="">-- Wybierz protokół z listy do edycji --</option>
         </select>
@@ -1179,7 +1179,7 @@
             calyTekst += "Nie stwierdzono nieprawidłowości.\n\n";
         }
 
-        // Dopisywanie sekcji podpisów do pliku tekstowego (TXT)
+        // Dopisywanie informacji o podpisach do pliku tekstowego (TXT)
         calyTekst += `--- ZBIORCZE PODPISY LOKATORÓW ---\n`;
         karty.forEach((karta) => {
             let id = karta.id.split('_')[2];
@@ -1196,9 +1196,7 @@
             htmlPodpisow += `<div class="podpis-podsumowanie-item"><strong>Lokal nr ${nr}:</strong><br><img src="${canvas.toDataURL('image/png')}"></div>`;
         });
 
-        // Wyświetlenie w podglądzie ekranowym
         document.getElementById('out_calosc').innerText = calyTekst;
-
         document.getElementById('wynik_sekcja').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
