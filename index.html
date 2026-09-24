@@ -247,8 +247,8 @@
                 <div id="out_calosc" class="output-text"></div>
                 <div id="out_grafiki_podpisow" style="margin-top: 15px;"></div>
                 
-                <!-- CZERWONY PRZYCISK POBIERZ WSZYSTKO -->
-                <button type="button" class="btn-red" onclick="pobierzWszystkoNaraz()">📥 POBIERZ WSZYSTKO NARAZ (TXT, HTML, JSON)</button>
+                <!-- CZERWONY PRZYCISK POBIERZ WSZYSTKO SEKWENCYJNIE -->
+                <button type="button" class="btn-red" onclick="pobierzWszystkoPoKolei()">📥 POBIERZ WSZYSTKO (CO SEKUNDĘ KOLEJNY PLIK)</button>
 
                 <h4 style="color: #0d3880; margin-top: 15px; border-top: 1px solid #ccc; padding-top: 8px;">Lub pobierz pojedyncze pliki:</h4>
                 <button type="button" class="btn-pobierz" onclick="pobierzTxtRęcznie()">📄 Pobierz plik tekstowy (.txt)</button>
@@ -1207,21 +1207,21 @@
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
-    function pobierzWszystkoNaraz() {
+    function pobierzWszystkoPoKolei() {
         if (!ostatniTekstTXT) { generujWszystko(); }
         
-        // Pobierz TXT
+        // 1. Pobierz plik TXT natychmiast
         pobierzTxtRęcznie();
         
-        // Pobierz HTML z opóźnieniem 400ms żeby przeglądarka nie zablokowała
+        // 2. Pobierz plik HTML po 1,2 sekundy
         setTimeout(() => {
             pobierzHtmlRęcznie();
-        }, 400);
+        }, 1200);
 
-        // Pobierz JSON z opóźnieniem 800ms
+        // 3. Pobierz plik JSON po 2,4 sekundy
         setTimeout(() => {
             pobierzJsonRęcznie();
-        }, 800);
+        }, 2400);
     }
 
     function pobierzTxtRęcznie() {
